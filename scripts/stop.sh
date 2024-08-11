@@ -11,7 +11,7 @@ NC='\033[0m' # No Color
 SERVICE_PID=$(pgrep -f $JAR) # 실행중인 Spring 서버의 PID
 
 if [ -z "$SERVICE_PID" ]; then
-  echo -e "${RED}서비스 NotFound${NC}" >> $STOP_LOG
+  echo -e "${RED}서비스 Not Found${NC}" >> $STOP_LOG
 else
   echo -e "${GREEN}서비스 종료${NC}" >> $STOP_LOG
   kill "$SERVICE_PID"
