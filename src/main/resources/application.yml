@@ -2,12 +2,30 @@ spring:
   application:
     name: pq
   datasource:
-    url: jdbc:mysql://localhost:3306/pq
-    username: pq_root
-    password: 123123
+    url: jdbc:mysql://localhost:3306/chunsik_db
+    username: carter
+    password: carter
   jpa:
     hibernate:
       ddl-auto: update
     properties:
       hibernate:
         dialect: org.hibernate.dialect.MySQLDialect
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: kdg870918@gmail.com
+    password: pmxaaqtxhynfslpa
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+            required: true
+          connectiontimeout: 5000
+          timeout: 5000
+          writetimeout: 5000
+auth-code-expiration-millis: 180000
+server:
+  port: 8080
