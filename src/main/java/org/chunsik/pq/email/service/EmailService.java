@@ -1,5 +1,6 @@
 package org.chunsik.pq.email.service;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.chunsik.pq.email.model.EmailConfirm;
 import org.chunsik.pq.email.repository.EmailConfirmRepository;
 import org.chunsik.pq.email.util.AESUtil;
@@ -8,12 +9,19 @@ import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.Optional;
-import java.util.Random;
+import java.util.random.RandomGenerator;
+import java.util.random.RandomGeneratorFactory;
 
 @Service
 public class EmailService {
+
+    @Value("${auth-code-expiration-millis}")
+    private long authCodeExpirationMillis;
+
+    private final RandomGenerator randomGenerator = RandomGeneratorFactory.of("Random").create();
 
     @Autowired
     private JavaMailSender mailSender;
@@ -59,8 +67,7 @@ public class EmailService {
     }
 
     private String generateVerificationCode() {
-        Random random = new Random();
-        int code = 100000 + random.nextInt(900000); // 6자리 난수 생성
+        int code = randomGenerator.nextInt(900000) + 100000; // 6자리 난수 생성
         return String.valueOf(code);
     }
 
@@ -70,11 +77,19 @@ public class EmailService {
 
         if (emailConfirmOpt.isPresent()) {
             EmailConfirm emailConfirm = emailConfirmOpt.get();
+            LocalDateTime now = LocalDateTime.now();
+            LocalDateTime createdAt = emailConfirm.getCreatedAt();
+
+            // 유효기간 확인
+            if (Duration.between(createdAt, now).toMillis() > authCodeExpirationMillis) {
+                return false; // 유효기간 만료
+            }
+
             try {
                 String decryptedCode = AESUtil.decrypt(emailConfirm.getSecretCode());
                 if (decryptedCode.equals(code)) {
                     emailConfirm.setConfirmation(true);
-                    emailConfirm.setConfirmedAt(LocalDateTime.now());
+                    emailConfirm.setConfirmedAt(now);
                     emailConfirmRepository.save(emailConfirm);
                     return true;
                 }
