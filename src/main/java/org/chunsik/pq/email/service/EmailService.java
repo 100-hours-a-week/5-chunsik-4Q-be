@@ -1,5 +1,6 @@
 package org.chunsik.pq.email.service;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.chunsik.pq.email.model.EmailConfirm;
 import org.chunsik.pq.email.repository.EmailConfirmRepository;
@@ -19,6 +20,7 @@ import java.util.Optional;
 import java.util.random.RandomGenerator;
 import java.util.random.RandomGeneratorFactory;
 
+@RequiredArgsConstructor
 @Service
 public class EmailService {
 
@@ -27,20 +29,15 @@ public class EmailService {
 
     private static final int MAX_REQUESTS = 5;
     private static final int COOKIE_EXPIRATION_MINUTES = 30;
+    private static final String REQUEST_COUNT_COOKE_NAME = "requestCount";
 
-    private final RandomGenerator randomGenerator;
+    private final RandomGenerator randomGenerator = RandomGeneratorFactory.of("Random").create();
     private final JavaMailSender mailSender;
     private final EmailConfirmRepository emailConfirmRepository;
 
-    public EmailService(JavaMailSender mailSender, EmailConfirmRepository emailConfirmRepository) {
-        this.mailSender = mailSender;
-        this.emailConfirmRepository = emailConfirmRepository;
-        this.randomGenerator = RandomGeneratorFactory.of("Random").create();
-    }
-
     public void sendSimpleEmail(String email, HttpServletRequest request, HttpServletResponse response) {
         // 쿠키 기반 재전송 제한 체크
-        Optional<Cookie> requestCountCookieOpt = getCookie(request, "requestCount");
+        Optional<Cookie> requestCountCookieOpt = getCookie(request, REQUEST_COUNT_COOKE_NAME);
 
         int requestCount = 1;
 
@@ -72,23 +69,25 @@ public class EmailService {
         // 동일 이메일에 대한 여러 데이터가 있으면 에러가 나서
         // 동일 이메일에 대한 데이터가 있으면 추가하지 않고 기존의 데이터를 업데이트 하는 방식으로 구현
         Optional<EmailConfirm> existingEmailConfirmOpt = emailConfirmRepository.findByEmail(email);
-        EmailConfirm emailConfirm;
-        if (existingEmailConfirmOpt.isPresent()) {
-            emailConfirm = existingEmailConfirmOpt.get();
-            emailConfirm.setSecretCode(encryptedCode);
-            emailConfirm.setCreatedAt(LocalDateTime.now());
-            emailConfirm.setIsSend(true);
-            emailConfirm.setSendedAt(LocalDateTime.now());
-        } else {
-            emailConfirm = new EmailConfirm();
-            emailConfirm.setEmail(email);
-            emailConfirm.setSecretCode(encryptedCode);
-            emailConfirm.setCreatedAt(LocalDateTime.now());
-            emailConfirm.setIsSend(true);
-            emailConfirm.setSendedAt(LocalDateTime.now());
-        }
+
+        EmailConfirm emailConfirm = existingEmailConfirmOpt
+                .map(existingEmail -> existingEmail.toBuilder()
+                        .confirmation(false)
+                        .secretCode(encryptedCode)
+                        .createdAt(LocalDateTime.now())
+                        .isSend(true)
+                        .sendedAt(LocalDateTime.now())
+                        .build())
+                .orElseGet(() -> EmailConfirm.builder()
+                        .email(email)
+                        .secretCode(encryptedCode)
+                        .createdAt(LocalDateTime.now())
+                        .isSend(true)
+                        .sendedAt(LocalDateTime.now())
+                        .build());
 
         emailConfirmRepository.save(emailConfirm);
+
 
         // 이메일 제목과 내용 설정
         String subject = "이메일 인증번호입니다.";
@@ -124,9 +123,12 @@ public class EmailService {
             try {
                 String decryptedCode = AESUtil.decrypt(emailConfirm.getSecretCode());
                 if (decryptedCode.equals(code)) {
-                    emailConfirm.setConfirmation(true);
-                    emailConfirm.setConfirmedAt(now);
-                    emailConfirmRepository.save(emailConfirm);
+                    EmailConfirm updatedEmailConfirm = emailConfirm.toBuilder()
+                            .confirmation(true)
+                            .confirmedAt(now)
+                            .build();
+
+                    emailConfirmRepository.save(updatedEmailConfirm);
                     return true;
                 }
             } catch (Exception e) {

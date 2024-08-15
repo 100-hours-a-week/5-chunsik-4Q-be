@@ -20,34 +20,35 @@ public class EmailController {
     // 인증번호 요청
     @PostMapping("/request")
     public ResponseEntity<String> sendEmail(@RequestParam String email, HttpServletRequest request, HttpServletResponse response) {
-        try {
-            if (email == null || email.isEmpty()) {
-                return new ResponseEntity<>("Invalid request format.", HttpStatus.BAD_REQUEST);
-            }
-            emailService.sendSimpleEmail(email, request, response);
-            return new ResponseEntity<>("Verification email sent.", HttpStatus.CREATED);
-        } catch (RuntimeException e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.TOO_MANY_REQUESTS);
-        } catch (Exception e) {
-            return new ResponseEntity<>("Internal server error.", HttpStatus.INTERNAL_SERVER_ERROR);
+        if (email.isEmpty()) {
+            return new ResponseEntity<>("Invalid request format.", HttpStatus.BAD_REQUEST);
         }
+        emailService.sendSimpleEmail(email, request, response);
+        return new ResponseEntity<>("Verification email sent.", HttpStatus.CREATED);
     }
 
     // 인증번호 검증
     @PatchMapping("/verification")
     public ResponseEntity<String> verifyEmail(@RequestParam String email, @RequestParam String code) {
-        try {
-            if (email == null || email.isEmpty() || code == null || code.isEmpty()) {
-                return new ResponseEntity<>("Invalid request format.", HttpStatus.BAD_REQUEST);
-            }
-            boolean isVerified = emailService.verifyCode(email, code);
-            if (isVerified) {
-                return new ResponseEntity<>("Secret code verified successfully. Confirmation status updated.", HttpStatus.OK);
-            } else {
-                return new ResponseEntity<>("Invalid or expired secret code.", HttpStatus.UNAUTHORIZED);
-            }
-        } catch (Exception e) {
-            return new ResponseEntity<>("Internal server error.", HttpStatus.INTERNAL_SERVER_ERROR);
+        if (email.isEmpty() || code.isEmpty()) {
+            return new ResponseEntity<>("Invalid request format.", HttpStatus.BAD_REQUEST);
         }
+        boolean isVerified = emailService.verifyCode(email, code);
+        if (isVerified) {
+            return new ResponseEntity<>("Secret code verified successfully. Confirmation status updated.", HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>("Invalid or expired secret code.", HttpStatus.UNAUTHORIZED);
+        }
+    }
+
+    // 예외 처리
+    @ExceptionHandler(RuntimeException.class)
+    public ResponseEntity<String> handleRuntimeException(RuntimeException e) {
+        return new ResponseEntity<>(e.getMessage(), HttpStatus.TOO_MANY_REQUESTS);
+    }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<String> handleException(Exception e) {
+        return new ResponseEntity<>("Internal server error.", HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }

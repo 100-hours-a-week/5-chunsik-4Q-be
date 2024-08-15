@@ -9,7 +9,7 @@ public class AESUtil {
     private static final String ALGORITHM = "AES";
     private static final String TRANSFORMATION = "AES";
 
-    // 환경 변수나 안전한 키 관리 시스템으로 변경
+    // TODO : 환경 변수나 안전한 키 관리 시스템으로 변경
     private static final String SECRET_KEY = "abcdefgh12345678";
 
     // 암호화 메서드

@@ -1,39 +1,31 @@
 package org.chunsik.pq.email.model;
 
-import jakarta.persistence.Entity;
 import jakarta.persistence.*;
-
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
-import lombok.Setter;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
 @Getter
-@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder(toBuilder = true)
+@Table(name="email_confirm")
 @Entity
-@Table(name = "email_confirm")
 public class EmailConfirm {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private Long id;
 
-    @Column(nullable = false)
     private String email;
-
-    @Column(nullable = false)
     private String secretCode;
-
-    @Column(nullable = false)
     private LocalDateTime createdAt;
-
-    @Column(nullable = false)
+    @Builder.Default
     private Boolean isSend = false;
-
     private LocalDateTime sendedAt;
-
-    @Column(nullable = false)
+    @Builder.Default
     private Boolean confirmation = false;
-
     private LocalDateTime confirmedAt;
-
 }
