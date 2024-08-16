@@ -1,6 +1,7 @@
 package org.chunsik.pq.email.service;
 
 import lombok.RequiredArgsConstructor;
+import org.chunsik.pq.email.exception.TooManyRequestsException;
 import org.springframework.beans.factory.annotation.Value;
 import org.chunsik.pq.email.model.EmailConfirm;
 import org.chunsik.pq.email.repository.EmailConfirmRepository;
@@ -29,7 +30,7 @@ public class EmailService {
 
     private static final int MAX_REQUESTS = 5;
     private static final int COOKIE_EXPIRATION_MINUTES = 30;
-    private static final String REQUEST_COUNT_COOKE_NAME = "requestCount";
+    private static final String REQUEST_COUNT_COOKIE_NAME = "requestCount";
 
     private final RandomGenerator randomGenerator = RandomGeneratorFactory.of("Random").create();
     private final JavaMailSender mailSender;
@@ -37,15 +38,15 @@ public class EmailService {
 
     public void sendSimpleEmail(String email, HttpServletRequest request, HttpServletResponse response) {
         // 쿠키 기반 재전송 제한 체크
-        Optional<Cookie> requestCountCookieOpt = getCookie(request, REQUEST_COUNT_COOKE_NAME);
+        Optional<Cookie> requestCountCookieOpt = getCookie(request, REQUEST_COUNT_COOKIE_NAME);
 
         int requestCount = 1;
 
         if (requestCountCookieOpt.isPresent()) {
             requestCount = Integer.parseInt(requestCountCookieOpt.get().getValue());
 
-            if (requestCount > MAX_REQUESTS) {
-                throw new RuntimeException("Too many requests.");
+            if (requestCount >= MAX_REQUESTS) {
+                throw new TooManyRequestsException("Too many requests.");
             } else {
                 requestCount++;
             }
