@@ -3,11 +3,21 @@ spring:
     name: pq
   datasource:
     url: jdbc:mysql://localhost:3306/pq
-    username: pq_root
-    password: 123123
+    username: root
+    password: 19970623
   jpa:
     hibernate:
       ddl-auto: update
     properties:
       hibernate:
         dialect: org.hibernate.dialect.MySQLDialect
+
+kakao:
+  api:
+    client-id: a8a84270703466b91728cc7df1b03fbb
+    redirect-uri: http://localhost:8080/auth/kakao/callback
+
+jwt:
+  secret: andychoichenparkcarterkimtheoparksilviakimchunsik
+  access_token_expire_time: 1800000
+  refresh_token_expire_time: 604800000
