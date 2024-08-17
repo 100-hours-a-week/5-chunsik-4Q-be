@@ -1,21 +1,21 @@
 spring:
   application:
     name: pq
-  datasource:
-    url: jdbc:mysql://localhost:3306/chunsik_db
-    username: carter
-    password: carter
   jpa:
     hibernate:
       ddl-auto: update
     properties:
       hibernate:
         dialect: org.hibernate.dialect.MySQLDialect
+  datasource:
+    url: jdbc:mysql://${chunsik.db.url}:3306/pq
+    username: ${chunsik.db.user}
+    password: ${chunsik.db.password}
   mail:
     host: smtp.gmail.com
     port: 587
-    username: kdg870918@gmail.com
-    password: pmxaaqtxhynfslpa
+    username: ${chunsik.mail.user}
+    password: ${chunsik.mail.password}
     properties:
       mail:
         smtp:
