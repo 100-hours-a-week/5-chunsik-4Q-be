@@ -8,7 +8,6 @@ import java.io.File;
 import java.util.List;
 
 @Getter
-@Setter
 @AllArgsConstructor
 public class S3UploadDTO {
     private File file;

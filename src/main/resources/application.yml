@@ -20,7 +20,7 @@ spring:
 cloud:
   aws:
     s3:
-      bucket: chunsik-dev
+      bucket: ${S3_BUCKET_NAME}
     region:
       static: ap-northeast-2
     stack:

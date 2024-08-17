@@ -1,14 +1,10 @@
 package org.chunsik.pq.generate.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.util.List;
 
 @Getter
-@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 public class GenerateImageDTO {
@@ -19,6 +15,7 @@ public class GenerateImageDTO {
     private Long userId;
     private String categoryId;
 
+    @Builder
     public GenerateImageDTO(List<String> tags, Long userId, String categoryId) {
         this.tag2 = tags.size() > 1 ? tags.get(1) : null;
         this.tag3 = tags.size() > 2 ? tags.get(2) : null;
