@@ -1,18 +1,25 @@
 package org.chunsik.pq.s3.dto;
 
-import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
-import lombok.Setter;
 
 import java.io.File;
 import java.util.List;
 
 @Getter
-@AllArgsConstructor
+@Builder
 public class S3UploadDTO {
     private File file;
-    private String originalFileName;
+    private Long size;
     private Long userId;
     private String categoryId;
     private List<String> tags;
+
+    public S3UploadDTO(File file, Long size, Long userId, String categoryId, List<String> tags) {
+        this.file = file;
+        this.size = size;
+        this.userId = userId;
+        this.categoryId = categoryId;
+        this.tags = tags;
+    }
 }
