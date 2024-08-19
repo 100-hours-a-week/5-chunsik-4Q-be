@@ -1,18 +1,24 @@
 spring:
   profiles:
     active: dev
+  config:
+    import:
+      - file:./src/main/resources/secrets.yaml
 ---
 spring:
   profiles:
     active: prod
+  config:
+    import:
+      - classpath:secrets.yaml
 ---
 spring:
   profiles:
     active: local
+  config:
+    import:
+      - classpath:secrets.yaml
 ---
 spring:
   application:
     name: pq
-  config:
-    import:
-      - classpath:secrets.yaml
