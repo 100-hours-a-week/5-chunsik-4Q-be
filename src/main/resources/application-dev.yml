@@ -26,6 +26,26 @@ spring:
           connectiontimeout: 5000
           timeout: 5000
           writetimeout: 5000
+  servlet:
+    multipart:
+      max-request-size: 30MB
+      max-file-size: 30MB
 auth-code-expiration-millis: 180000
 server:
   port: 8080
+
+cloud:
+  aws:
+    s3:
+      bucket: ${chunsik.s3.bucket}
+    region:
+      static: ap-northeast-2
+    stack:
+      auto: false
+    credentials:
+      access-key: ${chunsik.s3.access}
+      secret-key: ${chunsik.s3.secret}
+
+openai:
+  api:
+    key: ${chunsik.openai.key}

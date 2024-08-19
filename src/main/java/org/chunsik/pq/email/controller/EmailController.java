@@ -2,12 +2,9 @@ package org.chunsik.pq.email.controller;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-
 import lombok.RequiredArgsConstructor;
-
 import org.chunsik.pq.email.exception.TooManyRequestsException;
 import org.chunsik.pq.email.service.EmailService;
-
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
