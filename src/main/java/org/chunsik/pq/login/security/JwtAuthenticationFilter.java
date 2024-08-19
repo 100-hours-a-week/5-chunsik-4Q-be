@@ -9,8 +9,11 @@ import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.GenericFilterBean;
 
@@ -23,23 +26,27 @@ public class JwtAuthenticationFilter extends GenericFilterBean {
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
         // 1. Request Header 에서 JWT 토큰 추출
-
         HttpServletResponse httpResponse = (HttpServletResponse) response;
-
-        String token = resolveToken((HttpServletRequest) request);
         try {
-            if (token != null && jwtTokenProvider.validateTokenExpiration(token)) {
-                Authentication authentication = jwtTokenProvider.getAuthentication(token);
-                SecurityContextHolder.getContext().setAuthentication(authentication);
+            String token = resolveToken((HttpServletRequest) request);
+            try {
+                if (token != null && jwtTokenProvider.validateTokenExpiration(token)) {
+                    Authentication authentication = jwtTokenProvider.getAuthentication(token);
+                    SecurityContextHolder.getContext().setAuthentication(authentication);
+                }
+            }catch (ExpiredJwtException e) {
+                httpResponse.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                httpResponse.getWriter().write("Token has expired. Please refresh your token.");
+                return; // 응답 후 추가 처리 방지
+            } catch (JwtException | UsernameNotFoundException e) {
+                httpResponse.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                httpResponse.getWriter().write("Invalid token. Please login again.");
+                return; // 응답 후 추가 처리 방지
             }
-        }catch (ExpiredJwtException e) {
-            httpResponse.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            httpResponse.getWriter().write("Token has expired. Please refresh your token.");
-            return; // 응답 후 추가 처리 방지
-        } catch (JwtException e) {
-            httpResponse.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            httpResponse.getWriter().write("Invalid token. Please login again.");
-            return; // 응답 후 추가 처리 방지
+        }catch (StringIndexOutOfBoundsException e){
+            httpResponse.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            httpResponse.getWriter().write("Invalid token format. Please check your token.");
+            return;
         }
 
         chain.doFilter(request, response);

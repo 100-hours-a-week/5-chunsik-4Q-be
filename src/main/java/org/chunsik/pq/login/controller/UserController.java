@@ -1,5 +1,7 @@
 package org.chunsik.pq.login.controller;
 
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.chunsik.pq.login.dto.JoinDto;
 import org.chunsik.pq.login.dto.TokenDto;
@@ -15,6 +17,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.HashMap;
+import java.util.Map;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/users")
@@ -22,18 +27,21 @@ public class UserController {
     private final UserService userService;
 
     @PostMapping("/login")
-    public ResponseEntity<TokenDto> login(@RequestBody UserLoginRequestDto userLoginRequestDto){
+    public ResponseEntity<Map<String,String>> login(@RequestBody UserLoginRequestDto userLoginRequestDto, HttpServletResponse response){
         String email = userLoginRequestDto.getEmail();
         String password = userLoginRequestDto.getPassword();
         TokenDto tokenDto =  userService.login(email,password);
 
-        return ResponseEntity.ok(tokenDto);
-    }
+        Cookie refreshTokenCookie = new Cookie("refreshToken",tokenDto.getRefreshToken());
+        refreshTokenCookie.setHttpOnly(true);
+        refreshTokenCookie.setPath("/");
+        refreshTokenCookie.setMaxAge(7 * 24 * 60 * 60);
+        response.addCookie(refreshTokenCookie);
 
-    // 인증 필요 페이지 (임시 테스트 용)
-    @PostMapping("/test")
-    public String test(){
-        return "토큰 사용 success";
+        Map<String, String> responseBody = new HashMap<>();
+        responseBody.put("accessToken",tokenDto.getAccessToken());
+
+        return ResponseEntity.ok(responseBody);
     }
 
     @PostMapping("/register")

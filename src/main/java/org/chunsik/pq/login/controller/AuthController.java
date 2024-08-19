@@ -1,5 +1,7 @@
 package org.chunsik.pq.login.controller;
 
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.chunsik.pq.login.exception.JwtValidationExpireException;
 import org.chunsik.pq.login.security.JwtTokenProvider;
@@ -22,9 +24,9 @@ public class AuthController {
     private static final String REFRESH_TOKEN = "refreshToken";
 
     @PostMapping("/refresh")
-    public ResponseEntity<?> refreshAccessToken(@RequestBody Map<String,String> request){
+    public ResponseEntity<?> refreshAccessToken(HttpServletRequest request){
 
-        String refreshToken = request.get(REFRESH_TOKEN);
+        String refreshToken = getRefreshTokenFromCookies(request);
         try {
             if (refreshToken == null || !jwtTokenProvider.validateTokenExpiration(refreshToken)) {
                 throw new JwtValidationExpireException();
@@ -38,5 +40,17 @@ public class AuthController {
         }catch (Exception e){ // 재발급 로직 수행 중 예외 발생 시 재로그인 요구 예외를 던진다.
             throw new JwtValidationExpireException();
         }
+    }
+
+    private String getRefreshTokenFromCookies(HttpServletRequest request){
+        Cookie[] cookies = request.getCookies();
+        if(cookies != null){
+            for(Cookie cookie : cookies){
+                if(REFRESH_TOKEN.equals(cookie.getName())){
+                    return cookie.getValue();
+                }
+            }
+        }
+        return null;
     }
 }

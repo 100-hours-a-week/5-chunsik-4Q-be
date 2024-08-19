@@ -4,6 +4,7 @@ import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
 import org.chunsik.pq.login.exception.DuplicateEmailException;
 import org.chunsik.pq.login.exception.JwtValidationExpireException;
+import org.chunsik.pq.login.exception.OauthTokenIsNullException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.AuthenticationException;
@@ -54,6 +55,11 @@ public class ControllerExceptionHandler {
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<?> handleMethodArgumentNotValidException(MethodArgumentNotValidException e){
+        return new ResponseEntity<>(e.getMessage(),HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(OauthTokenIsNullException.class)
+    public ResponseEntity<?> handleOauthTokenIsNullException(MethodArgumentNotValidException e){
         return new ResponseEntity<>(e.getMessage(),HttpStatus.BAD_REQUEST);
     }
 }

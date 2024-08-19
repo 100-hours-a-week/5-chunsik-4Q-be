@@ -1,5 +1,6 @@
 package org.chunsik.pq.login.service;
 
+import jakarta.servlet.http.Cookie;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.chunsik.pq.login.dto.JoinDto;
@@ -26,7 +27,7 @@ public class UserService {
     private final JwtTokenProvider jwtTokenProvider;
     private final PasswordEncoder passwordEncoder;
 
-    public TokenDto login(String email,String password){
+    public TokenDto login(String email, String password){
         UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(email,password);
         Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
 
@@ -49,6 +50,11 @@ public class UserService {
         if(userRepository.existsByEmail(joinDto.getEmail())){
             throw new DuplicateEmailException("email exists.");
         }
+
         return userRepository.save(user);
+    }
+
+    public boolean checkIfUserExistsByEmail(String email){
+        return userRepository.existsByEmail(email);
     }
 }
