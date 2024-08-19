@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 
 @Getter
 @Entity
-@Table(name = "tag_photo_background")
+@Table(name = "tag_background_image")
 public class TagPhotoBackground {
 
     @Id
