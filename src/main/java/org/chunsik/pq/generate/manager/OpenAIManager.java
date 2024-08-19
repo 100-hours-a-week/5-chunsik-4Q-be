@@ -1,6 +1,7 @@
 package org.chunsik.pq.generate.manager;
 
 
+import lombok.RequiredArgsConstructor;
 import org.chunsik.pq.generate.dto.GenerateApiResponseDTO;
 import org.chunsik.pq.generate.dto.GenerateResponseDTO;
 import org.springframework.beans.factory.annotation.Value;
@@ -15,18 +16,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+@RequiredArgsConstructor
 @Component
-public class GenerateManager {
+public class OpenAIManager {
     private final RestTemplate restTemplate;
-
 
     @Value("${openai.api.key}")
     private String apiKey;
-
-    public GenerateManager(RestTemplate restTemplate) {
-        this.restTemplate = restTemplate;
-
-    }
 
     public GenerateResponseDTO generateImage(List<String> tags) {
         String url = "https://api.openai.com/v1/images/generations";

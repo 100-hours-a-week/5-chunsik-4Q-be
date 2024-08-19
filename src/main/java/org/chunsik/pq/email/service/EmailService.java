@@ -1,18 +1,17 @@
 package org.chunsik.pq.email.service;
 
-import lombok.RequiredArgsConstructor;
-import org.chunsik.pq.email.exception.TooManyRequestsException;
-import org.springframework.beans.factory.annotation.Value;
-import org.chunsik.pq.email.model.EmailConfirm;
-import org.chunsik.pq.email.repository.EmailConfirmRepository;
-import org.chunsik.pq.email.util.AESUtil;
-import org.springframework.mail.SimpleMailMessage;
-import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.stereotype.Service;
-
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
+import org.chunsik.pq.email.exception.TooManyRequestsException;
+import org.chunsik.pq.email.model.EmailConfirm;
+import org.chunsik.pq.email.repository.EmailConfirmRepository;
+import org.chunsik.pq.email.util.AESUtil;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.stereotype.Service;
 
 import java.time.Duration;
 import java.time.LocalDateTime;

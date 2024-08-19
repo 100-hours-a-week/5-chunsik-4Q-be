@@ -1,6 +1,8 @@
 package org.chunsik.pq.generate.dto;
 
-import lombok.*;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
 import java.util.List;
 

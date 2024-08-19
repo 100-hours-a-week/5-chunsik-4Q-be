@@ -18,14 +18,8 @@ public class GenerateController {
     private GenerateService generateService;
 
     @PostMapping("/generate")
-    public ResponseEntity<GenerateResponseDTO> generateImage(@RequestBody GenerateImageDTO generateImageDTO) throws IOException {
-        GenerateResponseDTO generateResponseDTO = generateService.generateAndUploadImage(generateImageDTO);
-        return ResponseEntity.ok().body(generateResponseDTO);
-    }
-
-    @GetMapping("/download")
-    public ResponseEntity<?> generateImageDownload(@RequestParam("fileName") String fileName) {
-        return generateService.generateImageDownload(fileName);
+    public GenerateResponseDTO generateImage(@RequestBody GenerateImageDTO generateImageDTO) throws IOException {
+        return generateService.generateAndUploadImage(generateImageDTO);
     }
 
     @ExceptionHandler(IOException.class)

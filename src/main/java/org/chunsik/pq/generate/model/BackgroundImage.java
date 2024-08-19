@@ -1,4 +1,4 @@
-package org.chunsik.pq.s3.model;
+package org.chunsik.pq.generate.model;
 
 import jakarta.persistence.*;
 import lombok.Builder;
@@ -10,8 +10,8 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @Getter
 @Entity
-@Table(name = "Photo_background")
-public class PhotoBackground {
+@Table(name = "Background_image")
+public class BackgroundImage {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -43,7 +43,7 @@ public class PhotoBackground {
     private LocalDateTime createdAt;
 
     @Builder
-    public PhotoBackground(Long userId, String url, Long size, String categoryId, String firstTag, String secondTag, String thirdTag) {
+    public BackgroundImage(Long userId, String url, Long size, String categoryId, String firstTag, String secondTag, String thirdTag) {
         this.userId = userId;
         this.url = url;
         this.size = size;
