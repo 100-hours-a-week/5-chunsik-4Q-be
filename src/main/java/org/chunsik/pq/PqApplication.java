@@ -6,8 +6,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 @SpringBootApplication
 public class PqApplication {
 
-	public static void main(String[] args) {
-		SpringApplication.run(PqApplication.class, args);
-	}
+    public static void main(String[] args) {
+        SpringApplication.run(PqApplication.class, args);
+    }
 
 }

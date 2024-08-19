@@ -39,8 +39,11 @@ public class OauthController {
     @Value("${kakao.api.redirect-uri}")
     private String redirectUri;
 
+    @Value("${chunsik.cookie.maxage}")
+    private int maxAge;
+
     @GetMapping("/auth/kakao/callback")
-    public ResponseEntity<Map<String,String>> kakaoCallback(String code, HttpServletResponse response){
+    public ResponseEntity<Map<String, String>> kakaoCallback(String code, HttpServletResponse response) {
         RestTemplate tokenRequestTemplate = new RestTemplate();
 
         HttpHeaders tokenRequestHeaders = new HttpHeaders();
@@ -67,8 +70,8 @@ public class OauthController {
         ObjectMapper objectMapper = new ObjectMapper();
         OAuthToken oAuthToken = null;
 
-        try{
-            oAuthToken = objectMapper.readValue(tokenResponse.getBody(),OAuthToken.class);
+        try {
+            oAuthToken = objectMapper.readValue(tokenResponse.getBody(), OAuthToken.class);
         } catch (JsonProcessingException e) {
             log.error("JsonProcessingException occurred while parsing the OAuth token response: {}", e.getMessage());
         }
@@ -78,7 +81,7 @@ public class OauthController {
         HttpHeaders profileRequestHeaders = new HttpHeaders();
         try {
             profileRequestHeaders.add("Authorization", "Bearer " + oAuthToken.getAccess_token());
-        }catch (NullPointerException e){
+        } catch (NullPointerException e) {
             throw new OauthTokenIsNullException();
         }
         profileRequestHeaders.add("Content-Type", "application/x-www-form-urlencoded;charset=utf-8");
@@ -105,7 +108,7 @@ public class OauthController {
             String password = "1234"; // null 값을 넣어버리면 로그인할 때 오류 발생.
 
             joinDTO = new JoinDto(nickname, email, password);
-        }catch (JsonProcessingException e){
+        } catch (JsonProcessingException e) {
             log.error("JsonProcessingException occurred while parsing the OAuth token response: {}", e.getMessage());
         }
 
@@ -114,19 +117,19 @@ public class OauthController {
         // 3. JWT 토큰 발급 (refresh 포함)
         // userService.login은 액세스, 리프래쉬 토큰을 리턴하여 클라이언트가 다음 요청때 사용한다.
 
-        if(!userService.checkIfUserExistsByEmail(joinDTO.getEmail())){
+        if (!userService.checkIfUserExistsByEmail(joinDTO.getEmail())) {
             userService.join(joinDTO, OauthProvider.KAKAO);
         }
 
         TokenDto tokenDto = userService.login(joinDTO.getEmail(), joinDTO.getPassword());
-        Cookie refreshTokenCookie = new Cookie("refreshToken",tokenDto.getRefreshToken());
+        Cookie refreshTokenCookie = new Cookie("refreshToken", tokenDto.getRefreshToken());
         refreshTokenCookie.setHttpOnly(true);
         refreshTokenCookie.setPath("/");
-        refreshTokenCookie.setMaxAge(7 * 24 * 60 * 60);
+        refreshTokenCookie.setMaxAge(maxAge);
         response.addCookie(refreshTokenCookie);
 
         Map<String, String> responseBody = new HashMap<>();
-        responseBody.put("accessToken",tokenDto.getAccessToken());
+        responseBody.put("accessToken", tokenDto.getAccessToken());
 
         return ResponseEntity.ok(responseBody);
     }

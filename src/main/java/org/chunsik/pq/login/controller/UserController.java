@@ -8,6 +8,7 @@ import org.chunsik.pq.login.dto.TokenDto;
 import org.chunsik.pq.login.dto.UserLoginRequestDto;
 import org.chunsik.pq.login.service.UserService;
 import org.chunsik.pq.model.OauthProvider;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.Errors;
@@ -26,30 +27,33 @@ import java.util.Map;
 public class UserController {
     private final UserService userService;
 
+    @Value("${chunsik.cookie.maxage}")
+    private int maxAge;
+
     @PostMapping("/login")
-    public ResponseEntity<Map<String,String>> login(@RequestBody UserLoginRequestDto userLoginRequestDto, HttpServletResponse response){
+    public ResponseEntity<Map<String, String>> login(@RequestBody UserLoginRequestDto userLoginRequestDto, HttpServletResponse response) {
         String email = userLoginRequestDto.getEmail();
         String password = userLoginRequestDto.getPassword();
-        TokenDto tokenDto =  userService.login(email,password);
+        TokenDto tokenDto = userService.login(email, password);
 
-        Cookie refreshTokenCookie = new Cookie("refreshToken",tokenDto.getRefreshToken());
+        Cookie refreshTokenCookie = new Cookie("refreshToken", tokenDto.getRefreshToken());
         refreshTokenCookie.setHttpOnly(true);
         refreshTokenCookie.setPath("/");
-        refreshTokenCookie.setMaxAge(7 * 24 * 60 * 60);
+        refreshTokenCookie.setMaxAge(maxAge);
         response.addCookie(refreshTokenCookie);
 
         Map<String, String> responseBody = new HashMap<>();
-        responseBody.put("accessToken",tokenDto.getAccessToken());
+        responseBody.put("accessToken", tokenDto.getAccessToken());
 
         return ResponseEntity.ok(responseBody);
     }
 
     @PostMapping("/register")
-    public ResponseEntity<?> join(@Validated @RequestBody JoinDto joinDto, Errors errors){
+    public ResponseEntity<?> join(@Validated @RequestBody JoinDto joinDto, Errors errors) {
         if (errors.hasErrors()) {
-            return new ResponseEntity<>("Invalid request format.",HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>("Invalid request format.", HttpStatus.BAD_REQUEST);
         }
         userService.join(joinDto, OauthProvider.LOCAL);
-        return new ResponseEntity<>("Registration successful.",HttpStatus.CREATED);
+        return new ResponseEntity<>("Registration successful.", HttpStatus.CREATED);
     }
 }

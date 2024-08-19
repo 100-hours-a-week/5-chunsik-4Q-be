@@ -30,11 +30,11 @@ public class JwtTokenProvider {
     private final UserDetailsService userDetailsService;
 
     @PostConstruct
-    protected void init(){
+    protected void init() {
         secretKey = Base64.getEncoder().encodeToString(secretKey.getBytes());
     }
 
-    public String createToken(String email){
+    public String createToken(String email) {
         Claims claims = Jwts.claims().setSubject(email);
         Date now = new Date();
 
@@ -42,11 +42,11 @@ public class JwtTokenProvider {
                 .setClaims(claims)
                 .setIssuedAt(now)
                 .setExpiration(new Date(now.getTime() + tokenValidTime))
-                .signWith(SignatureAlgorithm.HS256,secretKey)
+                .signWith(SignatureAlgorithm.HS256, secretKey)
                 .compact();
     }
 
-    public String createRefreshToken(String email){
+    public String createRefreshToken(String email) {
         Claims claims = Jwts.claims().setSubject(email);
         Date now = new Date();
 
@@ -54,7 +54,7 @@ public class JwtTokenProvider {
                 .setClaims(claims)
                 .setIssuedAt(now)
                 .setExpiration(new Date(now.getTime() + refreshTokenValidTime))
-                .signWith(SignatureAlgorithm.HS256,secretKey)
+                .signWith(SignatureAlgorithm.HS256, secretKey)
                 .compact();
     }
 
@@ -63,7 +63,7 @@ public class JwtTokenProvider {
         return new UsernamePasswordAuthenticationToken(userDetails, "", userDetails.getAuthorities());
     }
 
-    public String getMemberEmail(String token){
+    public String getMemberEmail(String token) {
         // 만료 토큰 예외를 던져버리면 ControllerExceptionHandler에서 예외 처리함.
         return Jwts.parserBuilder()
                 .setSigningKey(secretKey)
@@ -73,7 +73,7 @@ public class JwtTokenProvider {
                 .getSubject();
     }
 
-    public boolean validateTokenExpiration(String token){
+    public boolean validateTokenExpiration(String token) {
         Jwts.parserBuilder().setSigningKey(secretKey).build().parseClaimsJws(token);
         return true;
     }

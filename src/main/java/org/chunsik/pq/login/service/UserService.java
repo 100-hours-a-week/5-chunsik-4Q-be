@@ -27,18 +27,18 @@ public class UserService {
     private final JwtTokenProvider jwtTokenProvider;
     private final PasswordEncoder passwordEncoder;
 
-    public TokenDto login(String email, String password){
-        UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(email,password);
+    public TokenDto login(String email, String password) {
+        UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(email, password);
         Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
 
         String accessToken = jwtTokenProvider.createToken(email);
         String refreshToken = jwtTokenProvider.createRefreshToken(email);
 
-        return new TokenDto(accessToken,refreshToken);
+        return new TokenDto(accessToken, refreshToken);
     }
 
     @Transactional
-    public User join(JoinDto joinDto, OauthProvider oauthProvider){
+    public User join(JoinDto joinDto, OauthProvider oauthProvider) {
 
         User user = User.create(
                 joinDto.getNickname(),
@@ -47,14 +47,14 @@ public class UserService {
                 oauthProvider
         );
 
-        if(userRepository.existsByEmail(joinDto.getEmail())){
+        if (userRepository.existsByEmail(joinDto.getEmail())) {
             throw new DuplicateEmailException("email exists.");
         }
 
         return userRepository.save(user);
     }
 
-    public boolean checkIfUserExistsByEmail(String email){
+    public boolean checkIfUserExistsByEmail(String email) {
         return userRepository.existsByEmail(email);
     }
 }

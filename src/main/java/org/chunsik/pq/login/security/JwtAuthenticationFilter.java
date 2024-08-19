@@ -34,7 +34,7 @@ public class JwtAuthenticationFilter extends GenericFilterBean {
                     Authentication authentication = jwtTokenProvider.getAuthentication(token);
                     SecurityContextHolder.getContext().setAuthentication(authentication);
                 }
-            }catch (ExpiredJwtException e) {
+            } catch (ExpiredJwtException e) {
                 httpResponse.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                 httpResponse.getWriter().write("Token has expired. Please refresh your token.");
                 return; // 응답 후 추가 처리 방지
@@ -43,7 +43,7 @@ public class JwtAuthenticationFilter extends GenericFilterBean {
                 httpResponse.getWriter().write("Invalid token. Please login again.");
                 return; // 응답 후 추가 처리 방지
             }
-        }catch (StringIndexOutOfBoundsException e){
+        } catch (StringIndexOutOfBoundsException e) {
             httpResponse.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             httpResponse.getWriter().write("Invalid token format. Please check your token.");
             return;

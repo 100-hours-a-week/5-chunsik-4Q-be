@@ -20,7 +20,8 @@ public class JoinDto {
     private String password;
 
     // 기본 생성자
-    public JoinDto() {}
+    public JoinDto() {
+    }
 
     public JoinDto(String nickname, String email, String password) {
         this.nickname = nickname;

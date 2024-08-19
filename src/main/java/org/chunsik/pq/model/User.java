@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 @Table(name = "User")
 @Entity
 @Getter
-public class User{
+public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -19,7 +19,7 @@ public class User{
     @Column(nullable = false)
     private String nickname;
 
-    @Column(nullable = false,unique = true)
+    @Column(nullable = false, unique = true)
     private String email;
 
     @Column(nullable = false)
@@ -31,7 +31,7 @@ public class User{
     @Enumerated(EnumType.STRING)
     private OauthProvider oauthProvider;
 
-    private User(Long id,String nickname,String email,String password,LocalDateTime createdAt,OauthProvider oauthProvider){
+    private User(Long id, String nickname, String email, String password, LocalDateTime createdAt, OauthProvider oauthProvider) {
         this.id = id;
         this.nickname = nickname;
         this.email = email;
@@ -40,7 +40,7 @@ public class User{
         this.oauthProvider = oauthProvider;
     }
 
-    public static User create(String nickname,String email,String password, OauthProvider oauthProvider){
-        return new User(null,nickname,email,password,LocalDateTime.now(),oauthProvider);
+    public static User create(String nickname, String email, String password, OauthProvider oauthProvider) {
+        return new User(null, nickname, email, password, LocalDateTime.now(), oauthProvider);
     }
 }

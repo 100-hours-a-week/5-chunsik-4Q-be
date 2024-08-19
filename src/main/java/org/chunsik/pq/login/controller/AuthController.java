@@ -24,29 +24,29 @@ public class AuthController {
     private static final String REFRESH_TOKEN = "refreshToken";
 
     @PostMapping("/refresh")
-    public ResponseEntity<?> refreshAccessToken(HttpServletRequest request){
+    public ResponseEntity<?> refreshAccessToken(HttpServletRequest request) {
 
         String refreshToken = getRefreshTokenFromCookies(request);
         try {
             if (refreshToken == null || !jwtTokenProvider.validateTokenExpiration(refreshToken)) {
                 throw new JwtValidationExpireException();
-            }else{
+            } else {
                 String email = jwtTokenProvider.getMemberEmail(refreshToken);
                 String newAccessToken = jwtTokenProvider.createToken(email);
                 Map<String, String> response = new HashMap<>();
                 response.put(ACCESS_TOKEN, newAccessToken);
                 return new ResponseEntity<>(response, HttpStatus.OK);
             }
-        }catch (Exception e){ // 재발급 로직 수행 중 예외 발생 시 재로그인 요구 예외를 던진다.
+        } catch (Exception e) { // 재발급 로직 수행 중 예외 발생 시 재로그인 요구 예외를 던진다.
             throw new JwtValidationExpireException();
         }
     }
 
-    private String getRefreshTokenFromCookies(HttpServletRequest request){
+    private String getRefreshTokenFromCookies(HttpServletRequest request) {
         Cookie[] cookies = request.getCookies();
-        if(cookies != null){
-            for(Cookie cookie : cookies){
-                if(REFRESH_TOKEN.equals(cookie.getName())){
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if (REFRESH_TOKEN.equals(cookie.getName())) {
                     return cookie.getValue();
                 }
             }
