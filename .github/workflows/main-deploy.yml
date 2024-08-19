@@ -1,5 +1,5 @@
 name: main CI/CD
-run-name: Running
+run-name: Production deploying
 on:
   push:
     branches:
@@ -31,6 +31,9 @@ jobs:
 
       - name: gradlew에 실행 권한 부여
         run: chmod +x ./gradlew
+
+      - name: appspec.yml 세팅
+        run: mv ./appspecs/appspec-prod.yml ./appspec.yml
 
       - name: 프로젝트 빌드
         run: ./gradlew clean build -x test

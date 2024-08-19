@@ -1,15 +1,11 @@
-name: dev CI/CD
-run-name: Running
+name: Develop PR Checks
+run-name: PR checking
 on:
   pull_request:
     types:
       - opened
     branches:
       - dev
-  push:
-    branches:
-      - dev
-  workflow_dispatch:
 
 
 env:

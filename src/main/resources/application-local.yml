@@ -7,6 +7,9 @@ spring:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.MySQLDialect
+  config:
+    import:
+      - classpath:secrets.yaml
   datasource:
     url: jdbc:mysql://${chunsik.db.url}:3306/pq
     username: ${chunsik.db.user}

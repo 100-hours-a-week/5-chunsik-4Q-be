@@ -1,5 +1,5 @@
 name: dev CI/CD
-run-name: Running
+run-name: Develop deploying
 on:
   push:
     branches:
@@ -33,7 +33,7 @@ jobs:
         run: chmod +x ./gradlew
 
       - name: appspec.yml 세팅
-        run: mv ./appspecs/appspec-dev.yml appspec.yml
+        run: mv ./appspecs/appspec-dev.yml ./appspec.yml
 
       - name: 프로젝트 빌드
         run: ./gradlew clean build -x test
