@@ -10,9 +10,9 @@ START_LOG="$ROOT_PATH/start.log"
 GREEN='\033[0;32m'
 NC='\033[0m' # No Color
 
-DB_URL=$(aws ssm get-parameter --name /chunsik/dev/DB_URL --query "Parameter.Value" --output text)
-DB_USER=$(aws ssm get-parameter --name /chunsik/dev/DB_USER --query "Parameter.Value" --output text)
-DB_PASSWORD=$(aws ssm get-parameter --name /chunsik/dev/DB_PASSWORD --query "Parameter.Value" --output text)
+#DB_URL=$(aws ssm get-parameter --name /chunsik/dev/DB_URL --query "Parameter.Value" --output text)
+#DB_USER=$(aws ssm get-parameter --name /chunsik/dev/DB_USER --query "Parameter.Value" --output text)
+#DB_PASSWORD=$(aws ssm get-parameter --name /chunsik/dev/DB_PASSWORD --query "Parameter.Value" --output text)
 
 NOW=$(date +%c)
 
@@ -25,7 +25,7 @@ cp $ROOT_PATH/build/libs/app.jar $JAR
 
 echo -e "${GREEN}[$NOW] > $JAR 실행${NC}" >> $START_LOG
 
-nohup java -jar -Dspring.profiles.active=prod -DDB_URL=$DB_URL -DDB_PASSWORD=$DB_PASSWORD -DDB_USER=$DB_USER $JAR > $APP_LOG 2> $ERROR_LOG &
+nohup java -jar -Dspring.profiles.active=prod $JAR > $APP_LOG 2> $ERROR_LOG &
 
 # 5초 대기
 sleep 5
