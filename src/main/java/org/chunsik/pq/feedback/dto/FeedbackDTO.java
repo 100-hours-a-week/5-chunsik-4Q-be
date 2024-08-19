@@ -5,7 +5,7 @@ import lombok.Getter;
 @Getter
 public class FeedbackDTO {
     private Integer userId;
-    private Float starRate;
+    private Integer starRate;
     private String comment;
     private Integer ease;
     private Integer design;

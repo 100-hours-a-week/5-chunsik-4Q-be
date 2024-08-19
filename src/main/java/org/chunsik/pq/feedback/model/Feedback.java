@@ -20,7 +20,7 @@ public class Feedback {
     private Integer userId;
 
     @Column(name = "star_rate", nullable = false)
-    private Float starRate;
+    private Integer starRate;
 
     @Column(name = "comment", length = 200)
     private String comment;
@@ -57,7 +57,7 @@ public class Feedback {
         MALE, FEMALE
     }
 
-    public Feedback(Integer userId, Float starRate, String comment, Timestamp createdAt, Integer ease, Integer design,
+    public Feedback(Integer userId, Integer starRate, String comment, Timestamp createdAt, Integer ease, Integer design,
                     Integer performance, Boolean feature, Boolean recommendation, Boolean reuse, Integer ageGroup, Gender gender) {
         this.userId = userId;
         this.starRate = starRate;
