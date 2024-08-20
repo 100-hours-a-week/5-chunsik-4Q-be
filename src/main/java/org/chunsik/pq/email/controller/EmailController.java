@@ -1,5 +1,6 @@
 package org.chunsik.pq.email.controller;
 
+import io.sentry.Sentry;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -47,11 +48,13 @@ public class EmailController {
 
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<String> handleRuntimeException(RuntimeException e) {
+        Sentry.captureException(e);
         return new ResponseEntity<>("Internal server error.", HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<String> handleException(Exception e) {
+        Sentry.captureException(e);
         return new ResponseEntity<>("Internal server error.", HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }

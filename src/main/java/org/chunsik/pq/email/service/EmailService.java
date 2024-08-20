@@ -4,6 +4,7 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.chunsik.pq.email.exception.TooManyRequestsException;
 import org.chunsik.pq.email.model.EmailConfirm;
 import org.chunsik.pq.email.repository.EmailConfirmRepository;
@@ -20,6 +21,7 @@ import java.util.Optional;
 import java.util.random.RandomGenerator;
 import java.util.random.RandomGeneratorFactory;
 
+@Slf4j
 @RequiredArgsConstructor
 @Service
 public class EmailService {
