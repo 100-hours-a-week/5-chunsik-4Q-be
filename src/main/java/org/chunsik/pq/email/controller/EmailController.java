@@ -11,8 +11,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Map;
-
 @RestController
 @RequestMapping("/users/email")
 @RequiredArgsConstructor
@@ -32,7 +30,9 @@ public class EmailController {
 
     // 인증번호 검증
     @PatchMapping("/verification")
-    public ResponseEntity<String> verifyEmail(@RequestParam String email, @RequestParam String code) {
+    public ResponseEntity<String> verifyEmail(@RequestBody EmailConfirmRequestDTO dto) {
+        String email = dto.getEmail();
+        String code = dto.getCode();
         if (email.isEmpty() || code.isEmpty()) {
             return new ResponseEntity<>("Invalid request format.", HttpStatus.BAD_REQUEST);
         }
