@@ -36,7 +36,8 @@ spring:
 auth-code-expiration-millis: 180000
 server:
   port: 8080
-
+sentry:
+  environment: production
 cloud:
   aws:
     s3:
