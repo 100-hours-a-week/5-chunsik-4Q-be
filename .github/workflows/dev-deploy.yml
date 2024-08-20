@@ -36,6 +36,8 @@ jobs:
         run: mv ./appspecs/appspec-dev.yml ./appspec.yml
 
       - name: 프로젝트 빌드
+        env:
+          SENTRY_AUTH_TOKEN: ${{ env.SENTRY_AUTH_TOKEN }}
         run: ./gradlew clean build -x test
 
       - name: AWS credential 설정
