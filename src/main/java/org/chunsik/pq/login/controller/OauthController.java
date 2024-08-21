@@ -24,6 +24,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -43,7 +44,7 @@ public class OauthController {
     private int maxAge;
 
     @GetMapping("/auth/kakao/callback")
-    public ResponseEntity<Map<String, String>> kakaoCallback(String code, HttpServletResponse response) {
+    public void kakaoCallback(String code, HttpServletResponse response) throws IOException {
         RestTemplate tokenRequestTemplate = new RestTemplate();
 
         HttpHeaders tokenRequestHeaders = new HttpHeaders();
@@ -131,6 +132,6 @@ public class OauthController {
         Map<String, String> responseBody = new HashMap<>();
         responseBody.put("accessToken", tokenDto.getAccessToken());
 
-        return ResponseEntity.ok(responseBody);
+        response.sendRedirect("https://qqqq.world");
     }
 }
