@@ -6,5 +6,6 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @RequiredArgsConstructor
 public class ResponseConvertUrlDTO {
+    private final Long id;
     private final String destUrl;
 }

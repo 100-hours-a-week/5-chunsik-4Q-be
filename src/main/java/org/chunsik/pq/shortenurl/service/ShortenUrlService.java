@@ -1,12 +1,15 @@
 package org.chunsik.pq.shortenurl.service;
 
 import lombok.RequiredArgsConstructor;
-import org.chunsik.pq.shortenurl.dto.RequestConvertUrlDTO;
 import org.chunsik.pq.shortenurl.dto.ResponseConvertUrlDTO;
+import org.chunsik.pq.shortenurl.exception.ErrorCode;
+import org.chunsik.pq.shortenurl.exception.URLConvertReachTheLimitException;
 import org.chunsik.pq.shortenurl.manager.ShortenUrlManager;
 import org.chunsik.pq.shortenurl.model.ShortenURL;
 import org.chunsik.pq.shortenurl.repository.ShortenUrlRepository;
 import org.springframework.stereotype.Service;
+
+import java.time.LocalDateTime;
 
 import static org.chunsik.pq.shortenurl.util.constant.ShortenUrlConstant.*;
 
@@ -17,20 +20,19 @@ public class ShortenUrlService {
     private final ShortenUrlRepository shortenUrlRepository;
     private final ShortenUrlManager shortenUrlManager;
 
-    public ResponseConvertUrlDTO convertToShortUrl(RequestConvertUrlDTO requestConvertUrlDTO) {
-        String srcUrl = requestConvertUrlDTO.getSrcUrl();
+    public ResponseConvertUrlDTO convertToShortUrl(String srcUrl) {
         String destUrl = INIT_STRING_SET;
 
         for (int count = INIT_NUMBER; count < END_OF_TRY_NUMBER; count++) {
             destUrl = shortenUrlManager.convertUrl();
             if (shortenUrlRepository.findByDestURL(destUrl) == null) break;
-            if (count == END_OF_DUPLICATION_TRY) throw new RuntimeException();    // custom 예외 만들어서 처리
+            if (count == END_OF_DUPLICATION_TRY) throw new URLConvertReachTheLimitException(ErrorCode.REACH_LIMIT);
         }
 
-        ShortenURL shortenURL = new ShortenURL(srcUrl, destUrl);
-        shortenUrlRepository.save(shortenURL);
+        ShortenURL shortenURL = new ShortenURL(srcUrl, destUrl, LocalDateTime.now());
+        Long id = shortenUrlRepository.save(shortenURL).getId();
 
-        return new ResponseConvertUrlDTO(destUrl);
+        return new ResponseConvertUrlDTO(id, destUrl);
     }
 
     public String responseShortUrl(String destUrl) {

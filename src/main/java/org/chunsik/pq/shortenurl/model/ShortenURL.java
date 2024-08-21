@@ -5,6 +5,10 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.net.URL;
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
+
 @NoArgsConstructor
 @Entity
 @Getter
@@ -20,8 +24,12 @@ public class ShortenURL {
     @Column(name = "dest_url")
     private String destURL;
 
-    public ShortenURL(String srcURL, String destURL) {
+    @Column(name = "created_at", columnDefinition = "TIMESTAMP")
+    private LocalDateTime createdAt;
+
+    public ShortenURL(String srcURL, String destURL, LocalDateTime createdAt) {
         this.srcURL = srcURL;
         this.destURL = destURL;
+        this.createdAt = createdAt;
     }
 }
