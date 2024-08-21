@@ -16,41 +16,41 @@ public class Feedback {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "user_id", nullable = false)
+    @Column(name = "user_id")
     private Integer userId;
 
-    @Column(name = "star_rate", nullable = false)
+    @Column(name = "star_rate")
     private Integer starRate;
 
     @Column(name = "comment", length = 200)
     private String comment;
 
-    @Column(name = "created_at", nullable = false)
+    @Column(name = "created_at")
     private Timestamp createdAt;
 
-    @Column(name = "ease", nullable = false)
+    @Column(name = "ease")
     private Integer ease;
 
-    @Column(name = "design", nullable = false)
+    @Column(name = "design")
     private Integer design;
 
-    @Column(name = "performance", nullable = false)
+    @Column(name = "performance")
     private Integer performance;
 
-    @Column(name = "feature", nullable = false)
+    @Column(name = "feature")
     private Boolean feature;
 
-    @Column(name = "recommendation", nullable = false)
+    @Column(name = "recommendation")
     private Boolean recommendation;
 
-    @Column(name = "reuse", nullable = false)
+    @Column(name = "reuse")
     private Boolean reuse;
 
-    @Column(name = "age_group", nullable = false)
+    @Column(name = "age_group")
     private Integer ageGroup;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "gender", nullable = false)
+    @Column(name = "gender")
     private Gender gender;
 
     public enum Gender {
