@@ -11,8 +11,8 @@ import org.chunsik.pq.login.dto.JoinDto;
 import org.chunsik.pq.login.dto.TokenDto;
 import org.chunsik.pq.login.exception.OauthTokenIsNullException;
 import org.chunsik.pq.login.service.UserService;
-import org.chunsik.pq.model.OAuthToken;
-import org.chunsik.pq.model.OauthProvider;
+import org.chunsik.pq.login.model.OAuthToken;
+import org.chunsik.pq.login.model.OauthProvider;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -132,6 +132,6 @@ public class OauthController {
         Map<String, String> responseBody = new HashMap<>();
         responseBody.put("accessToken", tokenDto.getAccessToken());
 
-        response.sendRedirect("https://qqqq.world");
+        response.sendRedirect("www.qqqq.world");
     }
 }
