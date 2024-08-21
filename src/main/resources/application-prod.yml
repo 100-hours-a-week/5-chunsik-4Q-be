@@ -37,7 +37,7 @@ auth-code-expiration-millis: 180000
 server:
   port: 8080
 sentry:
-  environment: development
+  environment: production
 cloud:
   aws:
     s3:
