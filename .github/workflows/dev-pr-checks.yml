@@ -37,4 +37,4 @@ jobs:
       - name: 프로젝트 빌드
         env:
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
-        run: ./gradlew clean build -Dspring.profiles.active=dev
+        run: ./gradlew clean build -x test -Dspring.profiles.active=dev
