@@ -37,8 +37,6 @@ public class ShortenUrlService {
 
     public String responseShortUrl(String destUrl) {
         ShortenURL shortenURL = shortenUrlRepository.findByDestURL(destUrl);
-        System.out.println(shortenURL.getSrcURL());
-        System.out.println(shortenURL.getDestURL());
         return shortenURL.getSrcURL();
     }
 
