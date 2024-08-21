@@ -31,7 +31,7 @@ public class ShortenUrlController {
         return shortenUrlService.convertToShortUrl(url);
     }
 
-    @GetMapping("/{dest_url}")
+    @GetMapping("/s/{dest_url}")
     public ResponseEntity<?> responseShortenUrl(@PathVariable String dest_url) throws URISyntaxException {
         String srcUrl = shortenUrlService.responseShortUrl(dest_url);
         URI sourceURL = new URI(srcUrl);
