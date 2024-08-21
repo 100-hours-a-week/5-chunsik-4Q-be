@@ -1,13 +1,17 @@
 package org.chunsik.pq.email.controller;
 
+import io.sentry.Sentry;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.chunsik.pq.email.dto.EmailConfirmRequestDTO;
 import org.chunsik.pq.email.exception.TooManyRequestsException;
 import org.chunsik.pq.email.service.EmailService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Map;
 
 @RestController
 @RequestMapping("/users/email")
@@ -17,8 +21,9 @@ public class EmailController {
 
     // 인증번호 요청
     @PostMapping("/request")
-    public ResponseEntity<String> sendEmail(@RequestParam String email, HttpServletRequest request, HttpServletResponse response) {
-        if (email.isEmpty()) {
+    public ResponseEntity<String> sendEmail(@RequestBody EmailConfirmRequestDTO dto, HttpServletRequest request, HttpServletResponse response) {
+        String email = dto.getEmail();
+        if (email == null || email.isEmpty()) {
             return new ResponseEntity<>("Invalid request format.", HttpStatus.BAD_REQUEST);
         }
         emailService.sendSimpleEmail(email, request, response);
@@ -47,11 +52,13 @@ public class EmailController {
 
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<String> handleRuntimeException(RuntimeException e) {
+        Sentry.captureException(e);
         return new ResponseEntity<>("Internal server error.", HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<String> handleException(Exception e) {
+        Sentry.captureException(e);
         return new ResponseEntity<>("Internal server error.", HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }

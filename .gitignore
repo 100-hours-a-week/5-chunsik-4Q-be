@@ -99,4 +99,6 @@ $RECYCLE.BIN/
 src/main/generated/
 logs/
 
-src/main/resources/secrets**
+src/main/resources/secrets.yaml
+
+.gitignore

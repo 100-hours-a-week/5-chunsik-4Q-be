@@ -4,10 +4,13 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.chunsik.pq.email.exception.TooManyRequestsException;
 import org.chunsik.pq.email.model.EmailConfirm;
 import org.chunsik.pq.email.repository.EmailConfirmRepository;
 import org.chunsik.pq.email.util.AESUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -20,6 +23,7 @@ import java.util.Optional;
 import java.util.random.RandomGenerator;
 import java.util.random.RandomGeneratorFactory;
 
+@Slf4j
 @RequiredArgsConstructor
 @Service
 public class EmailService {
@@ -30,6 +34,7 @@ public class EmailService {
     private static final int MAX_REQUESTS = 5;
     private static final int COOKIE_EXPIRATION_MINUTES = 30;
     private static final String REQUEST_COUNT_COOKIE_NAME = "requestCount";
+    private static final Logger logger = LoggerFactory.getLogger(EmailService.class);
 
     private final RandomGenerator randomGenerator = RandomGeneratorFactory.of("Random").create();
     private final JavaMailSender mailSender;
@@ -61,7 +66,7 @@ public class EmailService {
         try {
             encryptedCode = AESUtil.encrypt(verificationCode);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("Error while encrypting the secret code", e);
             throw new RuntimeException("Error while encrypting the secret code");
         }
 

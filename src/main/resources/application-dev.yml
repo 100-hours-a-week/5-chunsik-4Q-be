@@ -7,6 +7,9 @@ spring:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.MySQLDialect
+  config:
+    import:
+      - classpath:secrets/secrets.yaml
   datasource:
     url: jdbc:mysql://${chunsik.db.url}:3306/pq
     username: ${chunsik.db.user}
@@ -33,7 +36,8 @@ spring:
 auth-code-expiration-millis: 180000
 server:
   port: 8080
-
+sentry:
+  environment: development
 cloud:
   aws:
     s3:
