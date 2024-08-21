@@ -1,6 +1,7 @@
 package org.chunsik.pq.shortenurl.controller;
 
 
+import io.sentry.Sentry;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.chunsik.pq.shortenurl.dto.RequestConvertUrlDTO;
@@ -54,5 +55,11 @@ public class ShortenUrlController {
     @ExceptionHandler(URLConvertReachTheLimitException.class)
     public ResponseEntity<?> handleURLConvertReachTheLimitException(URLConvertReachTheLimitException ex) {
         return ResponseEntity.status(ex.getErrorCode().getStatus()).body(new ErrorResponse(ex.getErrorCode().getStatus(), ex.getErrorCode().getMessage()));
+    }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<?> handleException(Exception e) {
+        Sentry.captureException(e);
+        return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }

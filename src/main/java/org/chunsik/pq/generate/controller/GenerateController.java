@@ -1,5 +1,6 @@
 package org.chunsik.pq.generate.controller;
 
+import io.sentry.Sentry;
 import org.chunsik.pq.generate.dto.GenerateImageDTO;
 import org.chunsik.pq.generate.dto.GenerateResponseDTO;
 import org.chunsik.pq.generate.service.GenerateService;
@@ -24,7 +25,14 @@ public class GenerateController {
 
     @ExceptionHandler(IOException.class)
     public ResponseEntity<String> handleIOException(IOException e) {
+        Sentry.captureException(e);
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(e.getMessage());
+    }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<String> handleException(Exception e) {
+        Sentry.captureException(e);
+        return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }

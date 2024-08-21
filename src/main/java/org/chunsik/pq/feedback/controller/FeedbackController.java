@@ -1,5 +1,6 @@
 package org.chunsik.pq.feedback.controller;
 
+import io.sentry.Sentry;
 import lombok.RequiredArgsConstructor;
 import org.chunsik.pq.feedback.dto.FeedbackDTO;
 import org.chunsik.pq.feedback.service.FeedbackService;
@@ -31,6 +32,7 @@ public class FeedbackController {
     @ExceptionHandler(Exception.class)
     public ResponseEntity<String> handleException(Exception e) {
         // 500 Internal Server Error - 서버에서 처리 중 오류가 발생한 경우
+        Sentry.captureException(e);
         return new ResponseEntity<>("Internal Server Error.", HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }
