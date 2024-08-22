@@ -2,6 +2,7 @@ package org.chunsik.pq.shortenurl.controller;
 
 
 import io.sentry.Sentry;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.chunsik.pq.shortenurl.dto.RequestConvertUrlDTO;
@@ -27,9 +28,11 @@ public class ShortenUrlController {
     private final ShortenUrlService shortenUrlService;
 
     @PostMapping("/short")
-    public ResponseConvertUrlDTO urlConvert(@RequestBody @Valid RequestConvertUrlDTO requestConvertUrlDTO) {
+    public ResponseConvertUrlDTO urlConvert(@RequestBody @Valid RequestConvertUrlDTO requestConvertUrlDTO,
+                                            HttpServletRequest request) {
         String url = requestConvertUrlDTO.getSrcUrl();
-        return shortenUrlService.convertToShortUrl(url);
+
+        return shortenUrlService.convertToShortUrl(url, request.getScheme() + "://" + request.getServerName());
     }
 
     @GetMapping("/s/{dest_url}")
