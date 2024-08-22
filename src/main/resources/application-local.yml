@@ -43,6 +43,9 @@ cloud:
   aws:
     s3:
       bucket: ${chunsik.s3.bucket}
+      generate: ${chunsik.s3.generate}
+      ticket: ${chunsik.s3.ticket}
+
     region:
       static: ap-northeast-2
     stack:
