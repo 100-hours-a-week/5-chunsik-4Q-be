@@ -1,7 +1,6 @@
 package org.chunsik.pq.s3.manager;
 
 import lombok.RequiredArgsConstructor;
-import org.chunsik.pq.s3.dto.S3UploadDTO;
 import org.chunsik.pq.s3.dto.S3UploadResponseDTO;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -10,6 +9,8 @@ import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.GetObjectRequest;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 
+import java.io.File;
+import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Paths;
@@ -25,9 +26,8 @@ public class S3Manager {
     @Value("${cloud.aws.s3.bucket}")
     private String bucketName;
 
-    public S3UploadResponseDTO uploadFile(S3UploadDTO s3UploadDTO) {
-        String filename = UUID.randomUUID() + ".jpg"; // UUID로 대체하여 고유한 파일 이름을 생성
-        String fullFileName = "generate/" + filename;
+    public S3UploadResponseDTO uploadFile(File file, String folder) throws IOException {
+        String fullFileName = generateFileName(folder); // 이미지 생성 ai에 따라 karlo 또는 generate(OpenAI)
 
         PutObjectRequest putObjectRequest = PutObjectRequest.builder()
                 .bucket(bucketName)
@@ -37,9 +37,14 @@ public class S3Manager {
 
         String s3Url = makeS3Url(fullFileName);
 
-        s3Client.putObject(putObjectRequest, RequestBody.fromFile(s3UploadDTO.getFile()));
+        s3Client.putObject(putObjectRequest, RequestBody.fromFile(file));
 
         return new S3UploadResponseDTO(fullFileName, s3Url);
+    }
+
+    private String generateFileName(String prefix) {
+        String filename = UUID.randomUUID() + ".jpg"; // UUID로 대체하여 고유한 파일 이름을 생성
+        return prefix + filename;
     }
 
     private String makeS3Url(String fullFileName) {

@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 
@@ -20,7 +21,17 @@ public class GenerateController {
 
     @PostMapping("/generate")
     public GenerateResponseDTO generateImage(@RequestBody GenerateImageDTO generateImageDTO) throws IOException {
-        return generateService.generateAndUploadImage(generateImageDTO);
+        return generateService.generateImage(generateImageDTO);
+    }
+
+    @PostMapping("/create")
+    public void createImage(@RequestPart(value = "ticketImage") MultipartFile ticketImage,
+                            @RequestPart(value = "backgroundImageUrl") String backgroundImageUrl,
+                            @RequestPart(value = "shortenUrlId") String shortenUrlId,
+                            @RequestPart(value = "title") String title,
+                            @RequestPart(value = "generateImageDTO") GenerateImageDTO generateImageDTO
+    ) throws IOException {
+        generateService.createImage(ticketImage, backgroundImageUrl, shortenUrlId, title, generateImageDTO);
     }
 
     @ExceptionHandler(IOException.class)

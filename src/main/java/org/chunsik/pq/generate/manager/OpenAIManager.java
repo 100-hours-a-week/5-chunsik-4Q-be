@@ -44,8 +44,11 @@ public class OpenAIManager {
 
         ResponseEntity<GenerateApiResponseDTO> response = restTemplate.exchange(url, HttpMethod.POST, entity, GenerateApiResponseDTO.class);
 
+
+        String responseUrl = response.getBody().getData().get(0).get("url");
+
         return GenerateResponseDTO.builder()
-                .url(response.getBody().getData().get(0).get("url"))
+                .url(responseUrl)
                 .build();
     }
 }
