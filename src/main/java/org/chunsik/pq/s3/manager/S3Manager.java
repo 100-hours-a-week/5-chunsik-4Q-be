@@ -44,7 +44,7 @@ public class S3Manager {
 
     private String generateFileName(String prefix) {
         String filename = UUID.randomUUID() + ".jpg"; // UUID로 대체하여 고유한 파일 이름을 생성
-        return prefix + filename;
+        return prefix + "/" + filename;
     }
 
     private String makeS3Url(String fullFileName) {
