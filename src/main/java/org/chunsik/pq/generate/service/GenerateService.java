@@ -44,7 +44,7 @@ public class GenerateService {
     private String generate;
 
     @Value("${cloud.aws.s3.ticket}")
-    private String ticket_folder;
+    private String ticketFolder;
 
     @Transactional
     public GenerateResponseDTO generateImage(GenerateImageDTO generateImageDTO) {
@@ -95,7 +95,7 @@ public class GenerateService {
         File file = new File("/tmp/" + UUID.randomUUID() + ".jpg");
         ticketImage.transferTo(file);
 
-        s3UploadResponseDTO = s3Manager.uploadFile(file, ticket_folder);
+        s3UploadResponseDTO = s3Manager.uploadFile(file, ticketFolder);
 
         // 단축 URL
         ShortenURL shortenURL = shortenURLRepository.findById(shortenUrlId).orElseThrow(() -> new NoSuchElementException("No shorten URL found for shortenUrlId: " + shortenUrlId));
