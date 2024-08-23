@@ -8,6 +8,8 @@ import org.chunsik.pq.generate.dto.GenerateResponseDTO;
 import org.chunsik.pq.generate.manager.OpenAIManager;
 import org.chunsik.pq.generate.model.BackgroundImage;
 import org.chunsik.pq.generate.model.Category;
+import org.chunsik.pq.generate.model.Tag;
+import org.chunsik.pq.generate.model.TagBackgroundImage;
 import org.chunsik.pq.generate.repository.BackgroundImageRepository;
 import org.chunsik.pq.generate.repository.CategoryRepository;
 import org.chunsik.pq.generate.repository.TagBackgroundImageRepository;
@@ -48,9 +50,8 @@ public class GenerateService {
     private final UserRepository userRepository;
     private final TicketRepository ticketRepository;
     private final CategoryRepository categoryRepository;
-//    private final TagRepository tagRepository;
-//    private final TagBackgroundImageRepository tagBackgroundImageRepository;
-
+    private final TagRepository tagRepository;
+    private final TagBackgroundImageRepository tagBackgroundImageRepository;
 
     @Value("${cloud.aws.s3.generate}")
     private String generate;
@@ -100,6 +101,9 @@ public class GenerateService {
         BackgroundImage backgroundImage = builder.build();
         backgroundImageRepository.save(backgroundImage);
 
+        // 태그와 BackgroundImage 간의 관계 저장
+        saveTagBackgroundImages(tags, backgroundImage.getId());
+
         // 티켓 이미지 S3 업로드
         File file = new File("/tmp/" + UUID.randomUUID() + ".jpg");
         ticketImage.transferTo(file);
@@ -112,7 +116,7 @@ public class GenerateService {
             throw new NoSuchElementException("No shorten URL found for shortenUrlId: " + shortenUrlId);
         }
 
-        Optional<User> user = Optional.empty();;
+        Optional<User> user = Optional.empty();
         if (userId != null) {
             user = userRepository.findById(userId);
             if (user.isEmpty()) {
@@ -153,5 +157,21 @@ public class GenerateService {
         Optional<Category> category = categoryRepository.findByName(categoryName);
         return category.map(Category::getId)
                 .orElseThrow(() -> new IllegalArgumentException("Category not found: " + categoryName));
+    }
+
+    // Tags 처리 및 TagBackgroundImage에 저장
+    private void saveTagBackgroundImages(List<String> tags, Long backgroundImageId) {
+        for (String tagName : tags) {
+            Optional<Tag> tagOptional = tagRepository.findByName(tagName);
+            if (tagOptional.isPresent()) {
+                Tag tag = tagOptional.get();
+
+                // TagBackgroundImage 객체 생성 후 저장
+                TagBackgroundImage tagBackgroundImage = new TagBackgroundImage(tag.getId(), backgroundImageId);
+                tagBackgroundImageRepository.save(tagBackgroundImage);
+            } else {
+                // Tag가 없는 경우, 여기서 새 Tag를 생성하거나 무시할 수 있습니다.
+            }
+        }
     }
 }

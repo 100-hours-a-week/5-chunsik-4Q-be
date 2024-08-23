@@ -18,12 +18,12 @@ import java.util.Map;
 public class GenerateController {
     private final GenerateService generateService;
 
-    @PostMapping("/generate")
+    @PostMapping("/image")
     public GenerateResponseDTO generateImage(@RequestBody GenerateImageDTO generateImageDTO) throws IOException {
         return generateService.generateImage(generateImageDTO);
     }
 
-    @PostMapping("/create")
+    @PostMapping("/ticket")
     public Map<String, String> createImage(@ModelAttribute GenerateApiRequestDTO dto) throws IOException {
         generateService.createImage(dto);
         return Map.of("message", "Success");
