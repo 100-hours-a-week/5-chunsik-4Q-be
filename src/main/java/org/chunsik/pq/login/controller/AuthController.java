@@ -3,7 +3,6 @@ package org.chunsik.pq.login.controller;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.chunsik.pq.login.dto.JwtTokenResponseDto;
-import org.chunsik.pq.login.security.JwtTokenProvider;
 import org.chunsik.pq.login.service.AuthService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
