@@ -15,7 +15,6 @@ import java.util.Map;
 
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("/api/v1")
 public class GenerateController {
     private final GenerateService generateService;
 

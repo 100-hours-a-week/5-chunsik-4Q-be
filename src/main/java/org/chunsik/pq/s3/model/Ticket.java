@@ -17,9 +17,8 @@ public class Ticket {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
-    private User user;
+    @Column(name = "user_id")
+    private Integer userId;
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "url_id", nullable = false)
@@ -35,8 +34,8 @@ public class Ticket {
     @Column(name = "image_path")
     private String imagePath;
 
-    public Ticket(User user, ShortenURL url, BackgroundImage backgroundImage, String title, String imagePath) {
-        this.user = user;
+    public Ticket(Integer userId, ShortenURL url, BackgroundImage backgroundImage, String title, String imagePath) {
+        this.userId = userId;
         this.url = url;
         this.backgroundImage = backgroundImage;
         this.title = title;
