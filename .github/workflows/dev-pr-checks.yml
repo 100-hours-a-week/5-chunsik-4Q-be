@@ -6,6 +6,7 @@ on:
       - opened
     branches:
       - dev
+  workflow_dispatch:
 
 
 env:

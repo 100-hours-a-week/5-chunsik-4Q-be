@@ -20,7 +20,7 @@ public class ShortenUrlService {
     private final ShortenUrlRepository shortenUrlRepository;
     private final ShortenUrlManager shortenUrlManager;
 
-    public ResponseConvertUrlDTO convertToShortUrl(String srcUrl) {
+    public ResponseConvertUrlDTO convertToShortUrl(String srcUrl, String serverName) {
         String destUrl = INIT_STRING_SET;
 
         for (int count = INIT_NUMBER; count < END_OF_TRY_NUMBER; count++) {
@@ -35,6 +35,7 @@ public class ShortenUrlService {
         Long id = shortenUrlRepository.save(shortenURL).getId();
 
         return new ResponseConvertUrlDTO(id, addPrefix);
+
     }
 
     public String responseShortUrl(String destUrl) {
