@@ -16,6 +16,7 @@ public class ShortenURL {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Lob
     @Column(name = "src_url", columnDefinition = "TEXT")
     private String srcURL;
 

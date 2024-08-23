@@ -5,7 +5,7 @@ import org.springframework.http.HttpStatus;
 
 @Getter
 public enum ErrorCode {
-    REACH_LIMIT(HttpStatus.NOT_EXTENDED, "URL 단축에 실패했습니다."),
+    REACH_LIMIT(HttpStatus.INTERNAL_SERVER_ERROR, "URL 단축에 실패했습니다."),
     FORMAT_NOT_MATCH(HttpStatus.BAD_REQUEST, "URL 형식이 올바르지 않습니다."),
     SYNTAX_NOT_MATCH(HttpStatus.BAD_REQUEST, "연결된 URL이 없습니다.");
 
