@@ -16,7 +16,7 @@ public class ShortenURL {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "src_url")
+    @Column(name = "src_url", columnDefinition = "TEXT")
     private String srcURL;
 
     @Column(name = "dest_url")

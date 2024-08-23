@@ -29,10 +29,12 @@ public class ShortenUrlService {
             if (count == END_OF_DUPLICATION_TRY) throw new URLConvertReachTheLimitException(ErrorCode.REACH_LIMIT);
         }
 
-        ShortenURL shortenURL = new ShortenURL(srcUrl, destUrl, LocalDateTime.now());
+        String addPrefix = PREFIX_DOMAIN_URL + destUrl;
+
+        ShortenURL shortenURL = new ShortenURL(srcUrl, addPrefix, LocalDateTime.now());
         Long id = shortenUrlRepository.save(shortenURL).getId();
 
-        return new ResponseConvertUrlDTO(id, destUrl);
+        return new ResponseConvertUrlDTO(id, addPrefix);
     }
 
     public String responseShortUrl(String destUrl) {
