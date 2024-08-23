@@ -57,6 +57,9 @@ openai:
     key: ${chunsik.openai.key}
 
 chunsik:
+  front:
+    domain: "www.qqqq.world"
+    url: "https://${chunsik.front.domain}"
   server:
     domain: "api.qqqq.world"
     url: "https://${chunsik.server.domain}"
