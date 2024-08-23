@@ -7,6 +7,7 @@ import org.chunsik.pq.shortenurl.exception.URLConvertReachTheLimitException;
 import org.chunsik.pq.shortenurl.manager.ShortenUrlManager;
 import org.chunsik.pq.shortenurl.model.ShortenURL;
 import org.chunsik.pq.shortenurl.repository.ShortenUrlRepository;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -17,10 +18,13 @@ import static org.chunsik.pq.shortenurl.util.constant.ShortenUrlConstant.*;
 @RequiredArgsConstructor
 public class ShortenUrlService {
 
+    @Value("${chunsik.server.url}")
+    private String serverDomain;
+
     private final ShortenUrlRepository shortenUrlRepository;
     private final ShortenUrlManager shortenUrlManager;
 
-    public ResponseConvertUrlDTO convertToShortUrl(String srcUrl, String serverName) {
+    public ResponseConvertUrlDTO convertToShortUrl(String srcUrl) {
         String destUrl = INIT_STRING_SET;
 
         for (int count = INIT_NUMBER; count < END_OF_TRY_NUMBER; count++) {
@@ -32,14 +36,13 @@ public class ShortenUrlService {
         ShortenURL shortenURL = new ShortenURL(srcUrl, destUrl, LocalDateTime.now());
         Long id = shortenUrlRepository.save(shortenURL).getId();
 
-        String returnURL = serverName + "/s/" + destUrl;
-        return new ResponseConvertUrlDTO(id, returnURL);
+        String fullQualifiedShortUrl = serverDomain + "/s/" + destUrl;
+        return new ResponseConvertUrlDTO(id, fullQualifiedShortUrl);
+
     }
 
     public String responseShortUrl(String destUrl) {
         ShortenURL shortenURL = shortenUrlRepository.findByDestURL(destUrl);
-        System.out.println(shortenURL.getSrcURL());
-        System.out.println(shortenURL.getDestURL());
         return shortenURL.getSrcURL();
     }
 

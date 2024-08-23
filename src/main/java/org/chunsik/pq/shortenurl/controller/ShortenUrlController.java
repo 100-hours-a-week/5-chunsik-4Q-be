@@ -28,11 +28,9 @@ public class ShortenUrlController {
     private final ShortenUrlService shortenUrlService;
 
     @PostMapping("/short")
-    public ResponseConvertUrlDTO urlConvert(@RequestBody @Valid RequestConvertUrlDTO requestConvertUrlDTO,
-                                            HttpServletRequest request) {
+    public ResponseConvertUrlDTO urlConvert(@RequestBody @Valid RequestConvertUrlDTO requestConvertUrlDTO) {
         String url = requestConvertUrlDTO.getSrcUrl();
-
-        return shortenUrlService.convertToShortUrl(url, request.getScheme() + "://" + request.getServerName());
+        return shortenUrlService.convertToShortUrl(url);
     }
 
     @GetMapping("/s/{dest_url}")

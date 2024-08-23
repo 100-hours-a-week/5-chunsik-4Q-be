@@ -26,6 +26,12 @@ public class OauthController {
     private final UserService userService;
     private final KakaoOAuthProvider kakaoOAuthProvider;
 
+    @Value("${chunsik.server.domain}")
+    private String serverDomain;
+
+    @Value("${chunsik.front.url}")
+    private String frontDomain;
+
     @Value("${chunsik.cookie.maxage}")
     private int maxAge;
 
@@ -39,11 +45,12 @@ public class OauthController {
         refreshTokenCookie.setHttpOnly(true);
         refreshTokenCookie.setPath("/");
         refreshTokenCookie.setMaxAge(maxAge);
+        refreshTokenCookie.setDomain(serverDomain);
         response.addCookie(refreshTokenCookie);
 
         Map<String, String> responseBody = new HashMap<>();
         responseBody.put("accessToken", tokenDto.getAccessToken());
 
-        response.sendRedirect("https://www.qqqq.world");
+        response.sendRedirect(frontDomain);
     }
 }

@@ -9,6 +9,5 @@ public final class ShortenUrlConstant {
     public static final int END_OF_TRY_NUMBER = 5;
 
 
-    private ShortenUrlConstant() {
-    }
+    private ShortenUrlConstant() {}
 }
