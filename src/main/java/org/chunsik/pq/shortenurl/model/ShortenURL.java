@@ -5,8 +5,6 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.net.URL;
-import java.sql.Timestamp;
 import java.time.LocalDateTime;
 
 @NoArgsConstructor
@@ -18,7 +16,8 @@ public class ShortenURL {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "src_url")
+    @Lob
+    @Column(name = "src_url", columnDefinition = "TEXT")
     private String srcURL;
 
     @Column(name = "dest_url")
