@@ -1,11 +1,13 @@
 package org.chunsik.pq.generate.dto;
 
-public class CreateImageResponseDto {
-    private String message;
-    private Long id;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 
-    public CreateImageResponseDto(String message, Long id) {
-        this.message = message;
-        this.id = id;
-    }
+@RequiredArgsConstructor
+@Getter
+@Setter
+public class CreateImageResponseDto {
+    private final String message;
+    private final Long id;
 }

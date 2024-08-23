@@ -2,10 +2,7 @@ package org.chunsik.pq.generate.service;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.chunsik.pq.generate.dto.GenerateApiRequestDTO;
-import org.chunsik.pq.generate.dto.GenerateImageDTO;
-import org.chunsik.pq.generate.dto.GenerateResponseDTO;
-import org.chunsik.pq.generate.dto.TicketResponseDTO;
+import org.chunsik.pq.generate.dto.*;
 import org.chunsik.pq.generate.manager.OpenAIManager;
 import org.chunsik.pq.generate.model.BackgroundImage;
 import org.chunsik.pq.generate.repository.BackgroundImageRepository;
@@ -53,7 +50,7 @@ public class GenerateService {
     }
 
     @Transactional
-    public Long createImage(GenerateApiRequestDTO dto) throws IOException {
+    public CreateImageResponseDto createImage(GenerateApiRequestDTO dto) throws IOException {
         return this.createImage(dto.getTicketImage(), dto.getBackgroundImageUrl(),
                 dto.getShortenUrlId(), dto.getTitle(),
                 dto.getTags(), dto.getUserId(), dto.getCategoryId()
@@ -61,7 +58,7 @@ public class GenerateService {
     }
 
     @Transactional
-    public Long createImage(
+    public CreateImageResponseDto createImage(
             MultipartFile ticketImage, String backgroundImageUrl,
             Long shortenUrlId, String title,
             List<String> tags, Long userId, String categoryId
@@ -104,7 +101,9 @@ public class GenerateService {
         User user = userRepository.findById(userId).orElseThrow(() -> new NoSuchElementException("No user found for userId: " + userId));
 
         Ticket ticket = new Ticket(user, shortenURL, backgroundImage, title, s3UploadResponseDTO.getS3Url());
-        return ticketRepository.save(ticket).getId();
+        Long id = ticketRepository.save(ticket).getId();
+
+        return new CreateImageResponseDto("Success", id);
     }
 
     public TicketResponseDTO findTicketById(Long ticketId) {

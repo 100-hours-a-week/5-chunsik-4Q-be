@@ -9,7 +9,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
-import java.util.Map;
 
 @RequiredArgsConstructor
 @RestController
@@ -24,8 +23,7 @@ public class GenerateController {
 
     @PostMapping("/create")
     public CreateImageResponseDto createImage(@ModelAttribute GenerateApiRequestDTO dto) throws IOException {
-        Long id = generateService.createImage(dto);
-        return new CreateImageResponseDto("Success", id);
+        return generateService.createImage(dto);
     }
 
     @GetMapping("/ticket/{id}")
