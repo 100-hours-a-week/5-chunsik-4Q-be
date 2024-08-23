@@ -63,7 +63,7 @@ public class GenerateService {
     @Transactional
     public void createImage(
             MultipartFile ticketImage, String backgroundImageUrl,
-            String shortenUrlId, String title,
+            Long shortenUrlId, String title,
             List<String> tags, Long userId, String categoryId
     ) throws IOException, NoSuchElementException {
         // 배경이미지 다운로드
@@ -98,7 +98,7 @@ public class GenerateService {
         s3UploadResponseDTO = s3Manager.uploadFile(file, ticket);
 
         // 단축 URL
-        Optional<ShortenURL> shortenURL = shortenURLRepository.findById(Long.valueOf(shortenUrlId));
+        Optional<ShortenURL> shortenURL = shortenURLRepository.findById(shortenUrlId);
         if (shortenURL.isEmpty()) {
             throw new NoSuchElementException("No shorten URL found for shortenUrlId: " + shortenUrlId);
         }
