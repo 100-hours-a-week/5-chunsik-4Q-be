@@ -1,5 +1,7 @@
 package org.chunsik.pq.login.security;
 
+import lombok.Getter;
+import org.chunsik.pq.model.OauthProvider;
 import org.chunsik.pq.model.User;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -9,10 +11,18 @@ import java.util.Collections;
 
 public class CustomUserDetails implements UserDetails {
 
-    private final User user;
+    @Getter
+    private final Long id;
+    private final String email;
+    private final String password;
+    @Getter
+    private final OauthProvider oauthProvider;
 
     public CustomUserDetails(User user) {
-        this.user = user;
+        this.id = user.getId();
+        this.email = user.getEmail();
+        this.password = user.getPassword();
+        this.oauthProvider = user.getOauthProvider();
     }
 
     @Override
@@ -42,11 +52,11 @@ public class CustomUserDetails implements UserDetails {
 
     @Override
     public String getPassword() {
-        return user.getPassword();
+        return this.password;
     }
 
     @Override
     public String getUsername() {
-        return user.getEmail();
+        return this.email;
     }
 }

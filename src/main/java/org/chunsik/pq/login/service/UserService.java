@@ -7,6 +7,7 @@ import org.chunsik.pq.login.dto.SignUpOrLoginDto;
 import org.chunsik.pq.login.dto.TokenDto;
 import org.chunsik.pq.login.exception.DuplicateEmailException;
 import org.chunsik.pq.login.repository.UserRepository;
+import org.chunsik.pq.login.security.CustomUserDetails;
 import org.chunsik.pq.login.security.JwtTokenProvider;
 import org.chunsik.pq.model.OauthProvider;
 import org.chunsik.pq.model.User;
@@ -25,7 +26,6 @@ import java.util.Optional;
 @RequiredArgsConstructor
 @Service
 public class UserService {
-
     private final UserRepository userRepository;
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
     private final JwtTokenProvider jwtTokenProvider;
@@ -35,8 +35,13 @@ public class UserService {
         UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(email, password);
         Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
 
-        String accessToken = jwtTokenProvider.createToken(email);
-        String refreshToken = jwtTokenProvider.createRefreshToken(email);
+        Object principal = authentication.getPrincipal();
+        if (!(principal instanceof CustomUserDetails userDetails)) {
+            throw new ClassCastException("cannot cast principal to CustomUserDetails");
+        }
+
+        String accessToken = jwtTokenProvider.createToken(userDetails.getUsername(), userDetails.getId());
+        String refreshToken = jwtTokenProvider.createRefreshToken(userDetails.getUsername(), userDetails.getId());
 
         return new TokenDto(accessToken, refreshToken);
     }
@@ -77,8 +82,8 @@ public class UserService {
         UsernamePasswordAuthenticationToken token = UsernamePasswordAuthenticationToken.authenticated(user.getEmail(), user.getPassword(), new ArrayList<>());
         SecurityContextHolder.getContext().setAuthentication(token);
 
-        String accessToken = jwtTokenProvider.createToken(user.getEmail());
-        String refreshToken = jwtTokenProvider.createRefreshToken(user.getEmail());
+        String accessToken = jwtTokenProvider.createToken(user.getEmail(), user.getId());
+        String refreshToken = jwtTokenProvider.createRefreshToken(user.getEmail(), user.getId());
 
         return new TokenDto(accessToken, refreshToken);
     }

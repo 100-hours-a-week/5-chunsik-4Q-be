@@ -16,8 +16,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
 
 @RequiredArgsConstructor
 @RestController
@@ -40,9 +38,6 @@ public class OauthController {
         refreshTokenCookie.setPath("/");
         refreshTokenCookie.setMaxAge(maxAge);
         response.addCookie(refreshTokenCookie);
-
-        Map<String, String> responseBody = new HashMap<>();
-        responseBody.put("accessToken", tokenDto.getAccessToken());
 
         response.sendRedirect("https://www.qqqq.world");
     }

@@ -4,6 +4,7 @@ import io.jsonwebtoken.*;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.chunsik.pq.login.dto.TokenClaimsDto;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -29,13 +30,15 @@ public class JwtTokenProvider {
 
     private final UserDetailsService userDetailsService;
 
+    private static final String CLAIM_KEY_USER_ID = "userId";
+
     @PostConstruct
     protected void init() {
         secretKey = Base64.getEncoder().encodeToString(secretKey.getBytes());
     }
 
-    public String createToken(String email) {
-        Claims claims = Jwts.claims().setSubject(email);
+    public String createToken(String email, Long userId) {
+        Claims claims = makeClaims(email, userId);
         Date now = new Date();
 
         return Jwts.builder()
@@ -46,8 +49,8 @@ public class JwtTokenProvider {
                 .compact();
     }
 
-    public String createRefreshToken(String email) {
-        Claims claims = Jwts.claims().setSubject(email);
+    public String createRefreshToken(String email, Long userId) {
+        Claims claims = makeClaims(email, userId);
         Date now = new Date();
 
         return Jwts.builder()
@@ -58,19 +61,27 @@ public class JwtTokenProvider {
                 .compact();
     }
 
+    private Claims makeClaims(String email, Long userId) {
+        Claims claims = Jwts.claims()
+                .setSubject(email);
+        claims.put(CLAIM_KEY_USER_ID, userId);
+        return claims;
+    }
+
     public Authentication getAuthentication(String token) {
-        UserDetails userDetails = userDetailsService.loadUserByUsername(getMemberEmail(token));
+        TokenClaimsDto claimsFromToken = getClaimsFromToken(token);
+        UserDetails userDetails = userDetailsService.loadUserByUsername(claimsFromToken.getEmail());
         return new UsernamePasswordAuthenticationToken(userDetails, "", userDetails.getAuthorities());
     }
 
-    public String getMemberEmail(String token) {
+    public TokenClaimsDto getClaimsFromToken(String token) {
         // 만료 토큰 예외를 던져버리면 ControllerExceptionHandler에서 예외 처리함.
-        return Jwts.parserBuilder()
+        Claims body = Jwts.parserBuilder()
                 .setSigningKey(secretKey)
                 .build()
                 .parseClaimsJws(token)
-                .getBody()
-                .getSubject();
+                .getBody();
+        return new TokenClaimsDto(body.getSubject(), (Long) body.get(CLAIM_KEY_USER_ID));
     }
 
     public boolean validateTokenExpiration(String token) {

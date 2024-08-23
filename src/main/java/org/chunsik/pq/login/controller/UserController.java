@@ -49,11 +49,11 @@ public class UserController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<?> join(@Validated @RequestBody JoinDto joinDto, Errors errors) {
+    public ResponseEntity<Map<String, String>> join(@Validated @RequestBody JoinDto joinDto, Errors errors) {
         if (errors.hasErrors()) {
-            return new ResponseEntity<>("Invalid request format.", HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(Map.of("message", "Malformed request"), HttpStatus.BAD_REQUEST);
         }
         userService.join(joinDto, OauthProvider.LOCAL);
-        return new ResponseEntity<>("Registration successful.", HttpStatus.CREATED);
+        return new ResponseEntity<>(Map.of("message", "Registration success"), HttpStatus.CREATED);
     }
 }
