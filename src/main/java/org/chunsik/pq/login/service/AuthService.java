@@ -3,6 +3,7 @@ package org.chunsik.pq.login.service;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import org.chunsik.pq.login.constant.JwtConstant;
 import org.chunsik.pq.login.dto.JwtTokenResponseDto;
 import org.chunsik.pq.login.dto.TokenClaimsDto;
 import org.chunsik.pq.login.exception.JwtValidationExpireException;
@@ -13,9 +14,6 @@ import org.springframework.stereotype.Service;
 @Service
 public class AuthService {
     private final JwtTokenProvider jwtTokenProvider;
-    private static final String ACCESS_TOKEN = "accessToken";
-    private static final String REFRESH_TOKEN = "refreshToken";
-
 
     public JwtTokenResponseDto issueAccessTokenByRefreshToken(HttpServletRequest request) {
         String refreshToken = getRefreshTokenFromCookies(request);
@@ -37,7 +35,7 @@ public class AuthService {
         Cookie[] cookies = request.getCookies();
         if (cookies != null) {
             for (Cookie cookie : cookies) {
-                if (REFRESH_TOKEN.equals(cookie.getName())) {
+                if (JwtConstant.REFRESH_TOKEN.equals(cookie.getName())) {
                     return cookie.getValue();
                 }
             }

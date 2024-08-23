@@ -3,6 +3,7 @@ package org.chunsik.pq.login.controller;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.chunsik.pq.login.constant.JwtConstant;
 import org.chunsik.pq.login.dto.JoinDto;
 import org.chunsik.pq.login.dto.TokenDto;
 import org.chunsik.pq.login.dto.UserLoginRequestDto;
@@ -36,14 +37,14 @@ public class UserController {
         String password = userLoginRequestDto.getPassword();
         TokenDto tokenDto = userService.login(email, password);
 
-        Cookie refreshTokenCookie = new Cookie("refreshToken", tokenDto.getRefreshToken());
+        Cookie refreshTokenCookie = new Cookie(JwtConstant.REFRESH_TOKEN, tokenDto.getRefreshToken());
         refreshTokenCookie.setHttpOnly(true);
         refreshTokenCookie.setPath("/");
         refreshTokenCookie.setMaxAge(maxAge);
         response.addCookie(refreshTokenCookie);
 
         Map<String, String> responseBody = new HashMap<>();
-        responseBody.put("accessToken", tokenDto.getAccessToken());
+        responseBody.put(JwtConstant.ACCESS_TOKEN, tokenDto.getAccessToken());
 
         return ResponseEntity.ok(responseBody);
     }
