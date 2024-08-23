@@ -55,3 +55,8 @@ cloud:
 openai:
   api:
     key: ${chunsik.openai.key}
+
+chunsik:
+  server:
+    domain: "api.qqqq.world"
+    url: "https://${chunsik.server.domain}"

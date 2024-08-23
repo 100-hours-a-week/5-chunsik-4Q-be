@@ -57,3 +57,8 @@ cloud:
 openai:
   api:
     key: ${chunsik.openai.key}
+
+chunsik:
+  server:
+    domain: "localhost:8080"
+    url: "http://${chunsik.server.domain}"
