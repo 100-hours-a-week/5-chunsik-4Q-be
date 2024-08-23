@@ -7,6 +7,8 @@ import org.chunsik.pq.generate.model.BackgroundImage;
 import org.chunsik.pq.model.User;
 import org.chunsik.pq.shortenurl.model.ShortenURL;
 
+import java.time.LocalDateTime;
+
 @NoArgsConstructor
 @Getter
 @Entity
@@ -34,12 +36,16 @@ public class Ticket {
     @Column(name = "image_path")
     private String imagePath;
 
+    @Column(name = "created_at", columnDefinition = "TIMESTAMP")
+    private LocalDateTime createdAt;
+  
     public Ticket(Integer userId, ShortenURL url, BackgroundImage backgroundImage, String title, String imagePath) {
         this.userId = userId;
         this.url = url;
         this.backgroundImage = backgroundImage;
         this.title = title;
         this.imagePath = imagePath;
+        this.createdAt = LocalDateTime.now();
     }
 }
 

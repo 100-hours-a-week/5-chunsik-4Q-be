@@ -111,7 +111,7 @@ public class GenerateService {
         s3UploadResponseDTO = s3Manager.uploadFile(file, ticket);
 
         // 단축 URL
-        Optional<ShortenURL> shortenURL = shortenURLRepository.findById(Long.valueOf(shortenUrlId));
+        Optional<ShortenURL> shortenURL = shortenURLRepository.findById(shortenUrlId);
         if (shortenURL.isEmpty()) {
             throw new NoSuchElementException("No shorten URL found for shortenUrlId: " + shortenUrlId);
         }
