@@ -2,16 +2,13 @@ package org.chunsik.pq.generate.controller;
 
 import io.sentry.Sentry;
 import lombok.RequiredArgsConstructor;
-import org.chunsik.pq.generate.dto.GenerateApiRequestDTO;
-import org.chunsik.pq.generate.dto.GenerateImageDTO;
-import org.chunsik.pq.generate.dto.GenerateResponseDTO;
+import org.chunsik.pq.generate.dto.*;
 import org.chunsik.pq.generate.service.GenerateService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
-import java.util.Map;
 
 @RequiredArgsConstructor
 @RestController
@@ -24,9 +21,13 @@ public class GenerateController {
     }
 
     @PostMapping("/ticket")
-    public Map<String, String> createImage(@ModelAttribute GenerateApiRequestDTO dto) throws IOException {
-        generateService.createImage(dto);
-        return Map.of("message", "Success");
+    public CreateImageResponseDto createImage(@ModelAttribute GenerateApiRequestDTO dto) throws IOException {
+        return generateService.createImage(dto);
+    }
+
+    @GetMapping("/ticket/{id}")
+    public TicketResponseDTO getTicket(@PathVariable Long id) {
+        return generateService.findTicketById(id);
     }
 
     @ExceptionHandler(IOException.class)

@@ -2,9 +2,7 @@ package org.chunsik.pq.generate.service;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.chunsik.pq.generate.dto.GenerateApiRequestDTO;
-import org.chunsik.pq.generate.dto.GenerateImageDTO;
-import org.chunsik.pq.generate.dto.GenerateResponseDTO;
+import org.chunsik.pq.generate.dto.*;
 import org.chunsik.pq.generate.manager.OpenAIManager;
 import org.chunsik.pq.generate.model.BackgroundImage;
 import org.chunsik.pq.generate.model.Category;
@@ -37,7 +35,6 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -57,7 +54,7 @@ public class GenerateService {
     private String generate;
 
     @Value("${cloud.aws.s3.ticket}")
-    private String ticket;
+    private String ticketFolder;
 
     @Transactional
     public GenerateResponseDTO generateImage(GenerateImageDTO generateImageDTO) {
@@ -66,15 +63,15 @@ public class GenerateService {
     }
 
     @Transactional
-    public void createImage(GenerateApiRequestDTO dto) throws IOException {
-        this.createImage(dto.getTicketImage(), dto.getBackgroundImageUrl(),
+    public CreateImageResponseDto createImage(GenerateApiRequestDTO dto) throws IOException {
+        return this.createImage(dto.getTicketImage(), dto.getBackgroundImageUrl(),
                 dto.getShortenUrlId(), dto.getTitle(),
                 dto.getTags(), dto.getCategory()
         );
     }
 
     @Transactional
-    public void createImage(
+    public CreateImageResponseDto createImage(
             MultipartFile ticketImage, String backgroundImageUrl,
             Integer shortenUrlId, String title,
             List<String> tags, String category
@@ -108,13 +105,10 @@ public class GenerateService {
         File file = new File("/tmp/" + UUID.randomUUID() + ".jpg");
         ticketImage.transferTo(file);
 
-        s3UploadResponseDTO = s3Manager.uploadFile(file, ticket);
+        s3UploadResponseDTO = s3Manager.uploadFile(file, ticketFolder);
 
         // 단축 URL
-        Optional<ShortenURL> shortenURL = shortenURLRepository.findById(shortenUrlId);
-        if (shortenURL.isEmpty()) {
-            throw new NoSuchElementException("No shorten URL found for shortenUrlId: " + shortenUrlId);
-        }
+        ShortenURL shortenURL = shortenURLRepository.findById(shortenUrlId).orElseThrow(() -> new NoSuchElementException("No shorten URL found for shortenUrlId: " + shortenUrlId));
 
         Optional<User> user = Optional.empty();
         if (userId != null) {
