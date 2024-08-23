@@ -43,6 +43,9 @@ public class GenerateService {
     @Value("${cloud.aws.s3.ticket}")
     private String ticketFolder;
 
+    @Value("${chunsik.server.url}")
+    private String serverDomain;
+
     @Transactional
     public GenerateResponseDTO generateImage(GenerateImageDTO generateImageDTO) {
         // 이미지 생성
@@ -111,7 +114,7 @@ public class GenerateService {
 
         String image_path = ticket.getImagePath();
         String title = ticket.getTitle();
-        String shortenUrl = ticket.getUrl().getDestURL();
+        String shortenUrl = serverDomain + "/s/" + ticket.getUrl().getDestURL();
 
         return new TicketResponseDTO(image_path, title, shortenUrl);
     }
