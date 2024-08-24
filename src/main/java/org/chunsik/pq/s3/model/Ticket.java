@@ -4,7 +4,6 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.chunsik.pq.generate.model.BackgroundImage;
-import org.chunsik.pq.model.User;
 import org.chunsik.pq.shortenurl.model.ShortenURL;
 
 import java.time.LocalDateTime;

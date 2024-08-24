@@ -7,10 +7,10 @@ import org.chunsik.pq.feedback.model.Feedback.Gender;
 import org.chunsik.pq.feedback.repository.FeedbackRepository;
 import org.chunsik.pq.login.repository.UserRepository;
 import org.chunsik.pq.model.User;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
@@ -35,7 +35,7 @@ public class FeedbackService {
             // 이메일을 통해 userId 찾기
             Optional<User> userOptional = userRepository.findByEmail(email);
             if (userOptional.isPresent()) {
-                userId = userOptional.get().getId().intValue();
+                userId = userOptional.get().getId();
             }
         }
 

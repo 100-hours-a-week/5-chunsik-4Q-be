@@ -1,7 +1,6 @@
 package org.chunsik.pq.generate.model;
 
 import jakarta.persistence.*;
-
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
