@@ -35,6 +35,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -76,7 +77,7 @@ public class GenerateService {
     @Transactional
     public CreateImageResponseDto createImage(
             MultipartFile ticketImage, String backgroundImageUrl,
-            Integer shortenUrlId, String title,
+            Long shortenUrlId, String title,
             List<String> tags, String category
     ) throws IOException, NoSuchElementException {
         // 로그인된 사용자의 userId를 찾기
@@ -113,19 +114,7 @@ public class GenerateService {
         // 단축 URL
         ShortenURL shortenURL = shortenURLRepository.findById(shortenUrlId).orElseThrow(() -> new NoSuchElementException("No shorten URL found for shortenUrlId: " + shortenUrlId));
 
-
-        Optional<User> user = Optional.empty();
-        if (userId != null) {
-            user = userRepository.findById(userId);
-            if (user.isEmpty()) {
-                throw new NoSuchElementException("No user found for userId: " + userId);
-            }
-        }
-
-        // 로그인 사용자
-        User user = userRepository.findById(userId).orElseThrow(() -> new NoSuchElementException("No user found for userId: " + userId));
-
-        Ticket ticket = new Ticket(user, shortenURL, backgroundImage, title, s3UploadResponseDTO.getS3Url());
+        Ticket ticket = new Ticket(userId, shortenURL, backgroundImage, title, s3UploadResponseDTO.getS3Url());
         Long id = ticketRepository.save(ticket).getId();
 
         return new CreateImageResponseDto("Success", id);
@@ -134,12 +123,11 @@ public class GenerateService {
     public TicketResponseDTO findTicketById(Long ticketId) {
         Ticket ticket = ticketRepository.findById(ticketId).orElseThrow(() -> new NoSuchElementException("No ticket found for ticketId: " + ticketId));
 
-        String image_path = ticket.getImagePath();
+        String imagePath = ticket.getImagePath();
         String title = ticket.getTitle();
         String shortenUrl = serverDomain + "/s/" + ticket.getUrl().getDestURL();
 
-        Ticket ticket = new Ticket(userId, shortenURL.get(), backgroundImage, title, s3UploadResponseDTO.getS3Url());
-        ticketRepository.save(ticket);
+        return new TicketResponseDTO(imagePath, title, shortenUrl);
     }
 
     // url 이미지를 File로 매핑해 리턴하는 메소드

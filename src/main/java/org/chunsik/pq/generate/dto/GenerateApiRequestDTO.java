@@ -13,7 +13,7 @@ import java.util.List;
 public class GenerateApiRequestDTO {
     private MultipartFile ticketImage;
     private String backgroundImageUrl;
-    private Integer shortenUrlId;
+    private Long shortenUrlId;
     private String title;
     private List<String> tags;
     private String category;
