@@ -12,16 +12,15 @@ import java.io.IOException;
 
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("/api/v1")
 public class GenerateController {
     private final GenerateService generateService;
 
-    @PostMapping("/generate")
+    @PostMapping("/image")
     public GenerateResponseDTO generateImage(@RequestBody GenerateImageDTO generateImageDTO) throws IOException {
         return generateService.generateImage(generateImageDTO);
     }
 
-    @PostMapping("/create")
+    @PostMapping("/ticket")
     public CreateImageResponseDto createImage(@ModelAttribute GenerateApiRequestDTO dto) throws IOException {
         return generateService.createImage(dto);
     }

@@ -5,7 +5,13 @@ import lombok.RequiredArgsConstructor;
 import org.chunsik.pq.generate.dto.*;
 import org.chunsik.pq.generate.manager.OpenAIManager;
 import org.chunsik.pq.generate.model.BackgroundImage;
+import org.chunsik.pq.generate.model.Category;
+import org.chunsik.pq.generate.model.Tag;
+import org.chunsik.pq.generate.model.TagBackgroundImage;
 import org.chunsik.pq.generate.repository.BackgroundImageRepository;
+import org.chunsik.pq.generate.repository.CategoryRepository;
+import org.chunsik.pq.generate.repository.TagBackgroundImageRepository;
+import org.chunsik.pq.generate.repository.TagRepository;
 import org.chunsik.pq.login.repository.UserRepository;
 import org.chunsik.pq.model.User;
 import org.chunsik.pq.s3.dto.S3UploadResponseDTO;
@@ -15,6 +21,10 @@ import org.chunsik.pq.s3.repository.TicketRepository;
 import org.chunsik.pq.shortenurl.model.ShortenURL;
 import org.chunsik.pq.shortenurl.repository.ShortenUrlRepository;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -25,6 +35,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -36,6 +47,9 @@ public class GenerateService {
     private final ShortenUrlRepository shortenURLRepository;
     private final UserRepository userRepository;
     private final TicketRepository ticketRepository;
+    private final CategoryRepository categoryRepository;
+    private final TagRepository tagRepository;
+    private final TagBackgroundImageRepository tagBackgroundImageRepository;
 
     @Value("${cloud.aws.s3.generate}")
     private String generate;
@@ -56,7 +70,7 @@ public class GenerateService {
     public CreateImageResponseDto createImage(GenerateApiRequestDTO dto) throws IOException {
         return this.createImage(dto.getTicketImage(), dto.getBackgroundImageUrl(),
                 dto.getShortenUrlId(), dto.getTitle(),
-                dto.getTags(), dto.getUserId(), dto.getCategoryId()
+                dto.getTags(), dto.getCategory()
         );
     }
 
@@ -64,8 +78,14 @@ public class GenerateService {
     public CreateImageResponseDto createImage(
             MultipartFile ticketImage, String backgroundImageUrl,
             Long shortenUrlId, String title,
-            List<String> tags, Long userId, String categoryId
+            List<String> tags, String category
     ) throws IOException, NoSuchElementException {
+        // 로그인된 사용자의 userId를 찾기
+        Integer userId = findAuthenticatedUserId();
+
+        // 카테고리로 카테고리ID 찾기
+        Integer categoryId = findCategoryIdByName(category);
+
         // 배경이미지 다운로드
         File jpgFile = downloadJpg(backgroundImageUrl);
 
@@ -79,17 +99,11 @@ public class GenerateService {
                 .userId(userId)
                 .categoryId(categoryId);
 
-        switch (tags.size()) {
-            case 3:
-                builder.thirdTag(tags.get(2));
-            case 2:
-                builder.secondTag(tags.get(1));
-            case 1:
-                builder.firstTag(tags.get(0));
-        }
-
         BackgroundImage backgroundImage = builder.build();
         backgroundImageRepository.save(backgroundImage);
+
+        // 태그와 BackgroundImage 간의 관계 저장
+        saveTagBackgroundImages(tags, backgroundImage.getId());
 
         // 티켓 이미지 S3 업로드
         File file = new File("/tmp/" + UUID.randomUUID() + ".jpg");
@@ -100,10 +114,7 @@ public class GenerateService {
         // 단축 URL
         ShortenURL shortenURL = shortenURLRepository.findById(shortenUrlId).orElseThrow(() -> new NoSuchElementException("No shorten URL found for shortenUrlId: " + shortenUrlId));
 
-        // 로그인 사용자
-        User user = userRepository.findById(userId).orElseThrow(() -> new NoSuchElementException("No user found for userId: " + userId));
-
-        Ticket ticket = new Ticket(user, shortenURL, backgroundImage, title, s3UploadResponseDTO.getS3Url());
+        Ticket ticket = new Ticket(userId, shortenURL, backgroundImage, title, s3UploadResponseDTO.getS3Url());
         Long id = ticketRepository.save(ticket).getId();
 
         return new CreateImageResponseDto("Success", id);
@@ -112,11 +123,11 @@ public class GenerateService {
     public TicketResponseDTO findTicketById(Long ticketId) {
         Ticket ticket = ticketRepository.findById(ticketId).orElseThrow(() -> new NoSuchElementException("No ticket found for ticketId: " + ticketId));
 
-        String image_path = ticket.getImagePath();
+        String imagePath = ticket.getImagePath();
         String title = ticket.getTitle();
         String shortenUrl = serverDomain + "/s/" + ticket.getUrl().getDestURL();
 
-        return new TicketResponseDTO(image_path, title, shortenUrl);
+        return new TicketResponseDTO(imagePath, title, shortenUrl);
     }
 
     // url 이미지를 File로 매핑해 리턴하는 메소드
@@ -126,5 +137,43 @@ public class GenerateService {
         File jpgFile = File.createTempFile(fileName, "jpg");    // 파일명.jpg
         ImageIO.write(image, "jpg", jpgFile);
         return jpgFile;
+    }
+
+    private Integer findAuthenticatedUserId() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null && !(authentication instanceof AnonymousAuthenticationToken)) {
+            UserDetails details = (UserDetails) authentication.getPrincipal();
+            String email = details.getUsername();
+
+            // 이메일을 통해 userId 찾기
+            Optional<User> userOptional = userRepository.findByEmail(email);
+            return userOptional.map(User::getId)
+                    .orElse(null);
+        }
+        // 비로그인 사용자는 null 반환
+        return null;
+    }
+
+    // 카테고리 이름으로 카테고리 ID 찾기
+    private Integer findCategoryIdByName(String categoryName) {
+        Optional<Category> category = categoryRepository.findByName(categoryName);
+        return category.map(Category::getId)
+                .orElseThrow(() -> new IllegalArgumentException("Category not found: " + categoryName));
+    }
+
+    // Tags 처리 및 TagBackgroundImage에 저장
+    private void saveTagBackgroundImages(List<String> tags, Long backgroundImageId) {
+        for (String tagName : tags) {
+            Optional<Tag> tagOptional = tagRepository.findByName(tagName);
+            if (tagOptional.isPresent()) {
+                Tag tag = tagOptional.get();
+
+                // TagBackgroundImage 객체 생성 후 저장
+                TagBackgroundImage tagBackgroundImage = new TagBackgroundImage(tag.getId(), backgroundImageId);
+                tagBackgroundImageRepository.save(tagBackgroundImage);
+            } else {
+                // Tag가 없는 경우, 여기서 새 Tag를 생성하거나 무시할 수 있습니다.
+            }
+        }
     }
 }

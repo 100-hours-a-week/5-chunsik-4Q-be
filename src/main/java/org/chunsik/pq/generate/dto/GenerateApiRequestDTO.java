@@ -16,6 +16,5 @@ public class GenerateApiRequestDTO {
     private Long shortenUrlId;
     private String title;
     private List<String> tags;
-    private Long userId;
-    private String categoryId;
+    private String category;
 }

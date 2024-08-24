@@ -10,11 +10,11 @@ import java.util.List;
 @RequiredArgsConstructor
 public class GenerateImageDTO {
     private List<String> tags;
-    private String categoryId;
+    private String category;
 
     @Builder
-    public GenerateImageDTO(List<String> tags, String categoryId) {
+    public GenerateImageDTO(List<String> tags, String category) {
         this.tags = tags;
-        this.categoryId = categoryId;
+        this.category = category;
     }
 }
