@@ -56,6 +56,9 @@ public class GenerateService {
     @Value("${cloud.aws.s3.ticket}")
     private String ticketFolder;
 
+    @Value("${chunsik.server.url}")
+    private String serverDomain;
+
     @Transactional
     public GenerateResponseDTO generateImage(GenerateImageDTO generateImageDTO) {
         // 이미지 생성
@@ -110,6 +113,7 @@ public class GenerateService {
         // 단축 URL
         ShortenURL shortenURL = shortenURLRepository.findById(shortenUrlId).orElseThrow(() -> new NoSuchElementException("No shorten URL found for shortenUrlId: " + shortenUrlId));
 
+
         Optional<User> user = Optional.empty();
         if (userId != null) {
             user = userRepository.findById(userId);
@@ -117,6 +121,22 @@ public class GenerateService {
                 throw new NoSuchElementException("No user found for userId: " + userId);
             }
         }
+
+        // 로그인 사용자
+        User user = userRepository.findById(userId).orElseThrow(() -> new NoSuchElementException("No user found for userId: " + userId));
+
+        Ticket ticket = new Ticket(user, shortenURL, backgroundImage, title, s3UploadResponseDTO.getS3Url());
+        Long id = ticketRepository.save(ticket).getId();
+
+        return new CreateImageResponseDto("Success", id);
+    }
+
+    public TicketResponseDTO findTicketById(Long ticketId) {
+        Ticket ticket = ticketRepository.findById(ticketId).orElseThrow(() -> new NoSuchElementException("No ticket found for ticketId: " + ticketId));
+
+        String image_path = ticket.getImagePath();
+        String title = ticket.getTitle();
+        String shortenUrl = serverDomain + "/s/" + ticket.getUrl().getDestURL();
 
         Ticket ticket = new Ticket(userId, shortenURL.get(), backgroundImage, title, s3UploadResponseDTO.getS3Url());
         ticketRepository.save(ticket);
