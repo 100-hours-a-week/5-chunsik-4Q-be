@@ -30,8 +30,8 @@ public class UserController {
     @Value("${chunsik.cookie.maxage}")
     private int maxAge;
 
-    @Value("${chunsik.server.domain}")
-    private String serverDomain;
+    @Value("${chunsik.domain}")
+    private String cookieDomain;
 
     @PostMapping("/login")
     public ResponseEntity<Map<String, String>> login(@RequestBody UserLoginRequestDto userLoginRequestDto, HttpServletResponse response) {
@@ -43,7 +43,7 @@ public class UserController {
         refreshTokenCookie.setHttpOnly(true);
         refreshTokenCookie.setPath("/");
         refreshTokenCookie.setMaxAge(maxAge);
-        refreshTokenCookie.setDomain(serverDomain);
+        refreshTokenCookie.setDomain(cookieDomain);
         response.addCookie(refreshTokenCookie);
 
         Map<String, String> responseBody = new HashMap<>();

@@ -26,8 +26,8 @@ public class OauthController {
     private final UserService userService;
     private final KakaoOAuthProvider kakaoOAuthProvider;
 
-    @Value("${chunsik.server.domain}")
-    private String serverDomain;
+    @Value("${chunsik.domain}")
+    private String cookieDomain;
 
     @Value("${chunsik.front.url}")
     private String frontDomain;
@@ -45,7 +45,7 @@ public class OauthController {
         refreshTokenCookie.setHttpOnly(true);
         refreshTokenCookie.setPath("/");
         refreshTokenCookie.setMaxAge(maxAge);
-        refreshTokenCookie.setDomain(serverDomain);
+        refreshTokenCookie.setDomain(cookieDomain);
         response.addCookie(refreshTokenCookie);
 
         Map<String, String> responseBody = new HashMap<>();

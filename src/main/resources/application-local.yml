@@ -59,6 +59,7 @@ openai:
     key: ${chunsik.openai.key}
 
 chunsik:
+  domain: "localhost:8080"
   front:
     domain: "localhost:8080"
     url: "http://${chunsik.front.domain}"

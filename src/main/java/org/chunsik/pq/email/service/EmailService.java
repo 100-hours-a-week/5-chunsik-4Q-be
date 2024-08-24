@@ -31,8 +31,8 @@ public class EmailService {
     @Value("${auth-code-expiration-millis}")
     private long authCodeExpirationMillis;
 
-    @Value("${chunsik.server.domain}")
-    private String serverDomain;
+    @Value("${chunsik.domain}")
+    private String cookieDomain;
 
     private static final int MAX_REQUESTS = 5;
     private static final int COOKIE_EXPIRATION_MINUTES = 30;
@@ -162,7 +162,7 @@ public class EmailService {
         cookie.setPath("/");
         cookie.setMaxAge(maxAge);
         cookie.setHttpOnly(true); // XSS 공격 방지
-        cookie.setDomain(serverDomain);
+        cookie.setDomain(cookieDomain);
         response.addCookie(cookie);
     }
 }
