@@ -1,17 +1,11 @@
 package org.chunsik.pq.generate.dto;
 
-import lombok.Builder;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 
-@RequiredArgsConstructor
+@AllArgsConstructor
 @Getter
-@Builder
 public class GenerateResponseDTO {
-
     private String url;
-
-    public GenerateResponseDTO(String url) {
-        this.url = url;
-    }
+    private Long backgroundImageId;
 }
