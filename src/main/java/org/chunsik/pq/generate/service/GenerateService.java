@@ -61,35 +61,19 @@ public class GenerateService {
     private String serverDomain;
 
     @Transactional
-    public GenerateResponseDTO generateImage(GenerateImageDTO generateImageDTO) {
-        // 이미지 생성
-        return openAIManager.generateImage(generateImageDTO.getTags());
-    }
-
-    @Transactional
-    public CreateImageResponseDto createImage(GenerateApiRequestDTO dto) throws IOException {
-        return this.createImage(dto.getTicketImage(), dto.getBackgroundImageUrl(),
-                dto.getShortenUrlId(), dto.getTitle(),
-                dto.getTags(), dto.getCategory()
-        );
-    }
-
-    @Transactional
-    public CreateImageResponseDto createImage(
-            MultipartFile ticketImage, String backgroundImageUrl,
-            Long shortenUrlId, String title,
-            List<String> tags, String category
-    ) throws IOException, NoSuchElementException {
+    public GenerateResponseDTO generateImage(GenerateImageDTO generateImageDTO) throws IOException {
         // 로그인된 사용자의 userId를 찾기
         Integer userId = findAuthenticatedUserId();
 
         // 카테고리로 카테고리ID 찾기
-        Integer categoryId = findCategoryIdByName(category);
+        Integer categoryId = findCategoryIdByName(generateImageDTO.getCategory());
 
-        // 배경이미지 다운로드
-        File jpgFile = downloadJpg(backgroundImageUrl);
+        List<String> tags = generateImageDTO.getTags();
 
-        // 배경이미지 S3 업로드
+        // 이미지 생성
+        String openAIUrl = openAIManager.generateImage(tags);
+        File jpgFile = downloadJpg(openAIUrl);
+
         S3UploadResponseDTO s3UploadResponseDTO = s3Manager.uploadFile(jpgFile, generate);
 
         // 배경이미지 Insert
@@ -99,20 +83,41 @@ public class GenerateService {
                 .userId(userId)
                 .categoryId(categoryId);
 
-        BackgroundImage backgroundImage = builder.build();
-        backgroundImageRepository.save(backgroundImage);
+        BackgroundImage backgroundImage = backgroundImageRepository.save(builder.build());
 
         // 태그와 BackgroundImage 간의 관계 저장
         saveTagBackgroundImages(tags, backgroundImage.getId());
+
+        return new GenerateResponseDTO(s3UploadResponseDTO.getS3Url(), backgroundImage.getId());
+    }
+
+    @Transactional
+    public CreateImageResponseDto createImage(GenerateApiRequestDTO dto) throws IOException {
+        return this.createImage(dto.getTicketImage(), dto.getShortenUrlId(),
+                dto.getTitle(), dto.getBackgroundImageId()
+        );
+    }
+
+    @Transactional
+    public CreateImageResponseDto createImage(
+            MultipartFile ticketImage,
+            Long shortenUrlId, String title,
+            Long backgroundImageId
+    ) throws IOException, NoSuchElementException {
+        // 로그인된 사용자의 userId를 찾기
+        Integer userId = findAuthenticatedUserId();
 
         // 티켓 이미지 S3 업로드
         File file = new File("/tmp/" + UUID.randomUUID() + ".jpg");
         ticketImage.transferTo(file);
 
-        s3UploadResponseDTO = s3Manager.uploadFile(file, ticketFolder);
+        S3UploadResponseDTO s3UploadResponseDTO = s3Manager.uploadFile(file, ticketFolder);
 
         // 단축 URL
         ShortenURL shortenURL = shortenURLRepository.findById(shortenUrlId).orElseThrow(() -> new NoSuchElementException("No shorten URL found for shortenUrlId: " + shortenUrlId));
+
+        // 배경 이미지
+        BackgroundImage backgroundImage = backgroundImageRepository.findById(backgroundImageId).orElseThrow(() -> new NoSuchElementException("No backgroundImage found for backgroundImageId: " + backgroundImageId));
 
         Ticket ticket = new Ticket(userId, shortenURL, backgroundImage, title, s3UploadResponseDTO.getS3Url());
         Long id = ticketRepository.save(ticket).getId();
