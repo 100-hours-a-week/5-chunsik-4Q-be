@@ -5,12 +5,9 @@ import org.chunsik.pq.feedback.dto.FeedbackDTO;
 import org.chunsik.pq.feedback.model.Feedback;
 import org.chunsik.pq.feedback.model.Feedback.Gender;
 import org.chunsik.pq.feedback.repository.FeedbackRepository;
+import org.chunsik.pq.login.manager.UserManager;
 import org.chunsik.pq.login.repository.UserRepository;
-import org.chunsik.pq.model.User;
-import org.springframework.security.authentication.AnonymousAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
+import org.chunsik.pq.login.security.CustomUserDetails;
 import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
@@ -22,22 +19,14 @@ public class FeedbackService {
 
     private final FeedbackRepository feedbackRepository;
     private final UserRepository userRepository;
+    private final UserManager userManager;
 
     public void saveFeedback(FeedbackDTO feedbackDTO) {
         Integer userId = null;
 
         // 로그인 사용자와 비로그인 사용자 식별
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication != null && !(authentication instanceof AnonymousAuthenticationToken)) {
-            UserDetails details = (UserDetails) authentication.getPrincipal();
-            String email = details.getUsername();
-
-            // 이메일을 통해 userId 찾기
-            Optional<User> userOptional = userRepository.findByEmail(email);
-            if (userOptional.isPresent()) {
-                userId = userOptional.get().getId();
-            }
-        }
+        Optional<CustomUserDetails> currentUser = userManager.currentUser();
+        userId = currentUser.map(CustomUserDetails::getId).orElse(null);
 
         // Feedback 객체 생성
         Feedback feedback = new Feedback(

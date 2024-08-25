@@ -1,5 +1,6 @@
 package org.chunsik.pq.generate.service;
 
+import jakarta.annotation.Nullable;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.chunsik.pq.generate.dto.*;
@@ -12,8 +13,9 @@ import org.chunsik.pq.generate.repository.BackgroundImageRepository;
 import org.chunsik.pq.generate.repository.CategoryRepository;
 import org.chunsik.pq.generate.repository.TagBackgroundImageRepository;
 import org.chunsik.pq.generate.repository.TagRepository;
+import org.chunsik.pq.login.manager.UserManager;
 import org.chunsik.pq.login.repository.UserRepository;
-import org.chunsik.pq.model.User;
+import org.chunsik.pq.login.security.CustomUserDetails;
 import org.chunsik.pq.s3.dto.S3UploadResponseDTO;
 import org.chunsik.pq.s3.manager.S3Manager;
 import org.chunsik.pq.s3.model.Ticket;
@@ -21,10 +23,6 @@ import org.chunsik.pq.s3.repository.TicketRepository;
 import org.chunsik.pq.shortenurl.model.ShortenURL;
 import org.chunsik.pq.shortenurl.repository.ShortenUrlRepository;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.authentication.AnonymousAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -50,6 +48,7 @@ public class GenerateService {
     private final CategoryRepository categoryRepository;
     private final TagRepository tagRepository;
     private final TagBackgroundImageRepository tagBackgroundImageRepository;
+    private final UserManager userManager;
 
     @Value("${cloud.aws.s3.generate}")
     private String generate;
@@ -63,7 +62,7 @@ public class GenerateService {
     @Transactional
     public GenerateResponseDTO generateImage(GenerateImageDTO generateImageDTO) throws IOException {
         // 로그인된 사용자의 userId를 찾기
-        Integer userId = findAuthenticatedUserId();
+        Integer userId = findLoginUserIdOrNull();
 
         // 카테고리로 카테고리ID 찾기
         Integer categoryId = findCategoryIdByName(generateImageDTO.getCategory());
@@ -105,7 +104,7 @@ public class GenerateService {
             Long backgroundImageId
     ) throws IOException, NoSuchElementException {
         // 로그인된 사용자의 userId를 찾기
-        Integer userId = findAuthenticatedUserId();
+        Integer userId = findLoginUserIdOrNull();
 
         // 티켓 이미지 S3 업로드
         File file = new File("/tmp/" + UUID.randomUUID() + ".jpg");
@@ -144,19 +143,10 @@ public class GenerateService {
         return jpgFile;
     }
 
-    private Integer findAuthenticatedUserId() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication != null && !(authentication instanceof AnonymousAuthenticationToken)) {
-            UserDetails details = (UserDetails) authentication.getPrincipal();
-            String email = details.getUsername();
-
-            // 이메일을 통해 userId 찾기
-            Optional<User> userOptional = userRepository.findByEmail(email);
-            return userOptional.map(User::getId)
-                    .orElse(null);
-        }
-        // 비로그인 사용자는 null 반환
-        return null;
+    @Nullable
+    private Integer findLoginUserIdOrNull() {
+        Optional<CustomUserDetails> currentUser = userManager.currentUser();
+        return currentUser.map(CustomUserDetails::getId).orElse(null);
     }
 
     // 카테고리 이름으로 카테고리 ID 찾기
