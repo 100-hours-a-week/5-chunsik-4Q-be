@@ -140,7 +140,7 @@ public class EmailService {
                     return true;
                 }
             } catch (Exception e) {
-                e.printStackTrace();
+                logger.error("An error occurred while decrypting the secret code", e);
                 throw new RuntimeException("Error while decrypting the secret code");
             }
         }
