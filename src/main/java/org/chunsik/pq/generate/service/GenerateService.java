@@ -83,8 +83,7 @@ public class GenerateService {
                 .userId(userId)
                 .categoryId(categoryId);
 
-        BackgroundImage backgroundImage = builder.build();
-        backgroundImageRepository.save(backgroundImage);
+        BackgroundImage backgroundImage = backgroundImageRepository.save(builder.build());
 
         // 태그와 BackgroundImage 간의 관계 저장
         saveTagBackgroundImages(tags, backgroundImage.getId());
@@ -102,8 +101,8 @@ public class GenerateService {
     @Transactional
     public CreateImageResponseDto createImage(
             MultipartFile ticketImage,
-            Long shortenUrlId, String title
-            , Long backgroundImageId
+            Long shortenUrlId, String title,
+            Long backgroundImageId
     ) throws IOException, NoSuchElementException {
         // 로그인된 사용자의 userId를 찾기
         Integer userId = findAuthenticatedUserId();
