@@ -31,12 +31,16 @@ public class KarloManager implements AIManager {
         headers.set("Content-Type", "application/json");
 
 
-        String prompt = String.join(", ", tags) + ".";
+        String negativePrompt = "human, face, people, cloth ";
+
+        String prompt = "You are the world’s best designer. Create one reality image that matches the mood of these things: " +
+                String.join(", ", tags) + ".";
 
 
         Map<String, Object> requestBody = new HashMap<>();
         requestBody.put("version", "v2.1");
         requestBody.put("prompt", prompt);
+        requestBody.put("negative_prompt", negativePrompt);
         requestBody.put("width", 1024);
         requestBody.put("height", 1024);
         requestBody.put("image_format", "jpeg");
