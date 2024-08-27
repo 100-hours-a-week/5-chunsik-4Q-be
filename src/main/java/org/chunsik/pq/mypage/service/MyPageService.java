@@ -38,7 +38,7 @@ public class MyPageService {
                 .collect(Collectors.toMap(Category::getId, Category::getName));
 
         // 날짜 형식을 지정
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy/MM/dd");
 
         // 티켓 정보를 MyPQResponseDto 리스트로 변환하여 반환
         return tickets.stream()
@@ -46,7 +46,7 @@ public class MyPageService {
                     // CategoryName을 조회
                     String categoryName = categoryMap.get(ticket.getBackgroundImage().getCategoryId());
 
-                    // 티켓의 생성일자를 YYYY-MM-DD 형식으로 포맷팅
+                    // 티켓의 생성일자를 YYYY/MM/DD 형식으로 포맷팅
                     LocalDateTime createdAt = ticket.getCreatedAt();
                     String formattedDate = createdAt.format(formatter);
 
