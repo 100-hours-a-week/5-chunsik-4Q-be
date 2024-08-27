@@ -11,7 +11,7 @@ spring:
     import:
       - classpath:secrets.yaml
   datasource:
-    url: jdbc:mysql://${chunsik.db.url}:3306/pq
+    url: jdbc:mysql://${chunsik.db.url}:3306/chunsik_db
     username: ${chunsik.db.user}
     password: ${chunsik.db.password}
   mail:
@@ -59,10 +59,10 @@ openai:
     key: ${chunsik.openai.key}
 
 chunsik:
-  domain: "localhost:8080"
+  domain: "localhost"
   front:
     domain: "localhost:8080"
-    url: "http://${chunsik.front.domain}"
+    url: "http://${chunsik.front.domain}/"
   server:
     domain: "localhost:8080"
-    url: "http://${chunsik.server.domain}"
+    url: "http://${chunsik.server.domain}/"

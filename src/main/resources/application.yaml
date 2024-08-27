@@ -1,5 +1,18 @@
 spring:
-  application:
-    name: pq
+  profiles:
+    active: dev
+---
+spring:
+  profiles:
+    active: prod
+---
+spring:
   profiles:
     active: local
+---
+spring:
+  application:
+    name: pq
+  config:
+    import:
+      - classpath:secrets.yaml
