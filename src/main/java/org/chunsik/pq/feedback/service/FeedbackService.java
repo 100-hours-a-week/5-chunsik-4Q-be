@@ -22,7 +22,7 @@ public class FeedbackService {
     private final UserManager userManager;
 
     public void saveFeedback(FeedbackDTO feedbackDTO) {
-        Integer userId = null;
+        Long userId = null;
 
         // 로그인 사용자와 비로그인 사용자 식별
         Optional<CustomUserDetails> currentUser = userManager.currentUser();

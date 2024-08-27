@@ -28,13 +28,13 @@ public class BackgroundImage {
     private Long size;
 
     @Column(name = "category_id", nullable = false)
-    private Integer categoryId;
+    private Long categoryId;
 
     @Column(name = "created_at", columnDefinition = "TIMESTAMP")
     private LocalDateTime createdAt;
 
     @Builder
-    public BackgroundImage(Integer userId, String url, Long size, Integer categoryId) {
+    public BackgroundImage(Integer userId, String url, Long size, Long categoryId) {
         this.userId = userId;
         this.url = url;
         this.size = size;

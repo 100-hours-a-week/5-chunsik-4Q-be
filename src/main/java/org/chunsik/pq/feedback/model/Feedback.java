@@ -17,7 +17,7 @@ public class Feedback {
     private Long id;
 
     @Column(name = "user_id")
-    private Integer userId;
+    private Long userId;
 
     @Column(name = "star_rate")
     private Integer starRate;
@@ -57,7 +57,7 @@ public class Feedback {
         MALE, FEMALE
     }
 
-    public Feedback(Integer userId, Integer starRate, String comment, Timestamp createdAt, Integer ease, Integer design,
+    public Feedback(Long userId, Integer starRate, String comment, Timestamp createdAt, Integer ease, Integer design,
                     Integer performance, Boolean feature, Boolean recommendation, Boolean reuse, Integer ageGroup, Gender gender) {
         this.userId = userId;
         this.starRate = starRate;

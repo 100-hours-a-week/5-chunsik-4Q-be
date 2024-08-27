@@ -12,15 +12,15 @@ public class TagBackgroundImage {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private Long id;
 
     @Column(name = "tag_id")
-    private Integer tagId;
+    private Long tagId;
 
     @Column(name = "photo_background_id")
     private Long photoBackgroundId;
 
-    public TagBackgroundImage(Integer tagId, Long photoBackgroundId) {
+    public TagBackgroundImage(Long tagId, Long photoBackgroundId) {
         this.tagId = tagId;
         this.photoBackgroundId = photoBackgroundId;
     }
