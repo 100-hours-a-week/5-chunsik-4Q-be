@@ -1,5 +1,6 @@
 package org.chunsik.pq.mypage.controller;
 
+import io.sentry.Sentry;
 import lombok.RequiredArgsConstructor;
 import org.chunsik.pq.mypage.dto.MyPQResponseDto;
 import org.chunsik.pq.mypage.service.MyPageService;
@@ -36,6 +37,7 @@ public class MyPageController {
     @ExceptionHandler(Exception.class)
     public ResponseEntity<String> handleException(Exception ex) {
         // 예외 메시지와 함께 500 Internal Server Error 응답을 반환
+        Sentry.captureException(ex);
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An unexpected error occurred: " + ex.getMessage());
     }
 }

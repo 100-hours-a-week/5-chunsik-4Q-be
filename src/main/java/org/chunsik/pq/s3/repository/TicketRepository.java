@@ -8,8 +8,7 @@ import java.util.List;
 
 public interface TicketRepository extends JpaRepository<Ticket, Long> {
 
-    @Query("SELECT t.id FROM Ticket t WHERE t.userId = :userId ORDER BY t.createdAt DESC")
-    List<Long> findTicketIdsByUserIdOrderByCreatedAtDesc(Long userId);
+    @Query("SELECT t FROM Ticket t WHERE t.userId = :userId ORDER BY t.createdAt DESC")
+    List<Ticket> findTicketsByUserIdOrderByCreatedAtDesc(Long userId);
 
-    List<Ticket> findByIdIn(List<Long> ticketIds);
 }

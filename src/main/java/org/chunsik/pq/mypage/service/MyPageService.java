@@ -26,19 +26,11 @@ public class MyPageService {
                 .map(CustomUserDetails::getId)
                 .orElseThrow(() -> new IllegalStateException("User not authenticated"));
 
-        // 티켓 ID를 생성일자 내림차순으로 가져오기
-        List<Long> ticketIds = ticketRepository.findTicketIdsByUserIdOrderByCreatedAtDesc(userId);
-
         // 티켓 정보를 조회
-        List<Ticket> tickets = ticketRepository.findByIdIn(ticketIds);
+        List<Ticket> tickets = ticketRepository.findTicketsByUserIdOrderByCreatedAtDesc(userId);
 
-        // 티켓을 ID 순서에 맞게 다시 정렬
-        List<MyPQResponseDto> result = ticketIds.stream()
-                .map(ticketId -> tickets.stream()
-                        .filter(ticket -> ticket.getId().equals(ticketId))
-                        .findFirst()
-                        .orElseThrow(() -> new IllegalStateException("Ticket not found: " + ticketId))
-                )
+        // 티켓 정보를 조회하고 DTO 리스트로 변환
+        return tickets.stream()
                 .map(ticket -> {
                     // BackgroundImage 엔티티에서 CategoryId를 조회하고, 이를 통해 CategoryName을 가져옴
                     String categoryName = categoryRepository.findNameById(ticket.getBackgroundImage().getCategoryId());
@@ -60,7 +52,5 @@ public class MyPageService {
                     );
                 })
                 .collect(Collectors.toList());
-
-        return result;
     }
 }
