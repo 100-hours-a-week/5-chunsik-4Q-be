@@ -95,7 +95,7 @@ public class UserService {
         });
         String email = customUserDetails.getEmail();
         String nickname = customUserDetails.getNickname();
-        Integer id = customUserDetails.getId();
+        Long id = customUserDetails.getId();
         return new MeResponseDto(id, email, nickname);
     }
 }

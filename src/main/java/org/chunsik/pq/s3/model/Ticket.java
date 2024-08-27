@@ -19,7 +19,7 @@ public class Ticket {
     private Long id;
 
     @Column(name = "user_id")
-    private Integer userId;
+    private Long userId;
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "url_id", nullable = false)
@@ -38,7 +38,7 @@ public class Ticket {
     @Column(name = "created_at", columnDefinition = "TIMESTAMP")
     private LocalDateTime createdAt;
   
-    public Ticket(Integer userId, ShortenURL url, BackgroundImage backgroundImage, String title, String imagePath) {
+    public Ticket(Long userId, ShortenURL url, BackgroundImage backgroundImage, String title, String imagePath) {
         this.userId = userId;
         this.url = url;
         this.backgroundImage = backgroundImage;

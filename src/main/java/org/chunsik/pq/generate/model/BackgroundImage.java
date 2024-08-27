@@ -18,7 +18,7 @@ public class BackgroundImage {
     private Long id;
 
     @Column(name = "user_id")
-    private Integer userId;
+    private Long userId;
 
     @Lob
     @Column(name = "url", columnDefinition = "LONGTEXT")
@@ -34,7 +34,7 @@ public class BackgroundImage {
     private LocalDateTime createdAt;
 
     @Builder
-    public BackgroundImage(Integer userId, String url, Long size, Long categoryId) {
+    public BackgroundImage(Long userId, String url, Long size, Long categoryId) {
         this.userId = userId;
         this.url = url;
         this.size = size;
