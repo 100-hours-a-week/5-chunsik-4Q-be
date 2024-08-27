@@ -17,7 +17,7 @@ import java.util.Map;
 
 @Component
 @RequiredArgsConstructor
-public class KarloManager {
+public class KarloManager implements AIManager {
     private final RestTemplate restTemplate;
 
     @Value("${kakao.api.client-id}")
