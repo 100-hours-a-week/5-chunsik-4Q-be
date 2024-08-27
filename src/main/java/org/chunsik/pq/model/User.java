@@ -14,7 +14,7 @@ public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private Long id;
 
     @Column(nullable = false)
     private String nickname;
@@ -31,7 +31,7 @@ public class User {
     @Enumerated(EnumType.STRING)
     private OauthProvider oauthProvider;
 
-    private User(Integer id, String nickname, String email, String password, LocalDateTime createdAt, OauthProvider oauthProvider) {
+    private User(Long id, String nickname, String email, String password, LocalDateTime createdAt, OauthProvider oauthProvider) {
         this.id = id;
         this.nickname = nickname;
         this.email = email;

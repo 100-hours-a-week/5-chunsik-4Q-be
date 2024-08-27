@@ -62,10 +62,10 @@ public class GenerateService {
     @Transactional
     public GenerateResponseDTO generateImage(GenerateImageDTO generateImageDTO) throws IOException {
         // 로그인된 사용자의 userId를 찾기
-        Integer userId = findLoginUserIdOrNull();
+        Long userId = findLoginUserIdOrNull();
 
         // 카테고리로 카테고리ID 찾기
-        Integer categoryId = findCategoryIdByName(generateImageDTO.getCategory());
+        Long categoryId = findCategoryIdByName(generateImageDTO.getCategory());
 
         List<String> tags = generateImageDTO.getTags();
 
@@ -104,7 +104,7 @@ public class GenerateService {
             Long backgroundImageId
     ) throws IOException, NoSuchElementException {
         // 로그인된 사용자의 userId를 찾기
-        Integer userId = findLoginUserIdOrNull();
+        Long userId = findLoginUserIdOrNull();
 
         // 티켓 이미지 S3 업로드
         File file = new File("/tmp/" + UUID.randomUUID() + ".jpg");
@@ -144,13 +144,13 @@ public class GenerateService {
     }
 
     @Nullable
-    private Integer findLoginUserIdOrNull() {
+    private Long findLoginUserIdOrNull() {
         Optional<CustomUserDetails> currentUser = userManager.currentUser();
         return currentUser.map(CustomUserDetails::getId).orElse(null);
     }
 
     // 카테고리 이름으로 카테고리 ID 찾기
-    private Integer findCategoryIdByName(String categoryName) {
+    private Long findCategoryIdByName(String categoryName) {
         Optional<Category> category = categoryRepository.findByName(categoryName);
         return category.map(Category::getId)
                 .orElseThrow(() -> new IllegalArgumentException("Category not found: " + categoryName));

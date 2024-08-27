@@ -16,7 +16,7 @@ public class CustomUserDetails implements UserDetails {
     private final String nickname;
     private final String password;
     @Getter
-    private final Integer id;
+    private final Long id;
 
     public CustomUserDetails(User user) {
         this.email = user.getEmail();
