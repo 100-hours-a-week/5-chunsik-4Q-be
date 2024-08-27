@@ -7,7 +7,8 @@ import org.springframework.http.HttpStatus;
 public enum ErrorCode {
     REACH_LIMIT(HttpStatus.INTERNAL_SERVER_ERROR, "URL 단축에 실패했습니다."),
     FORMAT_NOT_MATCH(HttpStatus.BAD_REQUEST, "URL 형식이 올바르지 않습니다."),
-    SYNTAX_NOT_MATCH(HttpStatus.BAD_REQUEST, "연결된 URL이 없습니다.");
+    SYNTAX_NOT_MATCH(HttpStatus.BAD_REQUEST, "연결된 URL이 없습니다."),
+    ALREADY_SHORT_URL(HttpStatus.BAD_REQUEST, "이미 단축된 URL 입니다.");
 
     private final HttpStatus status;
     private final String message;

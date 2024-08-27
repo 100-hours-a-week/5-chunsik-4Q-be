@@ -6,6 +6,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.chunsik.pq.shortenurl.dto.RequestConvertUrlDTO;
 import org.chunsik.pq.shortenurl.dto.ResponseConvertUrlDTO;
+import org.chunsik.pq.shortenurl.exception.AlreadyShortenedURLException;
 import org.chunsik.pq.shortenurl.exception.ErrorCode;
 import org.chunsik.pq.shortenurl.exception.ErrorResponse;
 import org.chunsik.pq.shortenurl.exception.URLConvertReachTheLimitException;
@@ -27,7 +28,7 @@ public class ShortenUrlController {
     private final ShortenUrlService shortenUrlService;
 
     @PostMapping("/short")
-    public ResponseConvertUrlDTO urlConvert(@RequestBody @Valid RequestConvertUrlDTO requestConvertUrlDTO) {
+    public ResponseConvertUrlDTO urlConvert(@RequestBody @Valid RequestConvertUrlDTO requestConvertUrlDTO) throws URISyntaxException {
         String url = requestConvertUrlDTO.getSrcUrl();
         return shortenUrlService.convertToShortUrl(url);
     }
@@ -54,6 +55,11 @@ public class ShortenUrlController {
 
     @ExceptionHandler(URLConvertReachTheLimitException.class)
     public ResponseEntity<?> handleURLConvertReachTheLimitException(URLConvertReachTheLimitException ex) {
+        return ResponseEntity.status(ex.getErrorCode().getStatus()).body(new ErrorResponse(ex.getErrorCode().getStatus(), ex.getErrorCode().getMessage()));
+    }
+
+    @ExceptionHandler(AlreadyShortenedURLException.class)
+    public ResponseEntity<?> handleAlreadyShortenedURLException(AlreadyShortenedURLException ex){
         return ResponseEntity.status(ex.getErrorCode().getStatus()).body(new ErrorResponse(ex.getErrorCode().getStatus(), ex.getErrorCode().getMessage()));
     }
 
