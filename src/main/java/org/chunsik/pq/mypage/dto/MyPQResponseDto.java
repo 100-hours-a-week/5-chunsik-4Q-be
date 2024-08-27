@@ -8,8 +8,6 @@ import lombok.Getter;
 public class MyPQResponseDto {
     private String ticketUrl;
     private String title;
-    private int year;
-    private int month;
-    private int day;
+    private String formattedDate;
     private String categoryName;
 }
