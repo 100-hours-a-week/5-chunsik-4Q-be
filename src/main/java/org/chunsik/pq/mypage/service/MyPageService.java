@@ -61,6 +61,7 @@ public class MyPageService {
         // 티켓 정보를 MyPQResponseDto 리스트로 변환하여 반환
         return tickets.stream()
                 .map(ticket -> {
+                    // CategoryName을 조회
                     String categoryName = categoryMap.get(ticket.getBackgroundImage().getCategoryId());
 
                     // 티켓의 생성일자를 YYYY/MM/DD 형식으로 포맷팅
