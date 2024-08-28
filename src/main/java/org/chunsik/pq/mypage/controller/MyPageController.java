@@ -6,10 +6,7 @@ import org.chunsik.pq.mypage.dto.MyPQResponseDto;
 import org.chunsik.pq.mypage.service.MyPageService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -20,11 +17,27 @@ public class MyPageController {
 
     private final MyPageService myPageService;
 
+    // 내가 만든 PQ
     @GetMapping
     public ResponseEntity<List<MyPQResponseDto>> getMyPQ() {
         List<MyPQResponseDto> MyPQ = myPageService.getMyPQs();
         return ResponseEntity.ok(MyPQ);
     }
+
+    // 제목으로 필터링
+    @GetMapping("/title")
+    public ResponseEntity<List<MyPQResponseDto>> searchMyPQByTitle(@RequestParam String title) {
+        List<MyPQResponseDto> MyPQ = myPageService.getMyPQsByTitle(title);
+        return ResponseEntity.ok(MyPQ);
+    }
+
+    // 태그로 필터링
+    @GetMapping("/tag")
+    public ResponseEntity<List<MyPQResponseDto>> searchMyPQByTag(@RequestParam String tag) {
+        List<MyPQResponseDto> MyPQ = myPageService.getMyPQsByTag(tag);
+        return ResponseEntity.ok(MyPQ);
+    }
+
 
     // IllegalStateException을 처리하는 핸들러
     @ExceptionHandler(IllegalStateException.class)
