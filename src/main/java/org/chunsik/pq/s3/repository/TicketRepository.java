@@ -9,13 +9,13 @@ import java.util.List;
 
 public interface TicketRepository extends JpaRepository<Ticket, Long> {
 
+    // userId로 티켓을 필터링하고 생성일자 내림차순으로 정렬하는 메서드
+    @Query("SELECT t FROM Ticket t JOIN FETCH t.backgroundImage b WHERE t.userId = :userId ORDER BY t.createdAt DESC")
+    List<Ticket> findTicketsByUserIdWithBackgroundImageOrderByCreatedAtDesc(@Param("userId") Long userId);
+
     // userId로 티켓을 필터링하고 제목을 포함하는 티켓을 생성일자 내림차순으로 정렬하는 메서드
     @Query("SELECT t FROM Ticket t WHERE t.userId = :userId AND t.title LIKE %:title% ORDER BY t.createdAt DESC")
     List<Ticket> findTicketsByUserIdAndTitleContainingOrderByCreatedAtDesc(@Param("userId") Long userId, @Param("title") String title);
-
-    // userId로 티켓을 필터링하고 생성일자 내림차순으로 정렬하는 메서드
-    @Query("SELECT t FROM Ticket t WHERE t.userId = :userId ORDER BY t.createdAt DESC")
-    List<Ticket> findTicketsByUserIdWithBackgroundImageOrderByCreatedAtDesc(@Param("userId") Long userId);
 
     // 태그로 필터링된 티켓을 조회하는 메서드
     @Query("SELECT t FROM Ticket t " +
