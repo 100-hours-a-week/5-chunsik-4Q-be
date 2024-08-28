@@ -21,7 +21,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.thymeleaf.spring6.processor.SpringUErrorsTagProcessor;
 
 import java.util.ArrayList;
 import java.util.Optional;
@@ -51,7 +50,7 @@ public class UserService {
     public User join(JoinDto joinDto, OauthProvider oauthProvider) {
 
         User user = User.create(
-                joinDto.getNickname(),
+                joinDto.getNickname().trim(),
                 joinDto.getEmail(),
                 passwordEncoder.encode(joinDto.getPassword()),
                 oauthProvider
