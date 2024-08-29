@@ -52,10 +52,12 @@ public class MyPageService {
 
                     // MyPQResponseDto 객체를 생성하여 반환
                     return new MyPQResponseDto(
+                            ticket.getId(),
                             ticket.getImagePath(),
                             ticket.getTitle(),
                             formattedDate,
-                            categoryName
+                            categoryName,
+                            ticket.getBackgroundImage().getUrl()
                     );
                 })
                 .collect(Collectors.toList());
