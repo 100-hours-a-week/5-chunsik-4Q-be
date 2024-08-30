@@ -8,8 +8,8 @@ import org.chunsik.pq.login.manager.UserManager;
 import org.chunsik.pq.login.repository.UserRepository;
 import org.chunsik.pq.login.security.CustomUserDetails;
 import org.chunsik.pq.login.security.JwtTokenProvider;
-import org.chunsik.pq.model.OauthProvider;
-import org.chunsik.pq.model.User;
+import org.chunsik.pq.login.model.OauthProvider;
+import org.chunsik.pq.login.model.User;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
@@ -18,7 +18,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.thymeleaf.spring6.processor.SpringUErrorsTagProcessor;
 
 import java.util.ArrayList;
 import java.util.Optional;
@@ -48,7 +47,7 @@ public class UserService {
     public User join(JoinDto joinDto, OauthProvider oauthProvider) {
 
         User user = User.create(
-                joinDto.getNickname(),
+                joinDto.getNickname().trim(),
                 joinDto.getEmail(),
                 passwordEncoder.encode(joinDto.getPassword()),
                 oauthProvider

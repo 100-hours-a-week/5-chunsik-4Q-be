@@ -2,7 +2,7 @@ package org.chunsik.pq.login.security;
 
 import lombok.RequiredArgsConstructor;
 import org.chunsik.pq.login.repository.UserRepository;
-import org.chunsik.pq.model.User;
+import org.chunsik.pq.login.model.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
