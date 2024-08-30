@@ -2,10 +2,7 @@ package org.chunsik.pq.login.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.chunsik.pq.login.dto.JoinDto;
-import org.chunsik.pq.login.dto.MeResponseDto;
-import org.chunsik.pq.login.dto.SignUpOrLoginDto;
-import org.chunsik.pq.login.dto.TokenDto;
+import org.chunsik.pq.login.dto.*;
 import org.chunsik.pq.login.exception.DuplicateEmailException;
 import org.chunsik.pq.login.manager.UserManager;
 import org.chunsik.pq.login.repository.UserRepository;
@@ -97,5 +94,13 @@ public class UserService {
         String nickname = customUserDetails.getNickname();
         Long id = customUserDetails.getId();
         return new MeResponseDto(id, email, nickname);
+    }
+
+    public LogoutSuccessDTO logout(){
+        Optional<CustomUserDetails> currentUser = userManager.currentUser();
+        CustomUserDetails customUserDetails = currentUser.orElseThrow(() -> new AuthenticationException("No current user") {
+        });
+
+        return new LogoutSuccessDTO("logout success");
     }
 }

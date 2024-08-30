@@ -3,10 +3,7 @@ package org.chunsik.pq.login.controller;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import org.chunsik.pq.login.dto.JoinDto;
-import org.chunsik.pq.login.dto.MeResponseDto;
-import org.chunsik.pq.login.dto.TokenDto;
-import org.chunsik.pq.login.dto.UserLoginRequestDto;
+import org.chunsik.pq.login.dto.*;
 import org.chunsik.pq.login.service.UserService;
 import org.chunsik.pq.model.OauthProvider;
 import org.springframework.beans.factory.annotation.Value;
@@ -49,6 +46,20 @@ public class UserController {
 
         return ResponseEntity.ok(responseBody);
     }
+
+    @PostMapping("/logout")
+    public ResponseEntity<LogoutSuccessDTO> logout(HttpServletResponse response) {
+        LogoutSuccessDTO logoutSuccessDTO = userService.logout();
+        Cookie refreshTokenCookie = new Cookie("refreshToken", null);
+        refreshTokenCookie.setHttpOnly(true);
+        refreshTokenCookie.setPath("/");
+        refreshTokenCookie.setMaxAge(0);
+        refreshTokenCookie.setDomain(cookieDomain);
+        response.addCookie(refreshTokenCookie);
+
+        return ResponseEntity.ok(logoutSuccessDTO);
+    }
+
 
     @PostMapping("/register")
     public ResponseEntity<?> join(@Validated @RequestBody JoinDto joinDto, Errors errors) {
