@@ -5,4 +5,5 @@ import lombok.Data;
 @Data
 public class EmailConfirmRequestDTO {
     private String email;
+    private String code;
 }

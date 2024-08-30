@@ -31,6 +31,9 @@ public class EmailService {
     @Value("${auth-code-expiration-millis}")
     private long authCodeExpirationMillis;
 
+    @Value("${chunsik.domain}")
+    private String cookieDomain;
+
     private static final int MAX_REQUESTS = 5;
     private static final int COOKIE_EXPIRATION_MINUTES = 30;
     private static final String REQUEST_COUNT_COOKIE_NAME = "requestCount";
@@ -137,7 +140,7 @@ public class EmailService {
                     return true;
                 }
             } catch (Exception e) {
-                e.printStackTrace();
+                logger.error("An error occurred while decrypting the secret code", e);
                 throw new RuntimeException("Error while decrypting the secret code");
             }
         }
@@ -159,6 +162,7 @@ public class EmailService {
         cookie.setPath("/");
         cookie.setMaxAge(maxAge);
         cookie.setHttpOnly(true); // XSS 공격 방지
+        cookie.setDomain(cookieDomain);
         response.addCookie(cookie);
     }
 }

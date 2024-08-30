@@ -1,21 +1,27 @@
 package org.chunsik.pq.login.service;
 
-import jakarta.servlet.http.Cookie;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.chunsik.pq.login.dto.JoinDto;
-import org.chunsik.pq.login.dto.TokenDto;
+import org.chunsik.pq.login.dto.*;
 import org.chunsik.pq.login.exception.DuplicateEmailException;
+import org.chunsik.pq.login.manager.UserManager;
 import org.chunsik.pq.login.repository.UserRepository;
+import org.chunsik.pq.login.security.CustomUserDetails;
 import org.chunsik.pq.login.security.JwtTokenProvider;
 import org.chunsik.pq.model.OauthProvider;
 import org.chunsik.pq.model.User;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.thymeleaf.spring6.processor.SpringUErrorsTagProcessor;
+
+import java.util.ArrayList;
+import java.util.Optional;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -26,6 +32,7 @@ public class UserService {
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
     private final JwtTokenProvider jwtTokenProvider;
     private final PasswordEncoder passwordEncoder;
+    private final UserManager userManager;
 
     public TokenDto login(String email, String password) {
         UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(email, password);
@@ -56,5 +63,44 @@ public class UserService {
 
     public boolean checkIfUserExistsByEmail(String email) {
         return userRepository.existsByEmail(email);
+    }
+
+    @Transactional
+    public TokenDto signUpOrLogin(SignUpOrLoginDto dto, OauthProvider oauthProvider) {
+        Optional<User> optionalUser = userRepository.findByEmail(dto.getEmail());
+        User user = optionalUser.orElseGet(
+                () -> User.create(
+                        dto.getNickname(),
+                        dto.getEmail(),
+                        "",
+                        oauthProvider
+                ));
+
+        userRepository.save(user);
+        UsernamePasswordAuthenticationToken token = UsernamePasswordAuthenticationToken.authenticated(user.getEmail(), user.getPassword(), new ArrayList<>());
+        SecurityContextHolder.getContext().setAuthentication(token);
+
+        String accessToken = jwtTokenProvider.createToken(user.getEmail());
+        String refreshToken = jwtTokenProvider.createRefreshToken(user.getEmail());
+
+        return new TokenDto(accessToken, refreshToken);
+    }
+
+    public MeResponseDto me() {
+        Optional<CustomUserDetails> currentUser = userManager.currentUser();
+        CustomUserDetails customUserDetails = currentUser.orElseThrow(() -> new AuthenticationException("No current user") {
+        });
+        String email = customUserDetails.getEmail();
+        String nickname = customUserDetails.getNickname();
+        Long id = customUserDetails.getId();
+        return new MeResponseDto(id, email, nickname);
+    }
+
+    public LogoutSuccessDTO logout(){
+        Optional<CustomUserDetails> currentUser = userManager.currentUser();
+        CustomUserDetails customUserDetails = currentUser.orElseThrow(() -> new AuthenticationException("No current user") {
+        });
+
+        return new LogoutSuccessDTO("logout success");
     }
 }

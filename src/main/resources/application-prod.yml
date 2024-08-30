@@ -42,6 +42,8 @@ cloud:
   aws:
     s3:
       bucket: ${chunsik.s3.bucket}
+      generate: generate
+      ticket: ticket
     region:
       static: ap-northeast-2
     stack:
@@ -53,3 +55,12 @@ cloud:
 openai:
   api:
     key: ${chunsik.openai.key}
+
+chunsik:
+  domain: "qqqq.world"
+  front:
+    domain: "www.qqqq.world"
+    url: "https://${chunsik.front.domain}"
+  server:
+    domain: "api.qqqq.world"
+    url: "https://${chunsik.server.domain}"

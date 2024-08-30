@@ -1,7 +1,9 @@
 package org.chunsik.pq.generate.exception;
 
+import lombok.Getter;
 import org.springframework.http.HttpStatus;
 
+@Getter
 public enum ErrorCode {
     BAD_REQUEST(HttpStatus.BAD_REQUEST, "잘못된 요청입니다. 입력값을 확인해주세요."),
     UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "해당 리소스에 접근할 권한이 없습니다."),
@@ -21,10 +23,4 @@ public enum ErrorCode {
         this.message = message;
     }
 
-    public HttpStatus getHttpStatus() {
-        return httpStatus;
-    }
-    public String getMessage() {
-        return message;
-    }
 }

@@ -3,9 +3,7 @@ package org.chunsik.pq.login.controller;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import org.chunsik.pq.login.dto.JoinDto;
-import org.chunsik.pq.login.dto.TokenDto;
-import org.chunsik.pq.login.dto.UserLoginRequestDto;
+import org.chunsik.pq.login.dto.*;
 import org.chunsik.pq.login.service.UserService;
 import org.chunsik.pq.model.OauthProvider;
 import org.springframework.beans.factory.annotation.Value;
@@ -13,10 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.Errors;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -30,6 +25,9 @@ public class UserController {
     @Value("${chunsik.cookie.maxage}")
     private int maxAge;
 
+    @Value("${chunsik.domain}")
+    private String cookieDomain;
+
     @PostMapping("/login")
     public ResponseEntity<Map<String, String>> login(@RequestBody UserLoginRequestDto userLoginRequestDto, HttpServletResponse response) {
         String email = userLoginRequestDto.getEmail();
@@ -40,6 +38,7 @@ public class UserController {
         refreshTokenCookie.setHttpOnly(true);
         refreshTokenCookie.setPath("/");
         refreshTokenCookie.setMaxAge(maxAge);
+        refreshTokenCookie.setDomain(cookieDomain);
         response.addCookie(refreshTokenCookie);
 
         Map<String, String> responseBody = new HashMap<>();
@@ -48,6 +47,20 @@ public class UserController {
         return ResponseEntity.ok(responseBody);
     }
 
+    @PostMapping("/logout")
+    public ResponseEntity<LogoutSuccessDTO> logout(HttpServletResponse response) {
+        LogoutSuccessDTO logoutSuccessDTO = userService.logout();
+        Cookie refreshTokenCookie = new Cookie("refreshToken", null);
+        refreshTokenCookie.setHttpOnly(true);
+        refreshTokenCookie.setPath("/");
+        refreshTokenCookie.setMaxAge(0);
+        refreshTokenCookie.setDomain(cookieDomain);
+        response.addCookie(refreshTokenCookie);
+
+        return ResponseEntity.ok(logoutSuccessDTO);
+    }
+
+
     @PostMapping("/register")
     public ResponseEntity<?> join(@Validated @RequestBody JoinDto joinDto, Errors errors) {
         if (errors.hasErrors()) {
@@ -55,5 +68,10 @@ public class UserController {
         }
         userService.join(joinDto, OauthProvider.LOCAL);
         return new ResponseEntity<>("Registration successful.", HttpStatus.CREATED);
+    }
+
+    @GetMapping("/me")
+    public ResponseEntity<MeResponseDto> me() {
+        return ResponseEntity.ok(userService.me());
     }
 }

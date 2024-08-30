@@ -3,7 +3,6 @@ package org.chunsik.pq.generate.manager;
 
 import lombok.RequiredArgsConstructor;
 import org.chunsik.pq.generate.dto.GenerateApiResponseDTO;
-import org.chunsik.pq.generate.dto.GenerateResponseDTO;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -18,13 +17,13 @@ import java.util.Map;
 
 @RequiredArgsConstructor
 @Component
-public class OpenAIManager {
+public class OpenAIManager implements AIManager {
     private final RestTemplate restTemplate;
 
     @Value("${openai.api.key}")
     private String apiKey;
 
-    public GenerateResponseDTO generateImage(List<String> tags) {
+    public String generateImage(List<String> tags) {
         String url = "https://api.openai.com/v1/images/generations";
 
         HttpHeaders headers = new HttpHeaders();
@@ -44,8 +43,6 @@ public class OpenAIManager {
 
         ResponseEntity<GenerateApiResponseDTO> response = restTemplate.exchange(url, HttpMethod.POST, entity, GenerateApiResponseDTO.class);
 
-        return GenerateResponseDTO.builder()
-                .url(response.getBody().getData().get(0).get("url"))
-                .build();
+        return response.getBody().getData().get(0).get("url");
     }
 }

@@ -5,20 +5,32 @@ import org.chunsik.pq.feedback.dto.FeedbackDTO;
 import org.chunsik.pq.feedback.model.Feedback;
 import org.chunsik.pq.feedback.model.Feedback.Gender;
 import org.chunsik.pq.feedback.repository.FeedbackRepository;
+import org.chunsik.pq.login.manager.UserManager;
+import org.chunsik.pq.login.repository.UserRepository;
+import org.chunsik.pq.login.security.CustomUserDetails;
 import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
+import java.util.Optional;
 
 @RequiredArgsConstructor
 @Service
 public class FeedbackService {
 
     private final FeedbackRepository feedbackRepository;
+    private final UserRepository userRepository;
+    private final UserManager userManager;
 
-    public Feedback saveFeedback(FeedbackDTO feedbackDTO) {
-        // 생성자를 사용하여 Feedback 객체를 생성
+    public void saveFeedback(FeedbackDTO feedbackDTO) {
+        Long userId = null;
+
+        // 로그인 사용자와 비로그인 사용자 식별
+        Optional<CustomUserDetails> currentUser = userManager.currentUser();
+        userId = currentUser.map(CustomUserDetails::getId).orElse(null);
+
+        // Feedback 객체 생성
         Feedback feedback = new Feedback(
-                feedbackDTO.getUserId(),
+                userId,
                 feedbackDTO.getStarRate(),
                 feedbackDTO.getComment(),
                 new Timestamp(System.currentTimeMillis()),
@@ -32,6 +44,6 @@ public class FeedbackService {
                 Gender.valueOf(feedbackDTO.getGender().toUpperCase())
         );
 
-        return feedbackRepository.save(feedback);
+        feedbackRepository.save(feedback);
     }
 }
