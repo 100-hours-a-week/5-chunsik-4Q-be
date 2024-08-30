@@ -7,6 +7,8 @@ import org.chunsik.pq.generate.service.GenerateService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.HttpServerErrorException;
 
 import java.io.IOException;
 
@@ -41,5 +43,21 @@ public class GenerateController {
     public ResponseEntity<String> handleException(Exception e) {
         Sentry.captureException(e);
         return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @ExceptionHandler(HttpClientErrorException.class)
+    public ResponseEntity<String> handleHttpClientErrorException(HttpClientErrorException e) {
+        Sentry.captureException(e);
+        if (HttpStatus.TOO_MANY_REQUESTS.equals(e.getStatusCode())) {
+            return new ResponseEntity<>("Too Many Request", e.getStatusCode());
+        } else {
+            return new ResponseEntity<>("Generate Reject", e.getStatusCode());
+        }
+    }
+
+    @ExceptionHandler(HttpServerErrorException.class)
+    public ResponseEntity<String> handleHttpServerErrorException(HttpServerErrorException e) {
+        Sentry.captureException(e);
+        return new ResponseEntity<>("Server Internal Error", e.getStatusCode());
     }
 }
