@@ -1,6 +1,6 @@
 package org.chunsik.pq.login.repository;
 
-import org.chunsik.pq.model.User;
+import org.chunsik.pq.login.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;

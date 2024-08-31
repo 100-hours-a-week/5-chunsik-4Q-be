@@ -1,4 +1,4 @@
-package org.chunsik.pq.model;
+package org.chunsik.pq.login.model;
 
 import lombok.Data;
 

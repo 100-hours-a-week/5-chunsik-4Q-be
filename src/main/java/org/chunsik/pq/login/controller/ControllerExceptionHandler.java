@@ -19,7 +19,7 @@ public class ControllerExceptionHandler {
     //중복 이메일 가입 핸들러
     @ExceptionHandler(DuplicateEmailException.class)
     public ResponseEntity<?> handleDuplicateEmailException(DuplicateEmailException e) {
-        return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(e.getMessage(), HttpStatus.CONFLICT);
     }
 
     //로그인 실패 핸들러
