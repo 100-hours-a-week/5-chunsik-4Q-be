@@ -9,4 +9,8 @@ import java.util.Optional;
 @Repository
 public interface UserLikeRepository extends JpaRepository<UserLike, Long> {
     Optional<UserLike> findByUserIdAndPhotoBackgroundId(Long userId, Long photoBackgroundId);
+
+    boolean existsByUserIdAndPhotoBackgroundId(Long userId, Long imageId);
+
+    void deleteByUserIdAndPhotoBackgroundId(Long userId, Long imageId);
 }

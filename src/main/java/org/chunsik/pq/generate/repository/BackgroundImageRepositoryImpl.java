@@ -5,6 +5,8 @@ import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.StringExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
+import org.chunsik.pq.gallery.dto.BackgroundImageDTO;
+import org.chunsik.pq.gallery.model.GallerySort;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -28,7 +30,7 @@ public class BackgroundImageRepositoryImpl implements BackgroundImageRepositoryC
     private final JPAQueryFactory queryFactory;
 
     @Override
-    public Page<Map<String, Object>> findByTagAndCategory(String tagName, String categoryName, String sort, Pageable pageable) {
+    public Page<BackgroundImageDTO> findByTagAndCategory(String tagName, String categoryName, GallerySort sort, Pageable pageable) {
         // GROUP_CONCAT 결과를 사용하여 태그들을 하나의 문자열로 결합
         StringExpression tagsConcat = stringTemplate("group_concat(DISTINCT {0})", tag.name);
 
@@ -54,7 +56,7 @@ public class BackgroundImageRepositoryImpl implements BackgroundImageRepositoryC
                         categoryNameEq(categoryName)
                 )
                 .groupBy(backgroundImage.id, category.name, user.nickname)
-                .orderBy(sort.equalsIgnoreCase("popular") ? userLike.countDistinct().desc() : backgroundImage.createdAt.desc())
+                .orderBy(sort == GallerySort.POPULAR ? userLike.countDistinct().desc() : backgroundImage.createdAt.desc())
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .fetch();
@@ -73,21 +75,20 @@ public class BackgroundImageRepositoryImpl implements BackgroundImageRepositoryC
                 )
                 .fetchCount();
 
-        // Tuple을 Map<String, Object>로 변환
-        List<Map<String, Object>> mappedResults = results.stream().map(tuple -> {
-            Map<String, Object> map = new HashMap<>();
-            map.put("imageId", tuple.get(backgroundImage.id));
-            map.put("url", tuple.get(backgroundImage.url));
-            map.put("createdAt", tuple.get(backgroundImage.createdAt));
-            map.put("categoryName", tuple.get(category.name));
-
+        // Tuple을 BackgroundImageDTO로 변환
+        List<BackgroundImageDTO> mappedResults = results.stream().map(tuple -> {
             String tagsString = tuple.get(4, String.class);  // 4번째 필드(태그)를 가져옴
-            List<String> tagsList = tagsString != null ? Arrays.asList(tagsString.split(",")) : new ArrayList<>();
-            map.put("tags", tagsList);
+            List<String> tagsList = tagsString != null ? List.of(tagsString.split(",")) : List.of();
 
-            map.put("userName", tuple.get(user.nickname));
-            map.put("likeCount", tuple.get(userLike.countDistinct()));
-            return map;
+            return new BackgroundImageDTO(
+                    tuple.get(backgroundImage.id),
+                    tuple.get(backgroundImage.url),
+                    tuple.get(backgroundImage.createdAt),
+                    tuple.get(category.name),
+                    tagsList,
+                    tuple.get(user.nickname),
+                    tuple.get(userLike.countDistinct())
+            );
         }).collect(Collectors.toList());
 
         // 변환된 결과를 페이지 객체로 반환
