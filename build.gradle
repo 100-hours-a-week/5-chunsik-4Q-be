@@ -69,3 +69,11 @@ tasks.bootJar {
 jar{
 	enabled = false
 }
+
+sourceSets {
+	main {
+		java {
+			srcDirs = ['src/main/java', 'build/generated/sources/annotationProcessor/java/main']
+		}
+	}
+}
