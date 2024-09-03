@@ -36,6 +36,7 @@ spring:
 auth-code-expiration-millis: 180000
 server:
   port: 8080
+  forward-headers-strategy: NATIVE
 sentry:
   environment: production
 cloud:
