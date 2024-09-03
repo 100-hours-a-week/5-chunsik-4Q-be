@@ -1,7 +1,7 @@
 package org.chunsik.pq.login.security;
 
 import lombok.Getter;
-import org.chunsik.pq.model.User;
+import org.chunsik.pq.login.model.User;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 

@@ -4,7 +4,7 @@ import jakarta.annotation.Nullable;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.chunsik.pq.generate.dto.*;
-import org.chunsik.pq.generate.manager.OpenAIManager;
+import org.chunsik.pq.generate.manager.AIManager;
 import org.chunsik.pq.generate.model.BackgroundImage;
 import org.chunsik.pq.generate.model.Category;
 import org.chunsik.pq.generate.model.Tag;
@@ -14,7 +14,6 @@ import org.chunsik.pq.generate.repository.CategoryRepository;
 import org.chunsik.pq.generate.repository.TagBackgroundImageRepository;
 import org.chunsik.pq.generate.repository.TagRepository;
 import org.chunsik.pq.login.manager.UserManager;
-import org.chunsik.pq.login.repository.UserRepository;
 import org.chunsik.pq.login.security.CustomUserDetails;
 import org.chunsik.pq.s3.dto.S3UploadResponseDTO;
 import org.chunsik.pq.s3.manager.S3Manager;
@@ -40,10 +39,9 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class GenerateService {
     private final S3Manager s3Manager;
-    private final OpenAIManager openAIManager;
+    private final AIManager aiManager;
     private final BackgroundImageRepository backgroundImageRepository;
     private final ShortenUrlRepository shortenURLRepository;
-    private final UserRepository userRepository;
     private final TicketRepository ticketRepository;
     private final CategoryRepository categoryRepository;
     private final TagRepository tagRepository;
@@ -70,8 +68,10 @@ public class GenerateService {
         List<String> tags = generateImageDTO.getTags();
 
         // 이미지 생성
-        String openAIUrl = openAIManager.generateImage(tags);
-        File jpgFile = downloadJpg(openAIUrl);
+        // TODO: Karlo 서비스 종료시, OpenAI API로 변경
+//        String openAIUrl = openAIManager.generateImage(tags);
+        String karloUrl = aiManager.generateImage(tags);
+        File jpgFile = downloadJpg(karloUrl);
 
         S3UploadResponseDTO s3UploadResponseDTO = s3Manager.uploadFile(jpgFile, generate);
 

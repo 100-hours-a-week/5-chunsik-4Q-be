@@ -17,7 +17,7 @@ import java.util.Map;
 
 @RequiredArgsConstructor
 @Component
-public class OpenAIManager {
+public class OpenAIManager implements AIManager {
     private final RestTemplate restTemplate;
 
     @Value("${openai.api.key}")

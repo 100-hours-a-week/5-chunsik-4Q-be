@@ -8,7 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.chunsik.pq.login.dto.KakaoAccountResponseDto;
 import org.chunsik.pq.login.exception.KakaoJsonProcessingException;
 import org.chunsik.pq.login.exception.OauthTokenIsNullException;
-import org.chunsik.pq.model.OAuthToken;
+import org.chunsik.pq.login.model.OAuthToken;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;

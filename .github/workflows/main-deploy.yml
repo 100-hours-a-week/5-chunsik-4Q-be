@@ -10,8 +10,8 @@ on:
 env:
   AWS_REGION: ap-northeast-2
   AWS_S3_BUCKET: chunsik-deployments
-  AWS_CODE_DEPLOY_APPLICATION: chunsik
-  AWS_CODE_DEPLOY_GROUP: chunsik-dev-deploy
+  AWS_CODE_DEPLOY_APPLICATION: ${{ vars.AWS_CODE_DEPLOY_APPLICATION }}
+  AWS_CODE_DEPLOY_GROUP: ${{ vars.AWS_CODE_DEPLOY_GROUP }}
 
 jobs:
   build-with-gradle:
@@ -26,6 +26,16 @@ jobs:
           submodules: true
           fetch-depth: 0
 
+      - name: Create Sentry release
+        uses: getsentry/action-release@v1
+        env:
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          SENTRY_ORG: ${{ secrets.SENTRY_ORG }}
+          SENTRY_PROJECT: ${{ secrets.SENTRY_PROJECT }}
+          # SENTRY_URL: https://sentry.io/
+        with:
+          environment: prod
+
       - name: JDK 17 설치
         uses: actions/setup-java@v3
         with:
@@ -39,17 +49,19 @@ jobs:
         run: mv ./appspecs/appspec-prod.yml ./appspec.yml
 
       - name: 프로젝트 빌드
+        env:
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
         run: ./gradlew clean build -x test -Dspring.profiles.active=prod
 
-#      - name: AWS credential 설정
-#        uses: aws-actions/configure-aws-credentials@v1
-#        with:
-#          aws-region: ${{ env.AWS_REGION }}
-#          aws-access-key-id: ${{ secrets.AWS_USER_ID }}
-#          aws-secret-access-key: ${{ secrets.AWS_USER_KEY }}
-#
-#      - name: S3에 업로드
-#        run: aws deploy push --application-name ${{ env.AWS_CODE_DEPLOY_APPLICATION }} --ignore-hidden-files --s3-location s3://$AWS_S3_BUCKET/cicdtest/$GITHUB_SHA.zip --source .
-#
-#      - name: EC2에 배포
-#        run: aws deploy create-deployment --application-name ${{ env.AWS_CODE_DEPLOY_APPLICATION }} --deployment-config-name CodeDeployDefault.AllAtOnce --deployment-group-name ${{ env.AWS_CODE_DEPLOY_GROUP }} --s3-location bucket=$AWS_S3_BUCKET,key=cicdtest/$GITHUB_SHA.zip,bundleType=zip
+      - name: AWS credential 설정
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-region: ${{ env.AWS_REGION }}
+          aws-access-key-id: ${{ secrets.AWS_USER_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_USER_KEY }}
+
+      - name: S3에 업로드
+        run: aws deploy push --application-name ${{ env.AWS_CODE_DEPLOY_APPLICATION }} --ignore-hidden-files --s3-location s3://$AWS_S3_BUCKET/prod-deploy/$GITHUB_SHA.zip --source .
+
+      - name: EC2에 배포
+        run: aws deploy create-deployment --application-name ${{ env.AWS_CODE_DEPLOY_APPLICATION }} --deployment-group-name ${{ env.AWS_CODE_DEPLOY_GROUP }} --s3-location bucket=$AWS_S3_BUCKET,key=prod-deploy/$GITHUB_SHA.zip,bundleType=zip

@@ -8,11 +8,8 @@ ERROR_LOG="$ROOT_PATH/error.log"
 START_LOG="$ROOT_PATH/start.log"
 
 GREEN='\033[0;32m'
-NC='\033[0m' # No Color
+NC='\033[0m' # No Color\
 
-#DB_URL=$(aws ssm get-parameter --name /chunsik/dev/DB_URL --query "Parameter.Value" --output text)
-#DB_USER=$(aws ssm get-parameter --name /chunsik/dev/DB_USER --query "Parameter.Value" --output text)
-#DB_PASSWORD=$(aws ssm get-parameter --name /chunsik/dev/DB_PASSWORD --query "Parameter.Value" --output text)
 SENTRY_AUTH_TOKEN=$(aws ssm get-parameter --name /chunsik/dev/SENTRY_AUTH_TOKEN --query "Parameter.Value" --output text)
 
 NOW=$(date +%c)
