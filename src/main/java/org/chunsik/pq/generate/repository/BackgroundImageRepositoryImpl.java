@@ -24,7 +24,7 @@ import static org.chunsik.pq.generate.model.QBackgroundImage.backgroundImage;
 import static org.chunsik.pq.generate.model.QCategory.category;
 import static org.chunsik.pq.generate.model.QTag.tag;
 import static org.chunsik.pq.generate.model.QTagBackgroundImage.tagBackgroundImage;
-import static org.chunsik.pq.model.QUser.user;
+import static org.chunsik.pq.login.model.QUser.user;
 
 @RequiredArgsConstructor
 @Repository
