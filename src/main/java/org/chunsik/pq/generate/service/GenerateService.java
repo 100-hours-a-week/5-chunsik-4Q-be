@@ -5,6 +5,7 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.chunsik.pq.generate.dto.*;
 import org.chunsik.pq.generate.manager.AIManager;
+import org.chunsik.pq.generate.manager.HotTagManager;
 import org.chunsik.pq.generate.model.BackgroundImage;
 import org.chunsik.pq.generate.model.Category;
 import org.chunsik.pq.generate.model.Tag;
@@ -30,6 +31,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
@@ -47,6 +49,7 @@ public class GenerateService {
     private final TagRepository tagRepository;
     private final TagBackgroundImageRepository tagBackgroundImageRepository;
     private final UserManager userManager;
+    private final HotTagManager hotTagManager;
 
     @Value("${cloud.aws.s3.generate}")
     private String generate;
@@ -164,11 +167,15 @@ public class GenerateService {
                 Tag tag = tagOptional.get();
 
                 // TagBackgroundImage 객체 생성 후 저장
-                TagBackgroundImage tagBackgroundImage = new TagBackgroundImage(tag.getId(), backgroundImageId);
+                TagBackgroundImage tagBackgroundImage = new TagBackgroundImage(tag.getId(), backgroundImageId, LocalDateTime.now());
                 tagBackgroundImageRepository.save(tagBackgroundImage);
             } else {
                 // Tag가 없는 경우, 여기서 새 Tag를 생성하거나 무시할 수 있습니다.
             }
         }
+    }
+
+    public TagResponseDTO currentTags() {
+        return hotTagManager.getCurrentTags();
     }
 }

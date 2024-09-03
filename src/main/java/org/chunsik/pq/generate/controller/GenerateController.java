@@ -30,6 +30,11 @@ public class GenerateController {
         return generateService.findTicketById(id);
     }
 
+    @GetMapping("/tag")
+    public TagResponseDTO getTags() {
+        return generateService.currentTags();
+    }
+
     @ExceptionHandler(IOException.class)
     public ResponseEntity<String> handleIOException(IOException e) {
         Sentry.captureException(e);
