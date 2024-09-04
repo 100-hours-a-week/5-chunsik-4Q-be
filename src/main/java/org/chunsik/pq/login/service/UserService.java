@@ -67,6 +67,11 @@ public class UserService {
     @Transactional
     public TokenDto signUpOrLogin(SignUpOrLoginDto dto, OauthProvider oauthProvider) {
         Optional<User> optionalUser = userRepository.findByEmail(dto.getEmail());
+
+        if (optionalUser.isPresent()) {
+            if (optionalUser.get().getOauthProvider() != oauthProvider) throw new DuplicateEmailException("email exists");
+        }
+
         User user = optionalUser.orElseGet(
                 () -> User.create(
                         dto.getNickname(),
@@ -95,7 +100,7 @@ public class UserService {
         return new MeResponseDto(id, email, nickname);
     }
 
-    public LogoutSuccessDTO logout(){
+    public LogoutSuccessDTO logout() {
         Optional<CustomUserDetails> currentUser = userManager.currentUser();
         CustomUserDetails customUserDetails = currentUser.orElseThrow(() -> new AuthenticationException("No current user") {
         });
