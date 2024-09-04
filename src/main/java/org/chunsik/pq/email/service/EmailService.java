@@ -148,6 +148,10 @@ public class EmailService {
         return false;
     }
 
+    public boolean emailDuplicationValid(String email) {
+        return emailConfirmRepository.existsByEmail(email);
+    }
+
     private Optional<Cookie> getCookie(HttpServletRequest request, String name) {
         if (request.getCookies() != null) {
             return Arrays.stream(request.getCookies())
