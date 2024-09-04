@@ -43,19 +43,20 @@ public class BackgroundImageRepositoryImpl implements BackgroundImageRepositoryC
         // GROUP_CONCAT 결과를 사용하여 태그들을 하나의 문자열로 결합
         StringExpression tagsConcat = stringTemplate("group_concat(DISTINCT {0})", tag.name);
 
-        // 먼저 태그로 이미지를 필터링하여 가져옴
+        // 태그 및 카테고리로 이미지를 필터링하여 ID를 가져옴
         Set<Long> filteredImageIds = queryFactory
                 .select(backgroundImage.id)
                 .from(backgroundImage)
                 .leftJoin(tagBackgroundImage).on(tagBackgroundImage.photoBackgroundId.eq(backgroundImage.id))
                 .leftJoin(tag).on(tag.id.eq(tagBackgroundImage.tagId))
+                .leftJoin(category).on(backgroundImage.categoryId.eq(category.id))
                 .where(
                         tagNameEq(tagName),
                         categoryNameEq(categoryName)
                 )
                 .fetch()
                 .stream()
-                .collect(Collectors.toSet()); // 중복 제거를 위해 Set으로 변환
+                .collect(Collectors.toSet());
 
         long total = filteredImageIds.size();
 
