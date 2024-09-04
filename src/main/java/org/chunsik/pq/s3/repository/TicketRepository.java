@@ -9,7 +9,14 @@ import java.util.List;
 
 public interface TicketRepository extends JpaRepository<Ticket, Long> {
 
-    @Query("SELECT t FROM Ticket t JOIN FETCH t.backgroundImage b WHERE t.userId = :userId ORDER BY t.createdAt DESC")
-    List<Ticket> findTicketsByUserIdWithBackgroundImageOrderByCreatedAtDesc(@Param("userId") Long userId);
-
+    @Query("SELECT t, b, COUNT(DISTINCT ul.id) AS likesCount " +
+            "FROM Ticket t " +
+            "JOIN FETCH t.backgroundImage b " +
+            "LEFT JOIN UserLike ul ON ul.photoBackgroundId = b.id " +
+            "WHERE t.userId = :userId " +
+            "GROUP BY t.id, b.id " +
+            "ORDER BY t.createdAt DESC")
+    List<Object[]> findTicketsWithLikesByUserIdOrderByCreatedAtDesc(@Param("userId") Long userId);
 }
+
+
