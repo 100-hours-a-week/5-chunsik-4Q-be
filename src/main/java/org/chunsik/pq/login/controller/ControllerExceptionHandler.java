@@ -64,10 +64,4 @@ public class ControllerExceptionHandler {
     public ResponseEntity<?> handleOauthTokenIsNullException(MethodArgumentNotValidException e) {
         return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
     }
-
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<?> handleException(Exception e) {
-        Sentry.captureException(e);
-        return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
-    }
 }
