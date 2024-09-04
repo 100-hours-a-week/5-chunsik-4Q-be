@@ -56,7 +56,7 @@ public class BackgroundImageRepositoryImpl implements BackgroundImageRepositoryC
                 )
                 .fetch()
                 .stream()
-                .collect(Collectors.toSet());
+                .collect(Collectors.toSet());  // 중복 제거를 위해 Set으로 변환
 
         long total = filteredImageIds.size();
 
