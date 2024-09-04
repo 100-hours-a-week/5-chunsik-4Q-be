@@ -2,14 +2,13 @@ package org.chunsik.pq.generate.service;
 
 import jakarta.annotation.Nullable;
 import jakarta.persistence.Tuple;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.chunsik.pq.generate.dto.*;
 import org.chunsik.pq.generate.manager.AIManager;
-import org.chunsik.pq.generate.model.BackgroundImage;
-import org.chunsik.pq.generate.model.Category;
-import org.chunsik.pq.generate.model.Tag;
-import org.chunsik.pq.generate.model.TagBackgroundImage;
+import org.chunsik.pq.generate.model.*;
 import org.chunsik.pq.generate.repository.BackgroundImageRepository;
 import org.chunsik.pq.generate.repository.CategoryRepository;
 import org.chunsik.pq.generate.repository.TagBackgroundImageRepository;
@@ -25,6 +24,8 @@ import org.chunsik.pq.shortenurl.repository.ShortenUrlRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -38,6 +39,9 @@ import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.UUID;
 
+import static org.chunsik.pq.generate.model.RequestLimitResponse.CLIENT_LIMIT_REACHED;
+import static org.chunsik.pq.generate.model.RequestLimitResponse.SERVER_LIMIT_REACHED;
+
 @Service
 @RequiredArgsConstructor
 public class GenerateService {
@@ -50,6 +54,7 @@ public class GenerateService {
     private final TagRepository tagRepository;
     private final TagBackgroundImageRepository tagBackgroundImageRepository;
     private final UserManager userManager;
+    private final RequestLimitService requestLimitService;
 
     @Value("${cloud.aws.s3.generate}")
     private String generate;
@@ -61,36 +66,45 @@ public class GenerateService {
     private String serverDomain;
 
     @Transactional
-    public GenerateResponseDTO generateImage(GenerateImageDTO generateImageDTO) throws IOException {
-        // 로그인된 사용자의 userId를 찾기
-        Long userId = findLoginUserIdOrNull();
+    public ResponseEntity<GenerateResponseDTO> generateImage(String uuid, HttpServletRequest request, HttpServletResponse response, GenerateImageDTO generateImageDTO) throws IOException {
+        RequestLimitResponse requestLimitResponse = requestLimitService.canUseService(uuid, request, response);
+        if (requestLimitResponse == CLIENT_LIMIT_REACHED) {
+            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body(null);
+        } else if (requestLimitResponse == SERVER_LIMIT_REACHED) {
+            return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(null);
+        } else {
+            // 로그인된 사용자의 userId를 찾기
+            Long userId = findLoginUserIdOrNull();
 
-        // 카테고리로 카테고리ID 찾기
-        Long categoryId = findCategoryIdByName(generateImageDTO.getCategory());
+            // 카테고리로 카테고리ID 찾기
+            Long categoryId = findCategoryIdByName(generateImageDTO.getCategory());
 
-        List<String> tags = generateImageDTO.getTags();
+            List<String> tags = generateImageDTO.getTags();
 
-        // 이미지 생성
-        // TODO: Karlo 서비스 종료시, OpenAI API로 변경
-//        String openAIUrl = openAIManager.generateImage(tags);
-        String karloUrl = aiManager.generateImage(tags);
-        File jpgFile = downloadJpg(karloUrl);
+            // 이미지 생성
+            // TODO: Karlo 서비스 종료시, OpenAI API로 변경
+            // String openAIUrl = openAIManager.generateImage(tags);
+            String karloUrl = aiManager.generateImage(tags);
+            File jpgFile = downloadJpg(karloUrl);
 
-        S3UploadResponseDTO s3UploadResponseDTO = s3Manager.uploadFile(jpgFile, generate);
+            S3UploadResponseDTO s3UploadResponseDTO = s3Manager.uploadFile(jpgFile, generate);
 
-        // 배경이미지 Insert
-        BackgroundImage.BackgroundImageBuilder builder = BackgroundImage.builder()
-                .size(jpgFile.length())
-                .url(s3UploadResponseDTO.getS3Url())
-                .userId(userId)
-                .categoryId(categoryId);
+            // 배경이미지 Insert
+            BackgroundImage.BackgroundImageBuilder builder = BackgroundImage.builder()
+                    .size(jpgFile.length())
+                    .url(s3UploadResponseDTO.getS3Url())
+                    .userId(userId)
+                    .categoryId(categoryId);
 
-        BackgroundImage backgroundImage = backgroundImageRepository.save(builder.build());
+            BackgroundImage backgroundImage = backgroundImageRepository.save(builder.build());
 
-        // 태그와 BackgroundImage 간의 관계 저장
-        saveTagBackgroundImages(tags, backgroundImage.getId());
+            // 태그와 BackgroundImage 간의 관계 저장
+            saveTagBackgroundImages(tags, backgroundImage.getId());
 
-        return new GenerateResponseDTO(s3UploadResponseDTO.getS3Url(), backgroundImage.getId());
+            GenerateResponseDTO responseDTO = new GenerateResponseDTO(s3UploadResponseDTO.getS3Url(), backgroundImage.getId());
+
+            return ResponseEntity.ok(responseDTO);
+        }
     }
 
     @Transactional
