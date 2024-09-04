@@ -159,16 +159,15 @@ public class GenerateService {
     // Tags 처리 및 TagBackgroundImage에 저장
     private void saveTagBackgroundImages(List<String> tags, Long backgroundImageId) {
         for (String tagName : tags) {
-            Optional<Tag> tagOptional = tagRepository.findByName(tagName);
-            if (tagOptional.isPresent()) {
-                Tag tag = tagOptional.get();
-
-                // TagBackgroundImage 객체 생성 후 저장
-                TagBackgroundImage tagBackgroundImage = new TagBackgroundImage(tag.getId(), backgroundImageId);
-                tagBackgroundImageRepository.save(tagBackgroundImage);
-            } else {
-                // Tag가 없는 경우, 여기서 새 Tag를 생성하거나 무시할 수 있습니다.
+            Optional<Tag> tagOptional = tagRepository.findAllByEngName(tagName);
+            if (tagOptional.isEmpty()) {
+                continue;
             }
+            Tag tag = tagOptional.get();
+
+            // TagBackgroundImage 객체 생성 후 저장
+            TagBackgroundImage tagBackgroundImage = new TagBackgroundImage(tag.getId(), backgroundImageId);
+            tagBackgroundImageRepository.save(tagBackgroundImage);
         }
     }
 }
