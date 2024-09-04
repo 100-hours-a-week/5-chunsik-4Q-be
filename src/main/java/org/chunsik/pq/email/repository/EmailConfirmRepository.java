@@ -7,4 +7,6 @@ import java.util.Optional;
 
 public interface EmailConfirmRepository extends JpaRepository<EmailConfirm, Integer> {
     Optional<EmailConfirm> findByEmail(String email);
+
+    boolean existsByEmail(String email);
 }
