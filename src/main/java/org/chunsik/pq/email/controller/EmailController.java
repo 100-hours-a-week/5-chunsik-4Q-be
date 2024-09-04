@@ -37,6 +37,12 @@ public class EmailController {
             return new ResponseEntity<>("Invalid request format.", HttpStatus.BAD_REQUEST);
         }
         boolean isVerified = emailService.verifyCode(email, code);
+        boolean duplicationEmail = emailService.emailDuplicationValid(email);
+
+        if (duplicationEmail) {
+            return new ResponseEntity<>("Duplicated Email", HttpStatus.CONFLICT);
+        }
+
         if (isVerified) {
             return new ResponseEntity<>("Secret code verified successfully. Confirmation status updated.", HttpStatus.OK);
         } else {
