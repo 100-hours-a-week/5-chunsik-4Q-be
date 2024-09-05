@@ -43,19 +43,20 @@ public class BackgroundImageRepositoryImpl implements BackgroundImageRepositoryC
         // GROUP_CONCAT 결과를 사용하여 태그들을 하나의 문자열로 결합
         StringExpression tagsConcat = stringTemplate("group_concat(DISTINCT {0})", tag.name);
 
-        // 먼저 태그로 이미지를 필터링하여 가져옴
+        // 태그 및 카테고리로 이미지를 필터링하여 ID를 가져옴
         Set<Long> filteredImageIds = queryFactory
                 .select(backgroundImage.id)
                 .from(backgroundImage)
                 .leftJoin(tagBackgroundImage).on(tagBackgroundImage.photoBackgroundId.eq(backgroundImage.id))
                 .leftJoin(tag).on(tag.id.eq(tagBackgroundImage.tagId))
+                .leftJoin(category).on(backgroundImage.categoryId.eq(category.id))
                 .where(
                         tagNameEq(tagName),
                         categoryNameEq(categoryName)
                 )
                 .fetch()
                 .stream()
-                .collect(Collectors.toSet()); // 중복 제거를 위해 Set으로 변환
+                .collect(Collectors.toSet());  // 중복 제거를 위해 Set으로 변환
 
         long total = filteredImageIds.size();
 
@@ -127,4 +128,71 @@ public class BackgroundImageRepositoryImpl implements BackgroundImageRepositoryC
     private BooleanExpression categoryNameEq(String categoryName) {
         return categoryName != null ? category.name.eq(categoryName) : null;
     }
+
+    public List<BackgroundImageDTO> findLikedBackgroundImagesWithoutPagination() {
+        // 현재 로그인된 사용자 ID 가져오기
+        Optional<CustomUserDetails> currentUser = userManager.currentUser();
+        Long currentUserId = currentUser.map(CustomUserDetails::getId).orElse(null);
+
+        // 사용자 ID가 없을 경우 빈 결과 반환
+        if (currentUserId == null) {
+            return List.of();  // 빈 리스트 반환
+        }
+
+        // GROUP_CONCAT 결과를 사용하여 태그들을 하나의 문자열로 결합
+        StringExpression tagsConcat = stringTemplate("group_concat(DISTINCT {0})", tag.name);
+
+        // 현재 사용자(userId)가 좋아요를 누른 배경 이미지 ID들을 가져옴
+        Set<Long> likedImageIds = queryFactory
+                .select(userLike.photoBackgroundId)
+                .from(userLike)
+                .where(userLike.userId.eq(currentUserId))
+                .fetch()
+                .stream()
+                .collect(Collectors.toSet());
+
+        // 좋아요를 누른 배경 이미지와 관련된 정보를 다시 조회
+        List<Tuple> results = queryFactory
+                .select(
+                        backgroundImage.id,
+                        backgroundImage.url,
+                        backgroundImage.createdAt,
+                        category.name,
+                        tagsConcat.as("tags"),
+                        user.nickname,
+                        userLike.countDistinct()
+                )
+                .from(backgroundImage)
+                .leftJoin(category).on(backgroundImage.categoryId.eq(category.id))
+                .leftJoin(tagBackgroundImage).on(tagBackgroundImage.photoBackgroundId.eq(backgroundImage.id))
+                .leftJoin(tag).on(tag.id.eq(tagBackgroundImage.tagId))
+                .leftJoin(user).on(user.id.eq(backgroundImage.userId))
+                .leftJoin(userLike).on(userLike.photoBackgroundId.eq(backgroundImage.id))
+                .where(
+                        backgroundImage.id.in(likedImageIds)
+                )
+                .groupBy(backgroundImage.id, category.name, user.nickname)
+                .fetch();
+
+        // Tuple을 BackgroundImageDTO로 변환
+        return results.stream().map(tuple -> {
+            String tagsString = tuple.get(4, String.class);  // 4번째 필드(태그)를 가져옴
+            List<String> tagsList = tagsString != null ? List.of(tagsString.split(",")) : List.of();
+
+            // 좋아요 여부는 이미 사용자 ID를 통해 필터링된 결과이므로 true로 설정
+            Boolean isLiked = true;
+
+            return new BackgroundImageDTO(
+                    tuple.get(backgroundImage.id),
+                    tuple.get(backgroundImage.url),
+                    tuple.get(backgroundImage.createdAt),
+                    tuple.get(category.name),
+                    tagsList,
+                    tuple.get(user.nickname),
+                    tuple.get(userLike.countDistinct()),
+                    isLiked  // 항상 좋아요가 true인 상태
+            );
+        }).collect(Collectors.toList());
+    }
+
 }
