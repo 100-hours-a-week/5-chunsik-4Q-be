@@ -70,6 +70,12 @@ public class UserController {
         return new ResponseEntity<>("Registration successful.", HttpStatus.CREATED);
     }
 
+    @PatchMapping("/reset")
+    public ResponseEntity<?> resetPassword(@Validated @RequestBody ResetPasswordDTO resetPasswordDTO){
+        userService.resetPassword(resetPasswordDTO);
+        return new ResponseEntity<>("update successful.",HttpStatus.OK);
+    }
+
     @GetMapping("/me")
     public ResponseEntity<MeResponseDto> me() {
         return ResponseEntity.ok(userService.me());
