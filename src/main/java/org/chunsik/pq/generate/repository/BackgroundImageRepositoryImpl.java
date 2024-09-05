@@ -16,6 +16,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.querydsl.core.types.dsl.Expressions.stringTemplate;
@@ -43,7 +44,7 @@ public class BackgroundImageRepositoryImpl implements BackgroundImageRepositoryC
         StringExpression tagsConcat = stringTemplate("group_concat(DISTINCT {0})", tag.name);
 
         // 먼저 태그로 이미지를 필터링하여 가져옴
-        List<Long> filteredImageIds = queryFactory
+        Set<Long> filteredImageIds = queryFactory
                 .select(backgroundImage.id)
                 .from(backgroundImage)
                 .leftJoin(tagBackgroundImage).on(tagBackgroundImage.photoBackgroundId.eq(backgroundImage.id))
@@ -52,7 +53,11 @@ public class BackgroundImageRepositoryImpl implements BackgroundImageRepositoryC
                         tagNameEq(tagName),
                         categoryNameEq(categoryName)
                 )
-                .fetch();
+                .fetch()
+                .stream()
+                .collect(Collectors.toSet()); // 중복 제거를 위해 Set으로 변환
+
+        long total = filteredImageIds.size();
 
         // 필터링된 이미지와 관련된 모든 태그를 다시 조회
         List<Tuple> results = queryFactory
@@ -79,9 +84,6 @@ public class BackgroundImageRepositoryImpl implements BackgroundImageRepositoryC
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .fetch();
-
-        // 조건에 맞는 전체 레코드 수 계산
-        long total = results.size();
 
         // Tuple을 BackgroundImageDTO로 변환
         List<BackgroundImageDTO> mappedResults = results.stream().map(tuple -> {

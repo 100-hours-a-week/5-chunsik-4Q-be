@@ -62,5 +62,5 @@ chunsik:
     domain: "dev.qqqq.world"
     url: "https://${chunsik.front.domain}"
   server:
-    domain: "devapi.qqqq.world"
+    domain: "api.dev.qqqq.world"
     url: "https://${chunsik.server.domain}"
