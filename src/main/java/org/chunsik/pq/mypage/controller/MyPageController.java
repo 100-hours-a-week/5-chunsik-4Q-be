@@ -15,7 +15,7 @@ import java.util.List;
 
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("/myPQ")
+@RequestMapping("/mypq")
 public class MyPageController {
 
     private final MyPageService myPageService;
@@ -33,11 +33,4 @@ public class MyPageController {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
     }
 
-    // 일반적인 예외를 처리하는 핸들러
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<String> handleException(Exception ex) {
-        // 예외 메시지와 함께 500 Internal Server Error 응답을 반환
-        Sentry.captureException(ex);
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An unexpected error occurred: " + ex.getMessage());
-    }
 }
