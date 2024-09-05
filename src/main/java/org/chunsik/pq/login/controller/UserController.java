@@ -71,9 +71,8 @@ public class UserController {
     }
 
     @PatchMapping("/modify")
-    public ResponseEntity<?> modify() {
-
-        return new ResponseEntity<>("User Update Successful", HttpStatus.OK);
+    public ResponseEntity<ModifyResponseDTO> modify(@Validated @RequestBody ModifyRequestDTO modifyRequestDTO) {
+        return ResponseEntity.ok(userService.modify(modifyRequestDTO));
     }
 
     @PatchMapping("/reset")

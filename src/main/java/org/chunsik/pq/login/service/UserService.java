@@ -110,6 +110,23 @@ public class UserService {
         return new LogoutSuccessDTO("logout success");
     }
 
+    public ModifyResponseDTO modify(ModifyRequestDTO modifyRequestDTO) {
+        Optional<CustomUserDetails> currentUser = userManager.currentUser();
+        CustomUserDetails customUserDetails = currentUser.orElseThrow(() -> new AuthenticationException("No current user") {
+        });
+        Optional<User> findUser = userRepository.findByEmail(customUserDetails.getEmail());
+        User user = findUser.orElseThrow(() -> new NoSuchElementException("User Not Exist"));
+        user.setNickname(modifyRequestDTO.getNickname());
+
+        User modifiedUser = userRepository.save(user);
+
+        return new ModifyResponseDTO(
+                modifiedUser.getId(),
+                modifiedUser.getEmail(),
+                modifyRequestDTO.getNickname()
+        );
+    }
+
     public ResetResponseDTO resetPassword(ResetPasswordDTO resetPasswordDTO) {
         Optional<User> findUserByEmail = userRepository.findByEmail(resetPasswordDTO.getEmail());
         User user = findUserByEmail.orElseThrow(() -> new NoSuchElementException("User Not Exist"));
