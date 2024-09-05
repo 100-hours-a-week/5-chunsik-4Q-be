@@ -1,6 +1,7 @@
 package org.chunsik.pq.generate.service;
 
 import jakarta.annotation.Nullable;
+import jakarta.persistence.Tuple;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.chunsik.pq.generate.dto.*;
@@ -22,6 +23,8 @@ import org.chunsik.pq.s3.repository.TicketRepository;
 import org.chunsik.pq.shortenurl.model.ShortenURL;
 import org.chunsik.pq.shortenurl.repository.ShortenUrlRepository;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -95,6 +98,17 @@ public class GenerateService {
         return this.createImage(dto.getTicketImage(), dto.getShortenUrlId(),
                 dto.getTitle(), dto.getBackgroundImageId()
         );
+    }
+
+    public List<RelateImageDTO> getRelateImage(Long id) {
+        List<Long> tagIds = tagBackgroundImageRepository.findTagIdsByPhotoBackgroundId(id);
+        Slice<Tuple> slice = backgroundImageRepository.findRelateImgByTags(tagIds, PageRequest.of(0, 8), id); // 연관이미지가 8개 이상이면 8개까지만 추천.
+
+        return slice.getContent().stream()
+                .map(tuple -> new RelateImageDTO(
+                        tuple.get(0, Long.class),
+                        tuple.get(1, String.class)))
+                .toList();
     }
 
     @Transactional

@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
+import java.util.List;
 
 @RequiredArgsConstructor
 @RestController
@@ -18,6 +19,11 @@ public class GenerateController {
     @PostMapping("/image")
     public GenerateResponseDTO generateImage(@RequestBody GenerateImageDTO generateImageDTO) throws IOException {
         return generateService.generateImage(generateImageDTO);
+    }
+
+    @GetMapping("/image/relate/{id}")
+    public List<RelateImageDTO> getRelateImages(@PathVariable Long id) {
+        return generateService.getRelateImage(id);
     }
 
     @PostMapping("/ticket")
