@@ -110,12 +110,12 @@ public class UserService {
         return new LogoutSuccessDTO("logout success");
     }
 
-
-    public void resetPassword(ResetPasswordDTO resetPasswordDTO) {
+    public ResetResponseDTO resetPassword(ResetPasswordDTO resetPasswordDTO) {
         Optional<User> findUserByEmail = userRepository.findByEmail(resetPasswordDTO.getEmail());
         User user = findUserByEmail.orElseThrow(() -> new NoSuchElementException("User Not Exist"));
         user.setPassword(passwordEncoder.encode(resetPasswordDTO.getPassword()));
 
-        userRepository.save(user);
+        Long id = userRepository.save(user).getId();
+        return new ResetResponseDTO(id);
     }
 }
