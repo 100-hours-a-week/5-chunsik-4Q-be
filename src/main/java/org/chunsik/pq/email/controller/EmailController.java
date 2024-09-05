@@ -50,6 +50,31 @@ public class EmailController {
         }
     }
 
+    @PatchMapping("/update")
+    public ResponseEntity<String> updateEmail(@RequestBody EmailConfirmRequestDTO dto) {
+        String email = dto.getEmail();
+        String code = dto.getCode();
+
+        if (email.isEmpty() || code.isEmpty()) {
+            return new ResponseEntity<>("Invalid request format.", HttpStatus.BAD_REQUEST);
+        }
+
+        boolean isVerified = emailService.verifyCode(email, code);
+        boolean existEmail = emailService.emailDuplicationValid(email);
+
+        if (!existEmail) {
+            return new ResponseEntity<>("email not exist", HttpStatus.BAD_REQUEST);
+        }
+
+
+        if (isVerified) {
+            return new ResponseEntity<>("Secret code verified successfully. Confirmation status updated.", HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>("Invalid or expired secret code.", HttpStatus.UNAUTHORIZED);
+        }
+    }
+
+
     // 예외 처리
     @ExceptionHandler(TooManyRequestsException.class)
     public ResponseEntity<String> handleTooManyRequestsException(TooManyRequestsException e) {

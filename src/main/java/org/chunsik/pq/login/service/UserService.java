@@ -20,6 +20,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 
 @Slf4j
@@ -69,7 +70,8 @@ public class UserService {
         Optional<User> optionalUser = userRepository.findByEmail(dto.getEmail());
 
         if (optionalUser.isPresent()) {
-            if (optionalUser.get().getOauthProvider() != oauthProvider) throw new DuplicateEmailException("email exists");
+            if (optionalUser.get().getOauthProvider() != oauthProvider)
+                throw new DuplicateEmailException("email exists");
         }
 
         User user = optionalUser.orElseGet(
@@ -106,5 +108,14 @@ public class UserService {
         });
 
         return new LogoutSuccessDTO("logout success");
+    }
+
+
+    public void resetPassword(ResetPasswordDTO resetPasswordDTO) {
+        Optional<User> findUserByEmail = userRepository.findByEmail(resetPasswordDTO.getEmail());
+        User user = findUserByEmail.orElseThrow(() -> new NoSuchElementException("User Not Exist"));
+        user.setPassword(passwordEncoder.encode(resetPasswordDTO.getPassword()));
+
+        userRepository.save(user);
     }
 }
