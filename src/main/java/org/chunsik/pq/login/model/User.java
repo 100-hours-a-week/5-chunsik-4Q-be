@@ -24,7 +24,6 @@ public class User {
     @Column(nullable = false, unique = true)
     private String email;
 
-    @Setter
     @Column(nullable = false)
     private String password;
 
@@ -45,5 +44,9 @@ public class User {
 
     public static User create(String nickname, String email, String password, OauthProvider oauthProvider) {
         return new User(null, nickname, email, password, LocalDateTime.now(), oauthProvider);
+    }
+
+    public void resetPassword(String password) {
+        this.password = password;
     }
 }
