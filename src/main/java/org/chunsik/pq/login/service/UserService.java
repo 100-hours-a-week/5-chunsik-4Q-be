@@ -110,13 +110,15 @@ public class UserService {
         return new LogoutSuccessDTO("logout success");
     }
 
+    @Transactional
     public ModifyResponseDTO modify(ModifyRequestDTO modifyRequestDTO) {
         Optional<CustomUserDetails> currentUser = userManager.currentUser();
         CustomUserDetails customUserDetails = currentUser.orElseThrow(() -> new AuthenticationException("No current user") {
         });
         Optional<User> findUser = userRepository.findByEmail(customUserDetails.getEmail());
         User user = findUser.orElseThrow(() -> new NoSuchElementException("User Not Exist"));
-        user.setNickname(modifyRequestDTO.getNickname());
+
+        user.modifyNickname(modifyRequestDTO.getNickname());
 
         User modifiedUser = userRepository.save(user);
 
