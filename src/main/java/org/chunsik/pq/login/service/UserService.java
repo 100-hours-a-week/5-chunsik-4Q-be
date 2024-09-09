@@ -127,10 +127,12 @@ public class UserService {
         );
     }
 
+    @Transactional
     public ResetResponseDTO resetPassword(ResetPasswordDTO resetPasswordDTO) {
         Optional<User> findUserByEmail = userRepository.findByEmail(resetPasswordDTO.getEmail());
         User user = findUserByEmail.orElseThrow(() -> new NoSuchElementException("User Not Exist"));
-        user.setPassword(passwordEncoder.encode(resetPasswordDTO.getPassword()));
+
+        user.resetPassword(passwordEncoder.encode(resetPasswordDTO.getPassword()));
 
         Long id = userRepository.save(user).getId();
         return new ResetResponseDTO(id);
