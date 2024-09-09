@@ -3,7 +3,6 @@ package org.chunsik.pq.login.model;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 import java.time.LocalDateTime;
 
@@ -17,7 +16,6 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Setter
     @Column(nullable = false)
     private String nickname;
 
@@ -41,6 +39,10 @@ public class User {
         this.password = password;
         this.createdAt = createdAt;
         this.oauthProvider = oauthProvider;
+    }
+
+    public void modifyNickname(String nickname) {
+        this.nickname = nickname;
     }
 
     public static User create(String nickname, String email, String password, OauthProvider oauthProvider) {
