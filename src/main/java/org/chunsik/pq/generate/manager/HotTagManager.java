@@ -17,7 +17,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class HotTagManager {
     private final TagRepository tagRepository;
-    private final TagBackgroundImageRepository tagBackgroundImageRepositoryRepository;
+    private final TagBackgroundImageRepository tagBackgroundImageRepository;
 
     private TagResponseDTO tagResponseDTO;
 
@@ -32,7 +32,7 @@ public class HotTagManager {
         List<String> hotTags = new ArrayList<>();
 
         LocalDateTime week = LocalDateTime.now().minusWeeks(1);
-        List<Long> topTagId = tagBackgroundImageRepositoryRepository.findTopTagId(week);
+        List<Long> topTagId = tagBackgroundImageRepository.findTopTagId(week);
         List<Tag> tagList = tagRepository.findAll();
 
         List<Long> top10Tag = topTagId.size() > 10 ? topTagId.subList(0, 10) : topTagId;
