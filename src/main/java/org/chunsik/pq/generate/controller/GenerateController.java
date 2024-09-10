@@ -4,6 +4,7 @@ import io.sentry.Sentry;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.chunsik.pq.generate.dto.*;
+import org.chunsik.pq.generate.model.RequestLimitResponse;
 import org.chunsik.pq.generate.service.GenerateService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,7 +20,16 @@ public class GenerateController {
 
     @PostMapping("/image")
     public ResponseEntity<GenerateResponseDTO> generateImage(@CookieValue(value = "uuid", required = false) String uuid, HttpServletResponse response, @RequestBody GenerateImageDTO generateImageDTO) throws IOException {
-        return generateService.generateImage(uuid, response, generateImageDTO);
+        RequestLimitResponse requestResponse = generateService.canCreateImage(uuid, response);
+        switch (requestResponse) {
+            case CLIENT_LIMIT_REACHED:
+                return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body(null);
+            case SERVER_LIMIT_REACHED:
+                return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(null);
+            default:
+                GenerateResponseDTO generateResponseDTO = generateService.generateImage(generateImageDTO);
+                return ResponseEntity.status(HttpStatus.OK).body(generateResponseDTO);
+        }
     }
 
     @GetMapping("/image/relate/{id}")
