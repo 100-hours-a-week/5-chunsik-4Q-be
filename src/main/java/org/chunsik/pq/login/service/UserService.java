@@ -5,14 +5,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.chunsik.pq.login.dto.*;
 import org.chunsik.pq.login.exception.DuplicateEmailException;
 import org.chunsik.pq.login.manager.UserManager;
+import org.chunsik.pq.login.model.OauthProvider;
+import org.chunsik.pq.login.model.User;
 import org.chunsik.pq.login.repository.UserRepository;
 import org.chunsik.pq.login.security.CustomUserDetails;
 import org.chunsik.pq.login.security.JwtTokenProvider;
-import org.chunsik.pq.login.model.OauthProvider;
-import org.chunsik.pq.login.model.User;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -35,17 +34,16 @@ public class UserService {
 
     public TokenDto login(String email, String password) {
         UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(email, password);
-        Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
+        authenticationManagerBuilder.getObject().authenticate(authenticationToken);
 
-        String accessToken = jwtTokenProvider.createToken(email);
+        AccessTokenWithExpirationDto accessTokenDto = jwtTokenProvider.createToken(email);
         String refreshToken = jwtTokenProvider.createRefreshToken(email);
 
-        return new TokenDto(accessToken, refreshToken);
+        return new TokenDto(accessTokenDto.getAccessToken(), refreshToken, accessTokenDto.getExpiration());
     }
 
     @Transactional
     public User join(JoinDto joinDto, OauthProvider oauthProvider) {
-
         User user = User.create(
                 joinDto.getNickname().trim(),
                 joinDto.getEmail(),
@@ -79,10 +77,10 @@ public class UserService {
         UsernamePasswordAuthenticationToken token = UsernamePasswordAuthenticationToken.authenticated(user.getEmail(), user.getPassword(), new ArrayList<>());
         SecurityContextHolder.getContext().setAuthentication(token);
 
-        String accessToken = jwtTokenProvider.createToken(user.getEmail());
+        AccessTokenWithExpirationDto accessTokenDto = jwtTokenProvider.createToken(user.getEmail());
         String refreshToken = jwtTokenProvider.createRefreshToken(user.getEmail());
 
-        return new TokenDto(accessToken, refreshToken);
+        return new TokenDto(accessTokenDto.getAccessToken(), refreshToken, accessTokenDto.getExpiration());
     }
 
     public MeResponseDto me() {
@@ -95,7 +93,7 @@ public class UserService {
         return new MeResponseDto(id, email, nickname);
     }
 
-    public LogoutSuccessDTO logout(){
+    public LogoutSuccessDTO logout() {
         Optional<CustomUserDetails> currentUser = userManager.currentUser();
         CustomUserDetails customUserDetails = currentUser.orElseThrow(() -> new AuthenticationException("No current user") {
         });
