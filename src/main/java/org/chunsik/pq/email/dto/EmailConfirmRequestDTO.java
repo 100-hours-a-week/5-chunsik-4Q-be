@@ -6,4 +6,5 @@ import lombok.Data;
 public class EmailConfirmRequestDTO {
     private String email;
     private String code;
+    private String verifyRole;
 }
