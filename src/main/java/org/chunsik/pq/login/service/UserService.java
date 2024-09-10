@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 
 @Slf4j
@@ -65,6 +66,12 @@ public class UserService {
     @Transactional
     public TokenDto signUpOrLogin(SignUpOrLoginDto dto, OauthProvider oauthProvider) {
         Optional<User> optionalUser = userRepository.findByEmail(dto.getEmail());
+
+        if (optionalUser.isPresent()) {
+            if (optionalUser.get().getOauthProvider() != oauthProvider)
+                throw new DuplicateEmailException("email exists");
+        }
+
         User user = optionalUser.orElseGet(
                 () -> User.create(
                         dto.getNickname(),
@@ -99,5 +106,35 @@ public class UserService {
         });
 
         return new LogoutSuccessDTO("logout success");
+    }
+
+    @Transactional
+    public ModifyResponseDTO modify(ModifyRequestDTO modifyRequestDTO) {
+        Optional<CustomUserDetails> currentUser = userManager.currentUser();
+        CustomUserDetails customUserDetails = currentUser.orElseThrow(() -> new AuthenticationException("No current user") {
+        });
+        Optional<User> findUser = userRepository.findByEmail(customUserDetails.getEmail());
+        User user = findUser.orElseThrow(() -> new NoSuchElementException("User Not Exist"));
+
+        user.modifyNickname(modifyRequestDTO.getNickname());
+
+        User modifiedUser = userRepository.save(user);
+
+        return new ModifyResponseDTO(
+                modifiedUser.getId(),
+                modifiedUser.getEmail(),
+                modifyRequestDTO.getNickname()
+        );
+    }
+
+    @Transactional
+    public ResetResponseDTO resetPassword(ResetPasswordDTO resetPasswordDTO) {
+        Optional<User> findUserByEmail = userRepository.findByEmail(resetPasswordDTO.getEmail());
+        User user = findUserByEmail.orElseThrow(() -> new NoSuchElementException("User Not Exist"));
+
+        user.resetPassword(passwordEncoder.encode(resetPasswordDTO.getPassword()));
+
+        Long id = userRepository.save(user).getId();
+        return new ResetResponseDTO(id);
     }
 }

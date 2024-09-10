@@ -67,6 +67,16 @@ public class UserController {
         return new ResponseEntity<>("Registration successful.", HttpStatus.CREATED);
     }
 
+    @PatchMapping("/modify")
+    public ResponseEntity<ModifyResponseDTO> modify(@Validated @RequestBody ModifyRequestDTO modifyRequestDTO) {
+        return ResponseEntity.ok(userService.modify(modifyRequestDTO));
+    }
+
+    @PatchMapping("/reset")
+    public ResponseEntity<ResetResponseDTO> resetPassword(@Validated @RequestBody ResetPasswordDTO resetPasswordDTO) {
+        return ResponseEntity.ok(userService.resetPassword(resetPasswordDTO));
+    }
+
     @GetMapping("/me")
     public ResponseEntity<MeResponseDto> me() {
         return ResponseEntity.ok(userService.me());
