@@ -1,6 +1,7 @@
 package org.chunsik.pq.generate.controller;
 
 import io.sentry.Sentry;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.chunsik.pq.generate.dto.*;
 import org.chunsik.pq.generate.service.GenerateService;
@@ -17,8 +18,8 @@ public class GenerateController {
     private final GenerateService generateService;
 
     @PostMapping("/image")
-    public GenerateResponseDTO generateImage(@RequestBody GenerateImageDTO generateImageDTO) throws IOException {
-        return generateService.generateImage(generateImageDTO);
+    public ResponseEntity<GenerateResponseDTO> generateImage(@CookieValue(value = "uuid", required = false) String uuid, HttpServletResponse response, @RequestBody GenerateImageDTO generateImageDTO) throws IOException {
+        return generateService.generateImage(uuid, response, generateImageDTO);
     }
 
     @GetMapping("/image/relate/{id}")
