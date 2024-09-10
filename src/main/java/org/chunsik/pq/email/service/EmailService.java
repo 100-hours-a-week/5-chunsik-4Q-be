@@ -122,20 +122,23 @@ public class EmailService {
     }
 
     public boolean verifyCode(EmailConfirmRequestDTO dto) {
-        Optional<EmailConfirm> emailConfirmOpt = emailConfirmRepository.findByEmail(dto.getEmail());
-        boolean isEmailExist = userRepository.existsByEmail(dto.getEmail());
 
-        switch (dto.getVerifyRole()) {
-            case ("verify"):
-                if (isEmailExist) throw new DuplicateEmailException("duplicated email");
-                break;
-            case ("reset"):
-                if (!isEmailExist) throw new InvalidEmailException("email not match");
-                break;
-            default:
-                throw new NotChooseVerifyRoleException("email verify Role Not Selected");
-        }
+        if (userRepository.existsByEmail(dto.getEmail()))
+            throw new DuplicateEmailException("duplicated email");
 
+        return checkEmailCode(dto.getEmail(), dto.getCode());
+    }
+
+    public boolean resetCode(EmailConfirmRequestDTO dto) {
+
+        if (!userRepository.existsByEmail(dto.getEmail()))
+            throw new InvalidEmailException("email not exist");
+
+        return checkEmailCode(dto.getEmail(), dto.getCode());
+    }
+
+    public boolean checkEmailCode(String email, String code) {
+        Optional<EmailConfirm> emailConfirmOpt = emailConfirmRepository.findByEmail(email);
 
         if (emailConfirmOpt.isPresent()) {
             EmailConfirm emailConfirm = emailConfirmOpt.get();
@@ -149,7 +152,7 @@ public class EmailService {
 
             try {
                 String decryptedCode = AESUtil.decrypt(emailConfirm.getSecretCode());
-                if (decryptedCode.equals(dto.getCode())) {
+                if (decryptedCode.equals(code)) {
                     EmailConfirm updatedEmailConfirm = emailConfirm.toBuilder()
                             .confirmation(true)
                             .confirmedAt(now)
@@ -166,6 +169,7 @@ public class EmailService {
 
         return false;
     }
+
 
     private Optional<Cookie> getCookie(HttpServletRequest request, String name) {
         if (request.getCookies() != null) {

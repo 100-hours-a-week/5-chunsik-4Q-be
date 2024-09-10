@@ -48,6 +48,23 @@ public class EmailController {
         }
     }
 
+    @PatchMapping("/reset")
+    public ResponseEntity<String> resetEmail(@RequestBody EmailConfirmRequestDTO dto) {
+
+        if (dto.getEmail().isEmpty() || dto.getCode().isEmpty()) {
+            return new ResponseEntity<>("Invalid request format.", HttpStatus.BAD_REQUEST);
+        }
+
+        boolean isVerified = emailService.resetCode(dto);
+
+
+        if (isVerified) {
+            return new ResponseEntity<>("Secret code verified successfully. Confirmation status updated.", HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>("Invalid or expired secret code.", HttpStatus.UNAUTHORIZED);
+        }
+    }
+
 
 
     // 예외 처리
