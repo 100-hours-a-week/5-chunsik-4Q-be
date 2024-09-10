@@ -170,7 +170,7 @@ public class GenerateService {
             Tag tag = tagOptional.get();
 
             // TagBackgroundImage 객체 생성 후 저장
-            TagBackgroundImage tagBackgroundImage = new TagBackgroundImage(tag.getId(), backgroundImageId);
+            TagBackgroundImage tagBackgroundImage = new TagBackgroundImage(tag.getId(), backgroundImageId,LocalDateTime.now());
             tagBackgroundImageRepository.save(tagBackgroundImage);
         }
     }
