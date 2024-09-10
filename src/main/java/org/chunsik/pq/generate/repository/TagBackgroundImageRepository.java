@@ -7,8 +7,6 @@ import org.springframework.data.jpa.repository.Query;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import java.util.List;
-
 public interface TagBackgroundImageRepository extends JpaRepository<TagBackgroundImage, Long> {
     @Query("SELECT t.tagId FROM TagBackgroundImage t " +
             "WHERE t.createdAt >= :week " +
