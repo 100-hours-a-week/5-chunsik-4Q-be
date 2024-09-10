@@ -30,9 +30,9 @@ public class RequestLimitService {
 
     private final RedisTemplate<String, String> redisTemplate;
 
-    private final String CLIENT_REQUEST_LIMIT = "3";
-    private final String GLOBAL_REQUEST_LIMIT = "10";
-    private final String CLIENT_WINDOW_SIZE = "500";   // 100초
+    private final String CLIENT_REQUEST_LIMIT = "1000";
+    private final String GLOBAL_REQUEST_LIMIT = "50000";
+    private final String CLIENT_WINDOW_SIZE = "100";   // 100초
     private final String GLOBAL_WINDOW_SIZE = "86400"; // 24시간
     private final String GLOBAL_KEY = "GLOBAL_KEY";
 
