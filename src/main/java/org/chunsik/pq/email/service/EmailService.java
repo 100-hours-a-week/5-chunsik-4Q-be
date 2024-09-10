@@ -5,10 +5,15 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.chunsik.pq.email.dto.EmailConfirmRequestDTO;
+import org.chunsik.pq.email.exception.InvalidEmailException;
+import org.chunsik.pq.email.exception.NotChooseVerifyRoleException;
 import org.chunsik.pq.email.exception.TooManyRequestsException;
 import org.chunsik.pq.email.model.EmailConfirm;
 import org.chunsik.pq.email.repository.EmailConfirmRepository;
 import org.chunsik.pq.email.util.AESUtil;
+import org.chunsik.pq.login.exception.DuplicateEmailException;
+import org.chunsik.pq.login.repository.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -42,6 +47,7 @@ public class EmailService {
     private final RandomGenerator randomGenerator = RandomGeneratorFactory.of("Random").create();
     private final JavaMailSender mailSender;
     private final EmailConfirmRepository emailConfirmRepository;
+    private final UserRepository userRepository;
 
     public void sendSimpleEmail(String email, HttpServletRequest request, HttpServletResponse response) {
         // 쿠키 기반 재전송 제한 체크
@@ -115,8 +121,21 @@ public class EmailService {
         return String.valueOf(code);
     }
 
-    public boolean verifyCode(String email, String code) {
-        Optional<EmailConfirm> emailConfirmOpt = emailConfirmRepository.findByEmail(email);
+    public boolean verifyCode(EmailConfirmRequestDTO dto) {
+        Optional<EmailConfirm> emailConfirmOpt = emailConfirmRepository.findByEmail(dto.getEmail());
+        boolean isEmailExist = userRepository.existsByEmail(dto.getEmail());
+
+        switch (dto.getVerifyRole()) {
+            case ("verify"):
+                if (isEmailExist) throw new DuplicateEmailException("duplicated email");
+                break;
+            case ("reset"):
+                if (!isEmailExist) throw new InvalidEmailException("email not match");
+                break;
+            default:
+                throw new NotChooseVerifyRoleException("email verify Role Not Selected");
+        }
+
 
         if (emailConfirmOpt.isPresent()) {
             EmailConfirm emailConfirm = emailConfirmOpt.get();
@@ -130,7 +149,7 @@ public class EmailService {
 
             try {
                 String decryptedCode = AESUtil.decrypt(emailConfirm.getSecretCode());
-                if (decryptedCode.equals(code)) {
+                if (decryptedCode.equals(dto.getCode())) {
                     EmailConfirm updatedEmailConfirm = emailConfirm.toBuilder()
                             .confirmation(true)
                             .confirmedAt(now)
@@ -146,10 +165,6 @@ public class EmailService {
         }
 
         return false;
-    }
-
-    public boolean emailDuplicationValid(String email) {
-        return emailConfirmRepository.existsByEmail(email);
     }
 
     private Optional<Cookie> getCookie(HttpServletRequest request, String name) {

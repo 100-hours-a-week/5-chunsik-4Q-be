@@ -5,6 +5,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.chunsik.pq.email.dto.EmailConfirmRequestDTO;
+import org.chunsik.pq.email.exception.InvalidEmailException;
+import org.chunsik.pq.email.exception.NotChooseVerifyRoleException;
 import org.chunsik.pq.email.exception.TooManyRequestsException;
 import org.chunsik.pq.email.service.EmailService;
 import org.springframework.http.HttpStatus;
@@ -31,17 +33,13 @@ public class EmailController {
     // 인증번호 검증
     @PatchMapping("/verification")
     public ResponseEntity<String> verifyEmail(@RequestBody EmailConfirmRequestDTO dto) {
-        String email = dto.getEmail();
-        String code = dto.getCode();
-        if (email.isEmpty() || code.isEmpty()) {
+
+        if (dto.getEmail().isEmpty() || dto.getCode().isEmpty()) {
             return new ResponseEntity<>("Invalid request format.", HttpStatus.BAD_REQUEST);
         }
-        boolean isVerified = emailService.verifyCode(email, code);
-        boolean duplicationEmail = emailService.emailDuplicationValid(email);
 
-        if (duplicationEmail) {
-            return new ResponseEntity<>("Duplicated Email", HttpStatus.CONFLICT);
-        }
+        boolean isVerified = emailService.verifyCode(dto);
+
 
         if (isVerified) {
             return new ResponseEntity<>("Secret code verified successfully. Confirmation status updated.", HttpStatus.OK);
@@ -50,35 +48,22 @@ public class EmailController {
         }
     }
 
-    @PatchMapping("/update")
-    public ResponseEntity<String> updateEmail(@RequestBody EmailConfirmRequestDTO dto) {
-        String email = dto.getEmail();
-        String code = dto.getCode();
-
-        if (email.isEmpty() || code.isEmpty()) {
-            return new ResponseEntity<>("Invalid request format.", HttpStatus.BAD_REQUEST);
-        }
-
-        boolean isVerified = emailService.verifyCode(email, code);
-        boolean existEmail = emailService.emailDuplicationValid(email);
-
-        if (!existEmail) {
-            return new ResponseEntity<>("email not exist", HttpStatus.BAD_REQUEST);
-        }
-
-
-        if (isVerified) {
-            return new ResponseEntity<>("Secret code verified successfully. Confirmation status updated.", HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>("Invalid or expired secret code.", HttpStatus.UNAUTHORIZED);
-        }
-    }
 
 
     // 예외 처리
     @ExceptionHandler(TooManyRequestsException.class)
     public ResponseEntity<String> handleTooManyRequestsException(TooManyRequestsException e) {
         return new ResponseEntity<>(e.getMessage(), HttpStatus.TOO_MANY_REQUESTS);
+    }
+
+    @ExceptionHandler(NotChooseVerifyRoleException.class)
+    public ResponseEntity<String> handleNotChooseVerifyRoleException(NotChooseVerifyRoleException e){
+        return new ResponseEntity<>(e.getMessage(),HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(InvalidEmailException.class)
+    public ResponseEntity<String> handleInvalidEmailException(InvalidEmailException e){
+        return new ResponseEntity<>(e.getMessage(),HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(RuntimeException.class)
