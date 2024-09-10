@@ -6,7 +6,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.chunsik.pq.email.dto.EmailConfirmRequestDTO;
 import org.chunsik.pq.email.exception.InvalidEmailException;
-import org.chunsik.pq.email.exception.NotChooseVerifyRoleException;
 import org.chunsik.pq.email.exception.TooManyRequestsException;
 import org.chunsik.pq.email.service.EmailService;
 import org.springframework.http.HttpStatus;
@@ -40,7 +39,6 @@ public class EmailController {
 
         boolean isVerified = emailService.verifyCode(dto);
 
-
         if (isVerified) {
             return new ResponseEntity<>("Secret code verified successfully. Confirmation status updated.", HttpStatus.OK);
         } else {
@@ -57,7 +55,6 @@ public class EmailController {
 
         boolean isVerified = emailService.resetCode(dto);
 
-
         if (isVerified) {
             return new ResponseEntity<>("Secret code verified successfully. Confirmation status updated.", HttpStatus.OK);
         } else {
@@ -66,21 +63,15 @@ public class EmailController {
     }
 
 
-
     // 예외 처리
     @ExceptionHandler(TooManyRequestsException.class)
     public ResponseEntity<String> handleTooManyRequestsException(TooManyRequestsException e) {
         return new ResponseEntity<>(e.getMessage(), HttpStatus.TOO_MANY_REQUESTS);
     }
 
-    @ExceptionHandler(NotChooseVerifyRoleException.class)
-    public ResponseEntity<String> handleNotChooseVerifyRoleException(NotChooseVerifyRoleException e){
-        return new ResponseEntity<>(e.getMessage(),HttpStatus.BAD_REQUEST);
-    }
-
     @ExceptionHandler(InvalidEmailException.class)
-    public ResponseEntity<String> handleInvalidEmailException(InvalidEmailException e){
-        return new ResponseEntity<>(e.getMessage(),HttpStatus.BAD_REQUEST);
+    public ResponseEntity<String> handleInvalidEmailException(InvalidEmailException e) {
+        return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(RuntimeException.class)
