@@ -5,8 +5,13 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.chunsik.pq.generate.dto.*;
+import org.chunsik.pq.generate.exception.ClientRateLimitExceededException;
+import org.chunsik.pq.generate.exception.ServiceRateLimitExceededException;
 import org.chunsik.pq.generate.manager.AIManager;
-import org.chunsik.pq.generate.model.*;
+import org.chunsik.pq.generate.model.BackgroundImage;
+import org.chunsik.pq.generate.model.Category;
+import org.chunsik.pq.generate.model.Tag;
+import org.chunsik.pq.generate.model.TagBackgroundImage;
 import org.chunsik.pq.generate.repository.BackgroundImageRepository;
 import org.chunsik.pq.generate.repository.CategoryRepository;
 import org.chunsik.pq.generate.repository.TagBackgroundImageRepository;
@@ -57,40 +62,44 @@ public class GenerateService {
     private String serverDomain;
 
     @Transactional
-    public GenerateResponseDTO generateImage(GenerateImageDTO generateImageDTO) throws IOException {
-        // 로그인된 사용자의 userId를 찾기
-        Long userId = findLoginUserIdOrNull();
+    public GenerateResponseDTO generateImage(String uuid, HttpServletResponse response, GenerateImageDTO generateImageDTO) throws IOException {
+        Long requestCode = requestLimitService.canUseService(uuid, response);
 
-        // 카테고리로 카테고리ID 찾기
-        Long categoryId = findCategoryIdByName(generateImageDTO.getCategory());
+        if (requestCode == 0L) {
+            throw new ClientRateLimitExceededException("Client Request Limit Exceeded.");
+        } else if (requestCode == 1L) {
+            throw new ServiceRateLimitExceededException("Service Request Limit Exceeded.");
+        } else {
+            // 로그인된 사용자의 userId를 찾기
+            Long userId = findLoginUserIdOrNull();
 
-        List<String> tags = generateImageDTO.getTags();
+            // 카테고리로 카테고리ID 찾기
+            Long categoryId = findCategoryIdByName(generateImageDTO.getCategory());
 
-        // 이미지 생성
-        // TODO: Karlo 서비스 종료시, OpenAI API로 변경
-        // String openAIUrl = openAIManager.generateImage(tags);
-        String karloUrl = aiManager.generateImage(tags);
-        File jpgFile = downloadJpg(karloUrl);
+            List<String> tags = generateImageDTO.getTags();
 
-        S3UploadResponseDTO s3UploadResponseDTO = s3Manager.uploadFile(jpgFile, generate);
+            // 이미지 생성
+            // TODO: Karlo 서비스 종료시, OpenAI API로 변경
+            // String openAIUrl = openAIManager.generateImage(tags);
+            String karloUrl = aiManager.generateImage(tags);
+            File jpgFile = downloadJpg(karloUrl);
 
-        // 배경이미지 Insert
-        BackgroundImage.BackgroundImageBuilder builder = BackgroundImage.builder()
-                .size(jpgFile.length())
-                .url(s3UploadResponseDTO.getS3Url())
-                .userId(userId)
-                .categoryId(categoryId);
+            S3UploadResponseDTO s3UploadResponseDTO = s3Manager.uploadFile(jpgFile, generate);
 
-        BackgroundImage backgroundImage = backgroundImageRepository.save(builder.build());
+            // 배경이미지 Insert
+            BackgroundImage.BackgroundImageBuilder builder = BackgroundImage.builder()
+                    .size(jpgFile.length())
+                    .url(s3UploadResponseDTO.getS3Url())
+                    .userId(userId)
+                    .categoryId(categoryId);
 
-        // 태그와 BackgroundImage 간의 관계 저장
-        saveTagBackgroundImages(tags, backgroundImage.getId());
+            BackgroundImage backgroundImage = backgroundImageRepository.save(builder.build());
 
-        return new GenerateResponseDTO(s3UploadResponseDTO.getS3Url(), backgroundImage.getId());
-    }
+            // 태그와 BackgroundImage 간의 관계 저장
+            saveTagBackgroundImages(tags, backgroundImage.getId());
 
-    public RequestLimitResponse canCreateImage(String uuid, HttpServletResponse response) {
-        return requestLimitService.canUseService(uuid, response);
+            return new GenerateResponseDTO(s3UploadResponseDTO.getS3Url(), backgroundImage.getId());
+        }
     }
 
     @Transactional

@@ -4,7 +4,6 @@ import jakarta.annotation.Nullable;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import org.chunsik.pq.generate.model.RequestLimitResponse;
 import org.chunsik.pq.login.manager.UserManager;
 import org.chunsik.pq.login.security.CustomUserDetails;
 import org.springframework.beans.factory.annotation.Value;
@@ -16,8 +15,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-
-import static org.chunsik.pq.generate.model.RequestLimitResponse.*;
 
 @Service
 @RequiredArgsConstructor
@@ -72,7 +69,7 @@ public class RequestLimitService {
 
             "return 2";
 
-    public RequestLimitResponse canUseService(String uuid, HttpServletResponse response) {
+    public Long canUseService(String uuid, HttpServletResponse response) {
         Long userId = findLoginUserIdOrNull();
         String clientKey;
         if (userId == null) {
@@ -96,15 +93,7 @@ public class RequestLimitService {
             clientKey = "userID:" + String.valueOf(userId);
         }
 
-        Long incrementResult = incrementKeys(clientKey);
-
-        if (incrementResult == 0L) {
-            return CLIENT_LIMIT_REACHED;
-        } else if (incrementResult == 1L) {
-            return SERVER_LIMIT_REACHED;
-        }
-
-        return SUCCESS;
+        return incrementKeys(clientKey);
     }
 
     @Nullable
