@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
 import software.amazon.awssdk.services.s3.model.GetObjectRequest;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 
@@ -40,6 +41,16 @@ public class S3Manager {
         s3Client.putObject(putObjectRequest, RequestBody.fromFile(file));
 
         return new S3UploadResponseDTO(fullFileName, s3Url);
+    }
+
+    public void deleteFile(String fileDir) {
+        String baseUrl = "https://chunsik-dev.s3.ap-northeast-2.amazonaws.com/";
+        String fileName = fileDir.replace(baseUrl, ""); // ticket 디렉토리가 아닌 다른 디렉토리의 이미지를 삭제할 땐 파싱방식을 그거에 맞게 바꿔야 함. (fileName = 디렉토리/이미지명 형식)
+        DeleteObjectRequest request = DeleteObjectRequest.builder()
+                .bucket(bucketName)
+                .key(fileName)
+                .build();
+        s3Client.deleteObject(request);
     }
 
     private String generateFileName(String prefix) {
