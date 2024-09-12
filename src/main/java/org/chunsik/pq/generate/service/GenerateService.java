@@ -127,6 +127,11 @@ public class GenerateService {
         return new CreateImageResponseDto("Success", id);
     }
 
+    public List<RelateImageDTO> getRelateImage(Long id) {
+        List<Long> tagIds = tagBackgroundImageRepository.findTagIdsByPhotoBackgroundId(id);
+        return backgroundImageRepository.findRelateImgByTags(tagIds, id); // 연관이미지가 8개 이상이면 8개까지만 추천.
+    }
+
     public TicketResponseDTO findTicketById(Long ticketId) {
         Ticket ticket = ticketRepository.findById(ticketId).orElseThrow(() -> new NoSuchElementException("No ticket found for ticketId: " + ticketId));
 
