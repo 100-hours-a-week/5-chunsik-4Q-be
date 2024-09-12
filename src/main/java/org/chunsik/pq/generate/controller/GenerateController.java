@@ -24,6 +24,11 @@ public class GenerateController {
         return generateService.generateImage(generateImageDTO);
     }
 
+    @GetMapping("/image/relate/{id}")
+    public List<RelateImageDTO> getRelateImages(@PathVariable Long id) {
+        return generateService.getRelateImage(id);
+    }
+
     @PostMapping("/ticket")
     public CreateImageResponseDto createImage(@ModelAttribute GenerateApiRequestDTO dto) throws IOException {
         return generateService.createImage(dto);
