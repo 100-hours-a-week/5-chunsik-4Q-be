@@ -21,7 +21,7 @@ public class DeleteController {
     @DeleteMapping("/ticket/{id}")
     public ResponseEntity<String> deleteTicket(@PathVariable Long id) {
         deleteService.deleteById(id);
-        return new ResponseEntity<>("Delete successful", HttpStatus.NO_CONTENT);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
     @ExceptionHandler(AccessDeniedException.class)
