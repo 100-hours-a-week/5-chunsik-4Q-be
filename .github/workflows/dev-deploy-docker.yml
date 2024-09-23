@@ -11,8 +11,9 @@ on:
 env:
   AWS_REGION: ap-northeast-2
   AWS_S3_BUCKET: chunsik-deployments
-  AWS_CODE_DEPLOY_APPLICATION: ${{ vars.AWS_CODE_DEPLOY_APPLICATION }}
-  AWS_CODE_DEPLOY_GROUP: ${{ vars.AWS_CODE_DEPLOY_GROUP }}
+  # AWS_CODE_DEPLOY_APPLICATION: ${{ vars.AWS_CODE_DEPLOY_APPLICATION }}
+  # AWS_CODE_DEPLOY_GROUP: ${{ vars.AWS_CODE_DEPLOY_GROUP }}
+  ECR_REPOSITORY: chunsik/dev/be
 
 jobs:
   build-with-gradle:
