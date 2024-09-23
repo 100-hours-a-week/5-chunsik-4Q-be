@@ -22,3 +22,4 @@ EXPOSE 8080
 
 # 컨테이너에서 애플리케이션 실행
 ENTRYPOINT ["java", "-jar", "app.jar"]
+CMD ["-Dspring.profiles.active=dev"]

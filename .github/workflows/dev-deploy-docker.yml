@@ -23,7 +23,6 @@ jobs:
       - name: dev 브랜치로 이동
         uses: actions/checkout@v3
         with:
-          ref: dev
           token: ${{ secrets.SUBMODULE_SECRET }}
           submodules: true
           fetch-depth: 0
