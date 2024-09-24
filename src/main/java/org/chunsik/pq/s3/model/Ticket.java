@@ -18,7 +18,7 @@ public class Ticket {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "user_id", nullable = false)
+    @Column(name = "user_id")
     private Long userId;
 
     @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
@@ -29,10 +29,10 @@ public class Ticket {
     @JoinColumn(name = "background_id", nullable = false)
     private BackgroundImage backgroundImage;
 
-    @Column(name = "title", nullable = false)
+    @Column(name = "title")
     private String title;
 
-    @Column(name = "image_path", nullable = false)
+    @Column(name = "image_path")
     private String imagePath;
 
     @Column(name = "created_at", columnDefinition = "TIMESTAMP")
