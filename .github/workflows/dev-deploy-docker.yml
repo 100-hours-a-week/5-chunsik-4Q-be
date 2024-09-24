@@ -11,7 +11,7 @@ on:
 env:
   AWS_REGION: ap-northeast-2
   ECR_REPOSITORY: chunsik/dev/be
-  ECS_SERVICE: chunsik-dev-fe-service      # set this to your Amazon ECS service name
+  ECS_SERVICE: chunsik-dev-be-service      # set this to your Amazon ECS service name
   ECS_CLUSTER: ChunsikDevCluster
 
   #ECS Original Task
