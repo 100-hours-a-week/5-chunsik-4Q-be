@@ -10,10 +10,15 @@ on:
 
 env:
   AWS_REGION: ap-northeast-2
-  AWS_S3_BUCKET: chunsik-deployments
-  # AWS_CODE_DEPLOY_APPLICATION: ${{ vars.AWS_CODE_DEPLOY_APPLICATION }}
-  # AWS_CODE_DEPLOY_GROUP: ${{ vars.AWS_CODE_DEPLOY_GROUP }}
   ECR_REPOSITORY: chunsik/dev/be
+  ECS_SERVICE: chunsik-dev-fe-service      # set this to your Amazon ECS service name
+  ECS_CLUSTER: ChunsikDevCluster
+
+  #ECS Original Task
+  ECS_TASK_DEFINITION_ARN: arn:aws:ecs:ap-northeast-2:202533511551:task-definition/chunsik-dev-fe-task:3
+
+  # Container Name
+  CONTAINER_NAME: dev-be-container
 
 jobs:
   build-with-gradle:
@@ -84,7 +89,23 @@ jobs:
           docker buildx build \
             --platform=linux/arm64 \
             -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG \
-            --build-arg SENTRY_AUTH_TOKEN=${{ secrets.SENTRY_AUTH_TOKEN }} \
             --push \
             .
           echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
+
+      - name: Fill in the new image ID in the Amazon ECS task definition
+        id: task-def
+        uses: aws-actions/amazon-ecs-render-task-definition@v1
+        with:
+          task-definition-arn: ${{ env.ECS_TASK_DEFINITION_ARN }}
+          container-name: ${{ env.CONTAINER_NAME }}
+          image: ${{ steps.build-image.outputs.image }}
+
+      - name: Deploy Amazon ECS task definition
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v2
+        with:
+          task-definition: ${{ steps.task-def.outputs.task-definition }}
+          service: ${{ env.ECS_SERVICE }}
+          cluster: ${{ env.ECS_CLUSTER }}
+          wait-for-service-stability: true
+          codedeploy-appspec: appspec.yaml
