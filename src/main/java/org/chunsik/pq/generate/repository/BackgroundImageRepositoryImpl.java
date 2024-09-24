@@ -1,17 +1,22 @@
 package org.chunsik.pq.generate.repository;
 
 import com.querydsl.core.Tuple;
+import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.StringExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.chunsik.pq.gallery.dto.BackgroundImageDTO;
 import org.chunsik.pq.gallery.model.GallerySort;
+import org.chunsik.pq.generate.dto.RelateImageDTO;
+import org.chunsik.pq.generate.model.QBackgroundImage;
+import org.chunsik.pq.generate.model.QTagBackgroundImage;
 import org.chunsik.pq.login.manager.UserManager;
 import org.chunsik.pq.login.security.CustomUserDetails;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -195,4 +200,21 @@ public class BackgroundImageRepositoryImpl implements BackgroundImageRepositoryC
         }).collect(Collectors.toList());
     }
 
+    @Override
+    public List<RelateImageDTO> findRelateImgByTags(@Param("tagIds") List<Long> tagIds, Long backgroundImgId) {
+        QBackgroundImage bi = new QBackgroundImage("bi");
+        QTagBackgroundImage tbi = new QTagBackgroundImage("tbi");
+        QTagBackgroundImage whole = new QTagBackgroundImage("whole");
+
+        return queryFactory
+                .select(Projections.constructor(RelateImageDTO.class, bi.id, bi.url))
+                .from(bi)
+                .join(tbi).on(bi.id.eq(tbi.photoBackgroundId).and(tbi.tagId.in(tagIds)))
+                .join(whole).on(whole.photoBackgroundId.eq(bi.id))
+                .where(bi.id.ne(backgroundImgId))
+                .groupBy(bi.id)
+                .orderBy(tbi.tagId.countDistinct().desc(), whole.tagId.countDistinct().asc())
+                .limit(8)
+                .fetch();
+    }
 }

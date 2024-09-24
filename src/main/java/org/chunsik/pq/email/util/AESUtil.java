@@ -2,6 +2,7 @@ package org.chunsik.pq.email.util;
 
 import javax.crypto.Cipher;
 import javax.crypto.spec.SecretKeySpec;
+import java.security.GeneralSecurityException;
 import java.util.Base64;
 
 public class AESUtil {
@@ -13,7 +14,7 @@ public class AESUtil {
     private static final String SECRET_KEY = "abcdefgh12345678";
 
     // 암호화 메서드
-    public static String encrypt(String input) throws Exception {
+    public static String encrypt(String input) throws GeneralSecurityException {
         SecretKeySpec key = new SecretKeySpec(SECRET_KEY.getBytes(), ALGORITHM);
         Cipher cipher = Cipher.getInstance(TRANSFORMATION);
         cipher.init(Cipher.ENCRYPT_MODE, key);
@@ -22,7 +23,7 @@ public class AESUtil {
     }
 
     // 복호화 메서드
-    public static String decrypt(String input) throws Exception {
+    public static String decrypt(String input) throws GeneralSecurityException {
         SecretKeySpec key = new SecretKeySpec(SECRET_KEY.getBytes(), ALGORITHM);
         Cipher cipher = Cipher.getInstance(TRANSFORMATION);
         cipher.init(Cipher.DECRYPT_MODE, key);

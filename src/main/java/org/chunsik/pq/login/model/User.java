@@ -40,7 +40,15 @@ public class User {
         this.oauthProvider = oauthProvider;
     }
 
+    public void modifyNickname(String nickname) {
+        this.nickname = nickname;
+    }
+
     public static User create(String nickname, String email, String password, OauthProvider oauthProvider) {
         return new User(null, nickname, email, password, LocalDateTime.now(), oauthProvider);
+    }
+
+    public void resetPassword(String password) {
+        this.password = password;
     }
 }

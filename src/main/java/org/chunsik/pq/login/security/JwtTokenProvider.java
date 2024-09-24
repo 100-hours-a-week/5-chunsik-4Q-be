@@ -6,6 +6,7 @@ import io.jsonwebtoken.SignatureAlgorithm;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.chunsik.pq.login.dto.AccessTokenWithExpirationDto;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -37,16 +38,19 @@ public class JwtTokenProvider {
         secretKey = Base64.getEncoder().encodeToString(secretKey.getBytes());
     }
 
-    public String createToken(String email) {
+    public AccessTokenWithExpirationDto createToken(String email) {
         Claims claims = Jwts.claims().setSubject(email);
         Date now = new Date();
 
-        return Jwts.builder()
+        long expiration = new Date().getTime() + tokenValidTime;
+        String accessToken = Jwts.builder()
                 .setClaims(claims)
                 .setIssuedAt(now)
-                .setExpiration(new Date(now.getTime() + tokenValidTime))
+                .setExpiration(new Date(expiration))
                 .signWith(SignatureAlgorithm.HS256, secretKey)
                 .compact();
+
+        return new AccessTokenWithExpirationDto(accessToken, expiration);
     }
 
     public String createRefreshToken(String email) {

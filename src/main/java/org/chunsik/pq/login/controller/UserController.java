@@ -7,14 +7,13 @@ import org.chunsik.pq.login.dto.*;
 import org.chunsik.pq.login.service.UserService;
 import org.chunsik.pq.login.model.OauthProvider;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.Errors;
+import org.springframework.validation.ObjectError;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.HashMap;
-import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
@@ -29,7 +28,7 @@ public class UserController {
     private String cookieDomain;
 
     @PostMapping("/login")
-    public ResponseEntity<Map<String, String>> login(@RequestBody UserLoginRequestDto userLoginRequestDto, HttpServletResponse response) {
+    public ResponseEntity<AccessTokenResponseDto> login(@RequestBody UserLoginRequestDto userLoginRequestDto, HttpServletResponse response) {
         String email = userLoginRequestDto.getEmail();
         String password = userLoginRequestDto.getPassword();
         TokenDto tokenDto = userService.login(email, password);
@@ -41,10 +40,7 @@ public class UserController {
         refreshTokenCookie.setDomain(cookieDomain);
         response.addCookie(refreshTokenCookie);
 
-        Map<String, String> responseBody = new HashMap<>();
-        responseBody.put("accessToken", tokenDto.getAccessToken());
-
-        return ResponseEntity.ok(responseBody);
+        return ResponseEntity.ok(new AccessTokenResponseDto(tokenDto.getAccessToken(), tokenDto.getExpiration()));
     }
 
     @PostMapping("/logout")
@@ -62,12 +58,23 @@ public class UserController {
 
 
     @PostMapping("/register")
-    public ResponseEntity<?> join(@Validated @RequestBody JoinDto joinDto, Errors errors) {
+    public ResponseEntity<String> join(@Validated @RequestBody JoinDto joinDto, Errors errors) {
         if (errors.hasErrors()) {
-            return new ResponseEntity<>("Invalid request format.", HttpStatus.BAD_REQUEST);
+            ObjectError objectError = errors.getAllErrors().stream().findAny().orElseThrow();
+            return new ResponseEntity<>("Invalid request format. " + objectError.getDefaultMessage(), HttpStatus.BAD_REQUEST);
         }
         userService.join(joinDto, OauthProvider.LOCAL);
         return new ResponseEntity<>("Registration successful.", HttpStatus.CREATED);
+    }
+
+    @PatchMapping("/modify")
+    public ResponseEntity<ModifyResponseDTO> modify(@Validated @RequestBody ModifyRequestDTO modifyRequestDTO) {
+        return ResponseEntity.ok(userService.modify(modifyRequestDTO));
+    }
+
+    @PatchMapping("/reset")
+    public ResponseEntity<ResetResponseDTO> resetPassword(@Validated @RequestBody ResetPasswordDTO resetPasswordDTO) {
+        return ResponseEntity.ok(userService.resetPassword(resetPasswordDTO));
     }
 
     @GetMapping("/me")
