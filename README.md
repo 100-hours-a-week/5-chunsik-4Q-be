@@ -41,4 +41,4 @@
 * **김대건** ([kimdaegeon0918](https://github.com/kimdaegeon0918)): BE
 * **박흥영** ([HeungY](https://github.com/HeungY)): BE
 * **최환용** ([HuttTheJAVA](https://github.com/HuttTheJAVA)): BE
-* **박재현** ([moolmin](https://github.com/ZZ3n)): DevOps
+* **박재현** ([ZZ3n](https://github.com/ZZ3n)): DevOps
