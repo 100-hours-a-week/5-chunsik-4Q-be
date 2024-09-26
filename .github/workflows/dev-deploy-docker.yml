@@ -1,5 +1,5 @@
-name: dev CI/CD
-run-name: Develop deploying (Docker)
+name: dev CI/CD (ECS)
+run-name: Develop deploying (ECS)
 on:
   push:
     branches:
@@ -15,7 +15,7 @@ env:
   ECS_CLUSTER: ChunsikDevCluster
 
   #ECS Original Task
-  ECS_TASK_DEFINITION_ARN: arn:aws:ecs:ap-northeast-2:202533511551:task-definition/chunsik-dev-be-task:8
+  ECS_TASK_DEFINITION_ARN: arn:aws:ecs:ap-northeast-2:202533511551:task-definition/chunsik-dev-be-task:12
 
   # Container Name
   CONTAINER_NAME: dev-be-container
@@ -79,7 +79,7 @@ jobs:
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
         run: ./gradlew bootJar
 
-      - name: Build Docker image
+      - name: Build & Push Docker image
         id: build-image
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
