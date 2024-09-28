@@ -15,7 +15,7 @@ env:
   ECS_CLUSTER: ChunsikDevCluster
 
   #ECS Original Task
-  ECS_TASK_DEFINITION_ARN: arn:aws:ecs:ap-northeast-2:202533511551:task-definition/chunsik-dev-be-task:12
+  ECS_TASK_DEFINITION_ARN: arn:aws:ecs:ap-northeast-2:202533511551:task-definition/chunsik-dev-be-task:14
 
   # Container Name
   CONTAINER_NAME: dev-be-container
