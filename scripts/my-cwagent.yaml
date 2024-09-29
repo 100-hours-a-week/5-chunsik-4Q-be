@@ -69,13 +69,21 @@ Resources:
                   "sd_frequency": "1m",
                   "sd_result_file": "/tmp/cwagent_ecs_auto_sd.yaml",
                   "docker_label": {
-                      "sd_metrics_path_label" : "/actuator/prometheus"
+                    "sd_metrics_path_label" : "/actuator/prometheus",
+                    "sd_job_name_label": "ECS_PROMETHEUS_JOB_NAME"
                   },
                   "task_definition_list": [
                     {
                       "sd_metrics_ports": "9090",
-                      "sd_task_definition_arn_pattern": ".*:task-definition/chunsik-dev-(be|fe)-task:[0-9]+",
-                      "sd_metrics_path": "/actuator/prometheus"
+                      "sd_task_definition_arn_pattern": ".*:task-definition/chunsik-dev-be-task:[0-9]+",
+                      "sd_metrics_path": "/actuator/prometheus",
+                      "sd_job_name": "cwagent_backend_metric"
+                    },
+                    {
+                      "sd_metrics_ports": "9090",
+                      "sd_task_definition_arn_pattern": ".*:task-definition/chunsik-dev-fe-task:[0-9]+",
+                      "sd_metrics_path": "/actuator/prometheus",
+                      "sd_job_name": "cwagent_frontend_metric"
                     }
                   ]
                 },
@@ -117,7 +125,8 @@ Resources:
                         "^java_lang_operatingsystem_(freephysicalmemorysize|totalphysicalmemorysize|freeswapspacesize|totalswapspacesize|systemcpuload|processcpuload|availableprocessors|openfiledescriptorcount)$",
                         "^catalina_manager_(rejectedsessions|activesessions)$",
                         "^jvm_gc_collection_seconds_(count|sum)$",
-                        "^catalina_globalrequestprocessor_(bytesreceived|bytessent|requestcount|errorcount|processingtime)$"
+                        "^catalina_globalrequestprocessor_(bytesreceived|bytessent|requestcount|errorcount|processingtime)$",
+                        "^jvm_.*$"
                       ]
                     },
                     {
