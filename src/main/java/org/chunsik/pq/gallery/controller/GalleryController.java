@@ -1,12 +1,14 @@
 package org.chunsik.pq.gallery.controller;
 
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.chunsik.pq.gallery.dto.BackgroundImageDTO;
 import org.chunsik.pq.gallery.exception.InvalidGallerySortException;
 import org.chunsik.pq.gallery.model.GallerySort;
 import org.chunsik.pq.gallery.service.GalleryService;
+import org.chunsik.pq.gallery.util.TimeUtils;
 import org.chunsik.pq.generate.service.BackgroundImageService;
-
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -38,6 +40,22 @@ public class GalleryController {
         Pageable pageable = PageRequest.of(page, size);
         GallerySort gallerySort = GallerySort.fromValue(sort);
         return backgroundImageService.getBackgroundImages(tagName, categoryName, gallerySort, pageable);
+    }
+
+    @GetMapping("/{imageId}")
+    public void view(@CookieValue(value = "imageIds", required = false) Cookie cookie, @PathVariable Long imageId, HttpServletResponse response) {
+        if (cookie != null) {
+            if (!cookie.getValue().contains("[" + imageId + "]")) {
+                cookie.setValue(cookie.getValue() + "[" + imageId + "]");
+                galleryService.addViewCount(imageId);
+            }
+        } else {
+            cookie = new Cookie("imageIds", "[" + imageId + "]");
+            galleryService.addViewCount(imageId);
+        }
+        cookie.setPath("/");
+        cookie.setMaxAge(TimeUtils.timeUntilMidnight()); // 현재 시간기준 정각까지의 시간 계산(sec)
+        response.addCookie(cookie);
     }
 
     // 좋아요 추가 요청
