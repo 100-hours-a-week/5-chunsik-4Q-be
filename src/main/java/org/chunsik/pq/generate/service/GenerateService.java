@@ -3,6 +3,7 @@ package org.chunsik.pq.generate.service;
 import jakarta.annotation.Nullable;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import net.coobird.thumbnailator.Thumbnails;
 import org.chunsik.pq.generate.dto.*;
 import org.chunsik.pq.generate.manager.AIManager;
 import org.chunsik.pq.generate.model.BackgroundImage;
@@ -106,11 +107,10 @@ public class GenerateService {
         // 로그인된 사용자의 userId를 찾기
         Long userId = findLoginUserIdOrNull();
 
-        // 티켓 이미지 S3 업로드
-        File file = new File("/tmp/" + UUID.randomUUID() + ".jpg");
-        ticketImage.transferTo(file);
-
-        S3UploadResponseDTO s3UploadResponseDTO = s3Manager.uploadFile(file, ticketFolder);
+        // 이미지 압축 후 S3업로드, 서버의 디스크에 생성된 파일 삭제
+        File compressedImage = imageCompression(ticketImage);
+        S3UploadResponseDTO s3UploadResponseDTO = s3Manager.uploadFile(compressedImage, ticketFolder);
+        compressedImage.delete();
 
         // 단축 URL
         ShortenURL shortenURL = shortenURLRepository.findById(shortenUrlId).orElseThrow(() -> new NoSuchElementException("No shorten URL found for shortenUrlId: " + shortenUrlId));
@@ -123,6 +123,22 @@ public class GenerateService {
 
         return new CreateImageResponseDto("Success", id);
     }
+
+    private File imageCompression(MultipartFile image) throws IOException {
+        File tempFile = new File("/tmp/tempimage.jpg");
+        image.transferTo(tempFile);
+        File compressedFile = new File("/tmp/" + UUID.randomUUID() + ".jpg");
+
+        Thumbnails.of(tempFile)
+                .size(1024, 1024)
+                .outputQuality(0.8f)
+                .toFile(compressedFile);
+
+        tempFile.delete();
+
+        return compressedFile;
+    }
+
 
     public List<RelateImageDTO> getRelateImage(Long id) {
         List<Long> tagIds = tagBackgroundImageRepository.findTagIdsByPhotoBackgroundId(id);
