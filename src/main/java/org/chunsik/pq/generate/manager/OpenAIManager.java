@@ -34,7 +34,7 @@ public class OpenAIManager implements AIManager {
                 String.join(", ", tags) + ".";
 
         Map<String, Object> requestBody = new HashMap<>();
-        requestBody.put("model", "dall-e-2");
+        requestBody.put("model", "dall-e-3");
         requestBody.put("prompt", prompt);
         requestBody.put("n", 1);
         requestBody.put("size", "1024x1024");
