@@ -74,31 +74,30 @@ public class GenerateService {
             Long userId = findLoginUserIdOrNull();
 
             // 카테고리로 카테고리ID 찾기
-            Long categoryId = findCategoryIdByName(generateImageDTO.getCategory());
-
+            String category = generateImageDTO.getCategory();
             List<String> tags = generateImageDTO.getTags();
 
+            Long categoryId = findCategoryIdByName(category);
+
             // 이미지 생성
-            // TODO: Karlo 서비스 종료시, OpenAI API로 변경
-            // String openAIUrl = openAIManager.generateImage(tags);
-            String karloUrl = aiManager.generateImage(tags);
-            File jpgFile = downloadJpg(karloUrl);
+            String openAIUrl = aiManager.generateImage(tags, category);
+            File jpgFile = downloadJpg(openAIUrl);
 
-            S3UploadResponseDTO s3UploadResponseDTO = s3Manager.uploadFile(jpgFile, generate);
+                S3UploadResponseDTO s3UploadResponseDTO = s3Manager.uploadFile(jpgFile, generate);
 
-            // 배경이미지 Insert
-            BackgroundImage.BackgroundImageBuilder builder = BackgroundImage.builder()
-                    .size(jpgFile.length())
-                    .url(s3UploadResponseDTO.getS3Url())
-                    .userId(userId)
-                    .categoryId(categoryId);
+                // 배경이미지 Insert
+                BackgroundImage.BackgroundImageBuilder builder = BackgroundImage.builder()
+                        .size(jpgFile.length())
+                        .url(s3UploadResponseDTO.getS3Url())
+                        .userId(userId)
+                        .categoryId(categoryId);
 
-            BackgroundImage backgroundImage = backgroundImageRepository.save(builder.build());
+                BackgroundImage backgroundImage = backgroundImageRepository.save(builder.build());
 
-            // 태그와 BackgroundImage 간의 관계 저장
-            saveTagBackgroundImages(tags, backgroundImage.getId());
+                // 태그와 BackgroundImage 간의 관계 저장
+                saveTagBackgroundImages(tags, backgroundImage.getId());
 
-            return new GenerateResponseDTO(s3UploadResponseDTO.getS3Url(), backgroundImage.getId());
+                return new GenerateResponseDTO(s3UploadResponseDTO.getS3Url(), backgroundImage.getId());
         }
     }
 
