@@ -7,17 +7,15 @@ import lombok.extern.slf4j.Slf4j;
 import org.chunsik.pq.login.dto.KakaoAccountResponseDto;
 import org.chunsik.pq.login.dto.SignUpOrLoginDto;
 import org.chunsik.pq.login.dto.TokenDto;
-import org.chunsik.pq.login.service.KakaoOAuthProvider;
-import org.chunsik.pq.login.service.UserService;
 import org.chunsik.pq.login.model.OAuthToken;
 import org.chunsik.pq.login.model.OauthProvider;
+import org.chunsik.pq.login.service.KakaoOAuthProvider;
+import org.chunsik.pq.login.service.UserService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
 
 @RequiredArgsConstructor
 @RestController
@@ -47,9 +45,6 @@ public class OauthController {
         refreshTokenCookie.setMaxAge(maxAge);
         refreshTokenCookie.setDomain(cookieDomain);
         response.addCookie(refreshTokenCookie);
-
-        Map<String, String> responseBody = new HashMap<>();
-        responseBody.put("accessToken", tokenDto.getAccessToken());
 
         response.sendRedirect(frontDomain);
     }

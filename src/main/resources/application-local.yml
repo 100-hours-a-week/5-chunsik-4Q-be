@@ -42,6 +42,7 @@ server:
   port: 8080
 sentry:
   environment: local
+  enabled: false
 cloud:
   aws:
     s3:
@@ -69,3 +70,11 @@ chunsik:
   server:
     domain: "localhost:8080"
     url: "http://${chunsik.server.domain}"
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: prometheus, health
+  server:
+    port: 9090

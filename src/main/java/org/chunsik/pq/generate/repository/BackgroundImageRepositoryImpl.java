@@ -206,14 +206,14 @@ public class BackgroundImageRepositoryImpl implements BackgroundImageRepositoryC
         QTagBackgroundImage tbi = new QTagBackgroundImage("tbi");
         QTagBackgroundImage whole = new QTagBackgroundImage("whole");
 
-        return queryFactory.
-                select(Projections.constructor(RelateImageDTO.class, bi.id, bi.url)).
-                from(bi).
-                join(tbi).on(bi.id.eq(tbi.photoBackgroundId).and(tbi.tagId.in(tagIds))).
-                join(whole).on(whole.photoBackgroundId.eq(bi.id)).
-                where(bi.id.ne(backgroundImgId)).
-                groupBy(bi.id).
-                orderBy(tbi.tagId.countDistinct().desc(), whole.tagId.countDistinct().asc())
+        return queryFactory
+                .select(Projections.constructor(RelateImageDTO.class, bi.id, bi.url))
+                .from(bi)
+                .join(tbi).on(bi.id.eq(tbi.photoBackgroundId).and(tbi.tagId.in(tagIds)))
+                .join(whole).on(whole.photoBackgroundId.eq(bi.id))
+                .where(bi.id.ne(backgroundImgId))
+                .groupBy(bi.id)
+                .orderBy(tbi.tagId.countDistinct().desc(), whole.tagId.countDistinct().asc())
                 .limit(8)
                 .fetch();
     }

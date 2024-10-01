@@ -1,16 +1,24 @@
+FROM --platform=linux/arm64 openjdk:17-jdk-slim
+WORKDIR /app
 
+RUN apt-get update && \
+     apt-get install -y curl && \
+     apt-get clean
 
-FROM openjdk:17-jdk-slim
+ARG SPRING_PROFILE=dev
+ENV SPRING_PROFILE=${SPRING_PROFILE}
 
-COPY . .
+# 빌드 결과물을 복사
+COPY ./build/libs/*.jar app.jar
 
-RUN chmod +x ./gradlew
-RUN ./gradlew clean build -x test
+# yaml
+COPY ./src/main/resources ./config
 
-VOLUME /tmp
-
-COPY build/libs/*.jar app.jar
+# entrypoint
+COPY ./entrypoint.sh ./entrypoint.sh
+RUN chmod +x ./entrypoint.sh
 
 EXPOSE 8080
 
-ENTRYPOINT ["java", "-jar", "/app.jar"]
+# 컨테이너에서 애플리케이션 실행
+ENTRYPOINT ["./entrypoint.sh"]

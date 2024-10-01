@@ -6,7 +6,9 @@ import lombok.RequiredArgsConstructor;
 import org.chunsik.pq.generate.dto.*;
 import org.chunsik.pq.generate.exception.ClientRateLimitExceededException;
 import org.chunsik.pq.generate.exception.ServiceRateLimitExceededException;
+import org.chunsik.pq.generate.exception.UnauthorizedException;
 import org.chunsik.pq.generate.service.GenerateService;
+import org.chunsik.pq.generate.service.TagService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -18,6 +20,7 @@ import java.util.List;
 @RestController
 public class GenerateController {
     private final GenerateService generateService;
+    private final TagService tagService;
 
     @PostMapping("/image")
     public GenerateResponseDTO generateImage(@CookieValue(value = "uuid", required = false) String uuid, HttpServletResponse response, @RequestBody GenerateImageDTO generateImageDTO) throws IOException {
@@ -39,6 +42,12 @@ public class GenerateController {
         return generateService.findTicketById(id);
     }
 
+    @GetMapping("/users/tags/last-used")
+    public ResponseEntity<List<String>> getLastUsedTags() {
+        List<String> lastUsedTags = tagService.getLastUsedTagsForCurrentUser();
+        return ResponseEntity.ok(lastUsedTags);
+    }
+
     @ExceptionHandler(IOException.class)
     public ResponseEntity<String> handleIOException(IOException e) {
         Sentry.captureException(e);
@@ -46,10 +55,10 @@ public class GenerateController {
                 .body(e.getMessage());
     }
 
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<String> handleException(Exception e) {
+    @ExceptionHandler(UnauthorizedException.class)
+    public ResponseEntity<String> handleUnauthorizedException(UnauthorizedException e) {
         Sentry.captureException(e);
-        return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
     }
 
     @ExceptionHandler(ClientRateLimitExceededException.class)
