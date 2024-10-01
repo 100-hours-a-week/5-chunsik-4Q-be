@@ -11,9 +11,9 @@
 
 
 ## 📖 Description
-![006](https://github.com/user-attachments/assets/677ee570-bf2c-4651-bb32-f50f7eff5817)
-![007](https://github.com/user-attachments/assets/a6690087-fbbf-47a0-bd7d-e4b75a0a2337)
-![008](https://github.com/user-attachments/assets/0a24484c-82f8-42d5-abb6-1e77d01b416a)
+![006](https://github.com/user-attachments/assets/677ee570-bf2c-4651-bb32-f50f7eff5817)![007](https://github.com/user-attachments/assets/a6690087-fbbf-47a0-bd7d-e4b75a0a2337)![008](https://github.com/user-attachments/assets/0a24484c-82f8-42d5-abb6-1e77d01b416a)
+
+
 
 
 쉽고 빠른 QR 티켓 생성 서비스 <br />
@@ -32,8 +32,6 @@
 * 마이페이지
 
 ## 📅 프로젝트 일정
-
----
 > 2024.07.21 ~ 2024.10.06
 
 | 스프린트  | 기간                          | 설명                                                                               |
