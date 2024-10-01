@@ -12,7 +12,7 @@
 
 ## 📖 Description
 <div align=center>
-<img src="https://github.com/user-attachments/assets/677ee570-bf2c-4651-bb32-f50f7eff5817"/>
+<img src="https://github.com/user-attachments/assets/677ee570-bf2c-4651-bb32-f50f7eff5817" width=50%/>
 <img src="https://github.com/user-attachments/assets/a6690087-fbbf-47a0-bd7d-e4b75a0a2337"/>
 <img src="https://github.com/user-attachments/assets/0a24484c-82f8-42d5-abb6-1e77d01b416a"/>
 </div>
