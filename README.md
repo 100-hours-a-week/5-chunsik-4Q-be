@@ -1,13 +1,15 @@
 
 <div align="center">
-    <h1> 📸 &nbsp; &nbsp; &nbsp; 쉽고 빠른 QR 티켓 생성 서비스 4Q &nbsp; &nbsp; &nbsp; 📸</h1>
+    <h1> 📸 &nbsp; &nbsp; &nbsp; 쉽고 빠른 QR 티켓 생성 서비스 포큐 &nbsp; &nbsp; &nbsp; 📸</h1>
     <img src="https://github.com/user-attachments/assets/3321965b-2ec0-4fb3-8394-50f41cc128d4" alt="QR 티켓 생성 서비스" style="width: 70%;">
 </div>
 
+<br/>
+<br/>
 
 ## 📖 Description
 <div align=center> 
-    <h3>💫 &nbsp; &nbsp;쉽고 빠른 QR 티켓 생성 서비스 (포토 + QR) = 4Q 입니다 ! &nbsp; &nbsp; 💫</h3><br />
+    <h3>💫 &nbsp; &nbsp;쉽고 빠른 QR 티켓 생성 서비스 (포토 + QR) = 포큐 입니다 ! &nbsp; &nbsp; 💫</h3><br />
     <img src="https://github.com/user-attachments/assets/677ee570-bf2c-4651-bb32-f50f7eff5817" alt="006" style="width: 30%;">
     <img src="https://github.com/user-attachments/assets/a6690087-fbbf-47a0-bd7d-e4b75a0a2337" alt="007" style="width: 30%;">
     <img src="https://github.com/user-attachments/assets/0a24484c-82f8-42d5-abb6-1e77d01b416a" alt="008" style="width: 30%;">
@@ -18,15 +20,24 @@
 </div>
 <br />
 <br />
+<h3> 포큐 📸 에 오신 여러분들을 환영합니다 ! </h3>
+
+포큐를 통해 QR 티켓 🎫 을 이쁘게 만들어줘 QR 코드의 접근성을 높여주는 서비스예요.
+
+일반적인 QR 생성 서비스와 달리 배경 이미지와 QR을 동시에 생성할 수 있어요.
+
+Dall ・ E 3로 배경 이미지를 생성하며 사용자가 입력한 태그 🏷️ , 카테고리를 기반으로 퀄리티 높은 배경이미지를 생성해줘요!
+
+또한 단축 URL도 생성해줘서 문자 ✉️ , 카톡 💬 , 이메일 📧 등 여러 메시지 채널로 쉽게 공유할 수 있어요 ! 포큐와 함께 멋진 나만의 포토 티켓을 만들어봐요 ! 📸
+</div>
+
+
 <br />
-일반적인 QR 생성 서비스와 달리 배경 이미지와 QR을 동시에 생성할 수 있어요. 
-    <br />4Q를 통해 QR 티켓을 이쁘게 만들어줘 QR 코드의 접근성을 높여주는 서비스예요.
-    <br />Dall ・ E 3로 배경 이미지를 생성하며 사용자가 입력한 태그, 카테고리를 기반으로 퀄리티 높은 배경이미지를 생성해줘요!
-    <br />또한 단축 URL도 생성해줘서 문자, 카톡, 이메일 등 여러 메시지 채널로 쉽게 공유할 수 있어요.<br /><br />
 <br />
 <br />
 
-### 🔗 배포주소
+
+### 🔗 Deployment URL
 * 🌄 [서비스 이용하기](https://qqqq.world)
 * ⚙️ [FE 레포지토리](https://github.com/100-hours-a-week/5-chunsik-4Q-fe)
 * ⚙️ [BE 레포지토리](https://github.com/100-hours-a-week/5-chunsik-4Q-be)
@@ -48,7 +59,7 @@
 <br />
 <br />
 
-# 👨‍💻 팀원 소개 
+# 👨‍💻 Developers
 
 | <img src="https://avatars.githubusercontent.com/u/51183347?v=4" width="150" height="150"> | <img src="https://avatars.githubusercontent.com/u/145218872?v=4" width="150" height="150"> | <img src="https://avatars.githubusercontent.com/u/112844305?v=4" width="150" height="150"> | <img src="https://avatars.githubusercontent.com/u/105616992?v=4" width="150" height="150"> | <img src="https://avatars.githubusercontent.com/u/92637789?v=4" width="150" height="150"> |
 |:-----------------------------------------------------------------------------------------:|:------------------------------------------------------------------------------------------:|:------------------------------------------------------------------------------------------:|:------------------------------------------------------------------------------------------:|:-----------------------------------------------------------------------------------------:|
@@ -110,7 +121,7 @@
 <br />
 <br />
 
-## 📅 프로젝트 일정
+## 📅 Schedule
 
 ### 2024.07.21 ~ 2024.10.06
 
@@ -161,7 +172,7 @@
 <br />
 
 
-## 🖇️ ERD 설계
+## 🖇️ ERD
 ![erd](https://github.com/user-attachments/assets/79f77503-8209-4bc3-be1c-f87358c77ca7)
 
 <br/>
@@ -170,6 +181,8 @@
 ## 🌐 Architecture
 ![image](https://github.com/user-attachments/assets/6d688417-ddf6-40cb-92c1-b8244bf71899)
 
+<br/>
+<br/>
 
 
 
