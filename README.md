@@ -30,7 +30,7 @@
 # 👨‍💻 팀원 소개 
 
 ---
-| <center>Chen.park (박재현) </center>              | <center>Silvia.kim (김수민) </center>                               | <center>Theo.park (박흥영) </center>                | <center>Carter.kim (김대건) </center>                                    | <center>![andy](https://avatars.githubusercontent.com/u/92637789?v=4) </center>              |
+| <center>![zz3n](https://avatars.githubusercontent.com/u/51183347?v=4) </center>              | <center>![silvia](https://avatars.githubusercontent.com/u/145218872?v=4) </center>                               | <center>![theo](https://avatars.githubusercontent.com/u/112844305?v=4) </center>                | <center>![carter](https://avatars.githubusercontent.com/u/105616992?v=4) </center>                                    | <center>![andy](https://avatars.githubusercontent.com/u/92637789?v=4) </center>              |
 |----------------------------------|----------------------------------------------|------------------------------|---------------------------------------------------------|----------------------------------|
 | <center>Chen.park (박재현) </center>              | <center>Silvia.kim (김수민) </center>                               | <center>Theo.park (박흥영) </center>                | <center>Carter.kim (김대건) </center>                                    | <center>Andy.choi (최환용) </center>              |
 | <center>DevOps, PM</center>      | <center>Frontend</center>               | <center>Backend</center>      | <center>Backend</center>                                | <center>Backend</center>      |
