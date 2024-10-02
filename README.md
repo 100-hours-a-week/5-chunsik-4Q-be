@@ -13,6 +13,7 @@
     <img src="https://github.com/user-attachments/assets/0a24484c-82f8-42d5-abb6-1e77d01b416a" alt="008" style="width: 30%;">
     <br />
     <br />
+    <h3> &nbsp; 🌟 &nbsp; 밋밋한 티켓을 예쁘게 변경시킬 수 있어요 &nbsp; 🌟 &nbsp;</h3>
     <img width="617" alt="image" src="https://github.com/user-attachments/assets/58b6fa05-151b-4a3f-bcb0-0c19a76466c8">
 </div>
 <br />
@@ -72,13 +73,13 @@
 ## 🔧 Skills
 
 
-<div align="center" style="width:100%">
-  <h3>Frontend</h3>
+<div  style="width:100%">
+  <h3>✔️ Frontend</h3>
   <img src="https://img.shields.io/badge/Next.js-000000?style=for-the-badge&logo=nextdotjs&logoColor=white">
   <img src="https://img.shields.io/badge/React-61DAFB?style=for-the-badge&logo=react&logoColor=white">
   <img src="https://img.shields.io/badge/Typescript-3178C6?style=for-the-badge&logo=typescript&logoColor=white">
   
-  <h3>Backend</h3>
+  <h3>✔️ Backend</h3>
   <img src="https://img.shields.io/badge/Java-007396?style=for-the-badge&logo=java&logoColor=white">
   <img src="https://img.shields.io/badge/Spring%20Boot-6DB33F?style=for-the-badge&logo=springboot&logoColor=white">
   <img src="https://img.shields.io/badge/Spring%20Security-6DB33F?style=for-the-badge&logo=springsecurity&logoColor=white">
@@ -88,7 +89,7 @@
   <img src="https://img.shields.io/badge/QueryDSL-007396?style=for-the-badge">
   <img src="https://img.shields.io/badge/ShedLock-007396?style=for-the-badge">
 
-  <h3>Ops</h3>
+  <h3>✔️ Ops</h3>
   <img src="https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white">
   <img src="https://img.shields.io/badge/Github%20Actions-2088FF?style=for-the-badge&logo=githubactions&logoColor=white">
   <img src="https://img.shields.io/badge/AWS%20CloudFront-232F3E?style=for-the-badge&logo=amazonaws&logoColor=white">
@@ -99,7 +100,7 @@
   <img src="https://img.shields.io/badge/AWS%20Elasticache-1488C6?style=for-the-badge&logo=amazonec2&logoColor=white">
   <img src="https://img.shields.io/badge/AWS%20ECS-FF9900?style=for-the-badge&logo=amazonecs&logoColor=white">
 
-  <h3>Etc</h3>
+  <h3>✔️ Etc</h3>
   <img src="https://img.shields.io/badge/Jira-0052CC?style=for-the-badge&logo=jira&logoColor=white">
   <img src="https://img.shields.io/badge/Sentry-362D59?style=for-the-badge&logo=sentry&logoColor=white">
   <img src="https://img.shields.io/badge/Google%20Analytics-E37400?style=for-the-badge&logo=googleanalytics&logoColor=white">
@@ -162,6 +163,9 @@
 
 ## 🖇️ ERD 설계
 ![erd](https://github.com/user-attachments/assets/79f77503-8209-4bc3-be1c-f87358c77ca7)
+
+<br/>
+<br/>
 
 ## 🌐 Architecture
 ![image](https://github.com/user-attachments/assets/6d688417-ddf6-40cb-92c1-b8244bf71899)
