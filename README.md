@@ -10,14 +10,15 @@
 
 ## 📖 Description
 <div align=center> 
-    <h3>💫 &nbsp; &nbsp;쉽고 빠른 QR 티켓 생성 서비스 포토 + QR = 4Q 입니다 ! &nbsp; &nbsp; 💫</h3><br />
+    <h3>💫 &nbsp; &nbsp;쉽고 빠른 QR 티켓 생성 서비스 (포토 + QR) = 4Q 입니다 ! &nbsp; &nbsp; 💫</h3><br />
     <img src="https://github.com/user-attachments/assets/677ee570-bf2c-4651-bb32-f50f7eff5817" alt="006" style="width: 30%;">
     <img src="https://github.com/user-attachments/assets/a6690087-fbbf-47a0-bd7d-e4b75a0a2337" alt="007" style="width: 30%;">
     <img src="https://github.com/user-attachments/assets/0a24484c-82f8-42d5-abb6-1e77d01b416a" alt="008" style="width: 30%;">
+    <img width="617" alt="image" src="https://github.com/user-attachments/assets/2cace2f9-133c-40f9-aeb9-816729303c89">
+
 </div>
 
-
-💫 일반적인 QR 생성 서비스와 달리<br />
+일반적인 QR 생성 서비스와 달리<br />
 배경 이미지와 QR을 동시에 생성할 수 있어요.<br />
 * [FE 레포지토리](https://github.com/100-hours-a-week/5-chunsik-4Q-fe)
 * [BE 레포지토리](https://github.com/100-hours-a-week/5-chunsik-4Q-be)
