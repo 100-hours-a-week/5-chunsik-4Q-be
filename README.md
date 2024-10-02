@@ -1,4 +1,4 @@
-# 출출한춘식이 백엔드 Repo
+# 포큐 ! 쉽고 빠른 QR 포토 티켓 생성 서비스
 
 ![제목을-입력해주세요_-002 (3)](https://github.com/user-attachments/assets/3321965b-2ec0-4fb3-8394-50f41cc128d4)
 <div align=center> 
@@ -26,6 +26,14 @@
 * [FE 레포지토리](https://github.com/100-hours-a-week/5-chunsik-4Q-fe)
 * [BE 레포지토리](https://github.com/100-hours-a-week/5-chunsik-4Q-be)
 
+
+# 👨‍💻 팀원 소개 
+
+---
+| <center>Chen.park (박재현) PM</center>              | <center>Silvia.kim (김수민) </center>                               | <center>Theo.park (박흥영) </center>                | <center>Carter.kim (김대건) </center>                                    | <center>Andy.choi (최환용) </center>              |
+|----------------------------------|----------------------------------------------|------------------------------|---------------------------------------------------------|----------------------------------|
+| <center>DevOps</center>      | <center>Frontend</center>               | <center>Backend</center>      | <center>Backend</center>                                | <center>Backend</center>      |
+| <center>[@ZZ3n](https://github.com/ZZ3n)</center> | <center>[@Sumin Kim](https://github.com/moolmin)</center> | <center>[@HeungY](https://github.com/HeungY)</center> | <center>[@kimdaegeon0918](https://github.com/kimdaegeon0918)</center> | <center>[@Andrew](https://github.com/HuttTheJAVA)</center> |
 
 
 ## 🕹️ Main Feature
