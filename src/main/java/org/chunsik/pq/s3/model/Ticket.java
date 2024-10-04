@@ -46,5 +46,9 @@ public class Ticket {
         this.imagePath = imagePath;
         this.createdAt = LocalDateTime.now();
     }
-}
 
+    public void updateTicket(String imagePath) {
+        this.imagePath = imagePath;
+        this.createdAt = LocalDateTime.now();
+    }
+}
