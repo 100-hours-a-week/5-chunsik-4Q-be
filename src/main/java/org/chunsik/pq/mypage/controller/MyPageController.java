@@ -1,9 +1,8 @@
 package org.chunsik.pq.mypage.controller;
 
-import io.sentry.Sentry;
 import lombok.RequiredArgsConstructor;
 import org.chunsik.pq.gallery.dto.BackgroundImageDTO;
-import org.chunsik.pq.generate.repository.BackgroundImageRepositoryImpl;
+import org.chunsik.pq.generate.service.BackgroundImageService;
 import org.chunsik.pq.mypage.dto.MyPQResponseDto;
 import org.chunsik.pq.mypage.service.MyPageService;
 import org.springframework.http.HttpStatus;
@@ -21,7 +20,7 @@ import java.util.List;
 public class MyPageController {
 
     private final MyPageService myPageService;
-    private final BackgroundImageRepositoryImpl backgroundImageRepository;
+    private final BackgroundImageService backgroundImageService;
 
     @GetMapping
     public ResponseEntity<List<MyPQResponseDto>> getMyPQ() {
@@ -31,7 +30,7 @@ public class MyPageController {
 
     @GetMapping("/liked")
     public ResponseEntity<List<BackgroundImageDTO>> getLikedBackgroundImages() {
-        List<BackgroundImageDTO> likedImages = backgroundImageRepository.findLikedBackgroundImagesWithoutPagination();
+        List<BackgroundImageDTO> likedImages = backgroundImageService.getLikedBackgroundImages();
         return ResponseEntity.ok(likedImages);
     }
 
