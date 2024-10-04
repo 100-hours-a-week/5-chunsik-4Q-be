@@ -13,4 +13,6 @@ public interface BackgroundImageRepositoryCustom {
     Page<BackgroundImageDTO> findByTagAndCategory(String tagName, String categoryName, GallerySort sort, Pageable pageable);
 
     List<RelateImageDTO> findRelateImgByTags(@Param("tagIds") List<Long> tagIds, Long backgroundImgId);
+
+    List<BackgroundImageDTO> findLikedBackgroundImagesWithoutPagination();
 }
