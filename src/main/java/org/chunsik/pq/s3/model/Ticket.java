@@ -21,7 +21,7 @@ public class Ticket {
     @Column(name = "user_id")
     private Long userId;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
     @JoinColumn(name = "url_id", nullable = false)
     private ShortenURL url;
 
@@ -37,7 +37,7 @@ public class Ticket {
 
     @Column(name = "created_at", columnDefinition = "TIMESTAMP")
     private LocalDateTime createdAt;
-  
+
     public Ticket(Long userId, ShortenURL url, BackgroundImage backgroundImage, String title, String imagePath) {
         this.userId = userId;
         this.url = url;
@@ -46,5 +46,9 @@ public class Ticket {
         this.imagePath = imagePath;
         this.createdAt = LocalDateTime.now();
     }
-}
 
+    public void updateTicket(String imagePath) {
+        this.imagePath = imagePath;
+        this.createdAt = LocalDateTime.now();
+    }
+}

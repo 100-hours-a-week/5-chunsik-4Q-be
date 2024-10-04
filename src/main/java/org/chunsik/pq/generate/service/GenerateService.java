@@ -63,15 +63,15 @@ public class GenerateService {
         Long userId = findLoginUserIdOrNull();
 
         // 카테고리로 카테고리ID 찾기
-        Long categoryId = findCategoryIdByName(generateImageDTO.getCategory());
-
+        String category = generateImageDTO.getCategory();
         List<String> tags = generateImageDTO.getTags();
 
+        Long categoryId = findCategoryIdByName(category);
+
+
         // 이미지 생성
-        // TODO: Karlo 서비스 종료시, OpenAI API로 변경
-//        String openAIUrl = openAIManager.generateImage(tags);
-        String karloUrl = aiManager.generateImage(tags);
-        File jpgFile = downloadJpg(karloUrl);
+        String openAIUrl = aiManager.generateImage(tags, category);
+        File jpgFile = downloadJpg(openAIUrl);
 
         S3UploadResponseDTO s3UploadResponseDTO = s3Manager.uploadFile(jpgFile, generate);
 
@@ -118,10 +118,39 @@ public class GenerateService {
         // 배경 이미지
         BackgroundImage backgroundImage = backgroundImageRepository.findById(backgroundImageId).orElseThrow(() -> new NoSuchElementException("No backgroundImage found for backgroundImageId: " + backgroundImageId));
 
-        Ticket ticket = new Ticket(userId, shortenURL, backgroundImage, title, s3UploadResponseDTO.getS3Url());
+        Optional<Ticket> existingTicket = ticketRepository.findByBackgroundImageIdAndUrlId(
+                backgroundImageId, shortenUrlId);
+
+        Ticket ticket;
+        if (existingTicket.isPresent()) {
+            // 티켓이 존재하면 기존 이미지를 삭제하고 업데이트
+            ticket = existingTicket.get();
+
+            // 기존 이미지 삭제
+            String oldImagePath = ticket.getImagePath();
+            if (oldImagePath != null && !oldImagePath.isEmpty()) {
+                s3Manager.deleteFile(oldImagePath);  // 기존 이미지를 S3에서 삭제
+            }
+
+            // 새로운 이미지 경로로 업데이트
+            ticket.updateTicket(s3UploadResponseDTO.getS3Url());
+        } else {
+            // 티켓이 존재하지 않으면 새로 생성
+            ticket = new Ticket(userId, shortenURL, backgroundImage, title, s3UploadResponseDTO.getS3Url());
+        }
+
+        // 티켓 저장
+        ticketRepository.save(ticket);
+
         Long id = ticketRepository.save(ticket).getId();
 
         return new CreateImageResponseDto("Success", id);
+    }
+
+
+    public List<RelateImageDTO> getRelateImage(Long id) {
+        List<Long> tagIds = tagBackgroundImageRepository.findTagIdsByPhotoBackgroundId(id);
+        return backgroundImageRepository.findRelateImgByTags(tagIds, id); // 연관이미지가 8개 이상이면 8개까지만 추천.
     }
 
     public TicketResponseDTO findTicketById(Long ticketId) {

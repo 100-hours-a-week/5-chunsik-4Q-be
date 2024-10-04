@@ -1,21 +1,29 @@
 package org.chunsik.pq.email.service;
 
+import io.sentry.Hint;
+import io.sentry.Sentry;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.chunsik.pq.email.dto.EmailConfirmRequestDTO;
+import org.chunsik.pq.email.exception.InvalidEmailException;
 import org.chunsik.pq.email.exception.TooManyRequestsException;
 import org.chunsik.pq.email.model.EmailConfirm;
 import org.chunsik.pq.email.repository.EmailConfirmRepository;
 import org.chunsik.pq.email.util.AESUtil;
+import org.chunsik.pq.login.exception.DuplicateEmailException;
+import org.chunsik.pq.login.repository.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.security.GeneralSecurityException;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.Arrays;
@@ -42,6 +50,7 @@ public class EmailService {
     private final RandomGenerator randomGenerator = RandomGeneratorFactory.of("Random").create();
     private final JavaMailSender mailSender;
     private final EmailConfirmRepository emailConfirmRepository;
+    private final UserRepository userRepository;
 
     public void sendSimpleEmail(String email, HttpServletRequest request, HttpServletResponse response) {
         // 쿠키 기반 재전송 제한 체크
@@ -68,7 +77,8 @@ public class EmailService {
         String encryptedCode;
         try {
             encryptedCode = AESUtil.encrypt(verificationCode);
-        } catch (Exception e) {
+        } catch (GeneralSecurityException e) {
+            Sentry.captureException(e);
             logger.error("Error while encrypting the secret code", e);
             throw new RuntimeException("Error while encrypting the secret code");
         }
@@ -115,38 +125,58 @@ public class EmailService {
         return String.valueOf(code);
     }
 
-    public boolean verifyCode(String email, String code) {
+    @Transactional
+    public boolean verifyCode(EmailConfirmRequestDTO dto) {
+
+        if (userRepository.existsByEmail(dto.getEmail()))
+            throw new DuplicateEmailException("duplicated email");
+
+        return checkEmailCode(dto.getEmail(), dto.getCode());
+    }
+
+    @Transactional
+    public boolean resetCode(EmailConfirmRequestDTO dto) {
+
+        if (!userRepository.existsByEmail(dto.getEmail()))
+            throw new InvalidEmailException("email not exist");
+
+        return checkEmailCode(dto.getEmail(), dto.getCode());
+    }
+
+    private boolean checkEmailCode(String email, String code) {
         Optional<EmailConfirm> emailConfirmOpt = emailConfirmRepository.findByEmail(email);
 
-        if (emailConfirmOpt.isPresent()) {
-            EmailConfirm emailConfirm = emailConfirmOpt.get();
-            LocalDateTime now = LocalDateTime.now();
-            LocalDateTime createdAt = emailConfirm.getCreatedAt();
+        if (emailConfirmOpt.isEmpty()) {
+            return false;
+        }
+        EmailConfirm emailConfirm = emailConfirmOpt.get();
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime createdAt = emailConfirm.getCreatedAt();
 
-            // 유효기간 확인
-            if (Duration.between(createdAt, now).toMillis() > authCodeExpirationMillis) {
-                return false;
-            }
-
-            try {
-                String decryptedCode = AESUtil.decrypt(emailConfirm.getSecretCode());
-                if (decryptedCode.equals(code)) {
-                    EmailConfirm updatedEmailConfirm = emailConfirm.toBuilder()
-                            .confirmation(true)
-                            .confirmedAt(now)
-                            .build();
-
-                    emailConfirmRepository.save(updatedEmailConfirm);
-                    return true;
-                }
-            } catch (Exception e) {
-                logger.error("An error occurred while decrypting the secret code", e);
-                throw new RuntimeException("Error while decrypting the secret code");
-            }
+        // 유효기간 확인
+        if (Duration.between(createdAt, now).toMillis() > authCodeExpirationMillis) {
+            return false;
         }
 
-        return false;
+        try {
+            String decryptedCode = AESUtil.decrypt(emailConfirm.getSecretCode());
+            if (!decryptedCode.equals(code)) {
+                return false;
+            }
+            EmailConfirm updatedEmailConfirm = emailConfirm.toBuilder()
+                    .confirmation(true)
+                    .confirmedAt(now)
+                    .build();
+
+            emailConfirmRepository.save(updatedEmailConfirm);
+            return true;
+        } catch (GeneralSecurityException e) {
+            Sentry.captureException(e);
+            logger.error("An error occurred while decrypting the secret code", e);
+            throw new RuntimeException("Error while decrypting the secret code");
+        }
     }
+
 
     private Optional<Cookie> getCookie(HttpServletRequest request, String name) {
         if (request.getCookies() != null) {

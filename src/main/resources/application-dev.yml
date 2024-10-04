@@ -64,3 +64,11 @@ chunsik:
   server:
     domain: "api.dev.qqqq.world"
     url: "https://${chunsik.server.domain}"
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: prometheus, health
+  server:
+    port: 9090
