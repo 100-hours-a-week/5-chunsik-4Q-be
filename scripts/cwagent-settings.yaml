@@ -64,7 +64,8 @@
                 "^catalina_manager_(rejectedsessions|activesessions)$",
                 "^jvm_gc_collection_seconds_(count|sum)$",
                 "^catalina_globalrequestprocessor_(bytesreceived|bytessent|requestcount|errorcount|processingtime)$",
-                "^jvm_.*$"
+                "^jvm_.*$",
+                "^http_server_requests.*$"
               ]
             },
             {

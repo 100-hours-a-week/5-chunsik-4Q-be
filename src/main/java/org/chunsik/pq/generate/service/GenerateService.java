@@ -4,6 +4,7 @@ import jakarta.annotation.Nullable;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import net.coobird.thumbnailator.Thumbnails;
 import org.chunsik.pq.generate.dto.*;
 import org.chunsik.pq.generate.exception.ClientRateLimitExceededException;
 import org.chunsik.pq.generate.exception.ServiceRateLimitExceededException;
@@ -117,11 +118,10 @@ public class GenerateService {
         // 로그인된 사용자의 userId를 찾기
         Long userId = findLoginUserIdOrNull();
 
-        // 티켓 이미지 S3 업로드
-        File file = new File("/tmp/" + UUID.randomUUID() + ".jpg");
-        ticketImage.transferTo(file);
-
-        S3UploadResponseDTO s3UploadResponseDTO = s3Manager.uploadFile(file, ticketFolder);
+        // 이미지 압축 후 S3업로드, 서버의 디스크에 생성된 파일 삭제
+        File compressedImage = imageCompression(ticketImage);
+        S3UploadResponseDTO s3UploadResponseDTO = s3Manager.uploadFile(compressedImage, ticketFolder);
+        compressedImage.delete();
 
         // 단축 URL
         ShortenURL shortenURL = shortenURLRepository.findById(shortenUrlId).orElseThrow(() -> new NoSuchElementException("No shorten URL found for shortenUrlId: " + shortenUrlId));
@@ -129,11 +129,50 @@ public class GenerateService {
         // 배경 이미지
         BackgroundImage backgroundImage = backgroundImageRepository.findById(backgroundImageId).orElseThrow(() -> new NoSuchElementException("No backgroundImage found for backgroundImageId: " + backgroundImageId));
 
-        Ticket ticket = new Ticket(userId, shortenURL, backgroundImage, title, s3UploadResponseDTO.getS3Url());
+        Optional<Ticket> existingTicket = ticketRepository.findByBackgroundImageIdAndUrlId(
+                backgroundImageId, shortenUrlId);
+
+        Ticket ticket;
+        if (existingTicket.isPresent()) {
+            // 티켓이 존재하면 기존 이미지를 삭제하고 업데이트
+            ticket = existingTicket.get();
+
+            // 기존 이미지 삭제
+            String oldImagePath = ticket.getImagePath();
+            if (oldImagePath != null && !oldImagePath.isEmpty()) {
+                s3Manager.deleteFile(oldImagePath);  // 기존 이미지를 S3에서 삭제
+            }
+
+            // 새로운 이미지 경로로 업데이트
+            ticket.updateTicket(s3UploadResponseDTO.getS3Url());
+        } else {
+            // 티켓이 존재하지 않으면 새로 생성
+            ticket = new Ticket(userId, shortenURL, backgroundImage, title, s3UploadResponseDTO.getS3Url());
+        }
+
+        // 티켓 저장
+        ticketRepository.save(ticket);
+
         Long id = ticketRepository.save(ticket).getId();
 
         return new CreateImageResponseDto("Success", id);
     }
+
+    private File imageCompression(MultipartFile image) throws IOException {
+        File tempFile = new File("/tmp/tempimage.jpg");
+        image.transferTo(tempFile);
+        File compressedFile = new File("/tmp/" + UUID.randomUUID() + ".jpg");
+
+        Thumbnails.of(tempFile)
+                .size(1024, 1024)
+                .outputQuality(0.8f)
+                .toFile(compressedFile);
+
+        tempFile.delete();
+
+        return compressedFile;
+    }
+
 
     public List<RelateImageDTO> getRelateImage(Long id) {
         List<Long> tagIds = tagBackgroundImageRepository.findTagIdsByPhotoBackgroundId(id);
