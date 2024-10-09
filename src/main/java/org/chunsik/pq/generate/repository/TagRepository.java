@@ -9,9 +9,9 @@ import java.util.Optional;
 
 public interface TagRepository extends JpaRepository<Tag, Long>, TagRepositoryCustom {
 
-    Optional<Tag> findAllByEngName(String engName);
 
+    Optional<Tag> findAllByEngName(String engName);
     @Query("SELECT tg.name, tbi.photoBackgroundId FROM Tag tg " +
-           "JOIN TagBackgroundImage tbi ON tbi.tagId = tg.id")
+            "JOIN TagBackgroundImage tbi ON tbi.tagId = tg.id")
     List<Object[]> findAllTagsWithBackgroundIds();
 }

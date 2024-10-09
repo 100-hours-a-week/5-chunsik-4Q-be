@@ -9,6 +9,7 @@ import org.chunsik.pq.generate.dto.*;
 import org.chunsik.pq.generate.exception.ClientRateLimitExceededException;
 import org.chunsik.pq.generate.exception.ServiceRateLimitExceededException;
 import org.chunsik.pq.generate.manager.AIManager;
+import org.chunsik.pq.generate.manager.HotTagManager;
 import org.chunsik.pq.generate.model.BackgroundImage;
 import org.chunsik.pq.generate.model.Category;
 import org.chunsik.pq.generate.model.Tag;
@@ -34,6 +35,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
@@ -51,6 +53,7 @@ public class GenerateService {
     private final TagRepository tagRepository;
     private final TagBackgroundImageRepository tagBackgroundImageRepository;
     private final UserManager userManager;
+    private final HotTagManager hotTagManager;
     private final RequestLimitService requestLimitService;
 
     @Value("${cloud.aws.s3.generate}")
@@ -214,6 +217,7 @@ public class GenerateService {
     // Tags 처리 및 TagBackgroundImage에 저장
     private void saveTagBackgroundImages(List<String> tags, Long backgroundImageId) {
         for (String tagName : tags) {
+
             Optional<Tag> tagOptional = tagRepository.findAllByEngName(tagName);
             if (tagOptional.isEmpty()) {
                 continue;
@@ -221,8 +225,13 @@ public class GenerateService {
             Tag tag = tagOptional.get();
 
             // TagBackgroundImage 객체 생성 후 저장
-            TagBackgroundImage tagBackgroundImage = new TagBackgroundImage(tag.getId(), backgroundImageId);
+            TagBackgroundImage tagBackgroundImage = new TagBackgroundImage(tag.getId(), backgroundImageId,LocalDateTime.now());
+
             tagBackgroundImageRepository.save(tagBackgroundImage);
         }
+    }
+
+    public TagResponseDTO currentTags() {
+        return hotTagManager.getCurrentTags();
     }
 }
