@@ -4,8 +4,6 @@ on:
   push:
     branches:
       - dev
-      - feature/docker-image
-      - redisRateLimit
   workflow_dispatch:
 
 

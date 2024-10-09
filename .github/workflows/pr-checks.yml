@@ -2,10 +2,10 @@ name: Develop PR Checks
 run-name: PR checking
 on:
   pull_request:
-    types:
-      - opened
+    types: [ synchronize, opened, reopened, auto_merge_enabled ]
     branches:
       - dev
+      - main
   workflow_dispatch:
 
 
