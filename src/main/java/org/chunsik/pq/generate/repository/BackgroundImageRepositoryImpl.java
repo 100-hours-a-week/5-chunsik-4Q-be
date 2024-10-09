@@ -56,8 +56,9 @@ public class BackgroundImageRepositoryImpl implements BackgroundImageRepositoryC
                 .leftJoin(tag).on(tag.id.eq(tagBackgroundImage.tagId))
                 .leftJoin(category).on(backgroundImage.categoryId.eq(category.id))
                 .where(
-                        tagNameEq(tagName),
-                        categoryNameEq(categoryName)
+                        tagNameEq(tagName)
+                        ,categoryNameEq(categoryName)
+                        ,backgroundImage.hidden.eq(false)
                 )
                 .fetch()
                 .stream()
@@ -175,6 +176,7 @@ public class BackgroundImageRepositoryImpl implements BackgroundImageRepositoryC
                 .leftJoin(userLike).on(userLike.photoBackgroundId.eq(backgroundImage.id))
                 .where(
                         backgroundImage.id.in(likedImageIds)
+                        ,backgroundImage.hidden.eq(false)
                 )
                 .groupBy(backgroundImage.id, category.name, user.nickname)
                 .fetch();
