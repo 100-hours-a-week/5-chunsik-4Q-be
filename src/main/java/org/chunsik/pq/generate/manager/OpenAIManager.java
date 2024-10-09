@@ -20,17 +20,17 @@ import java.util.Map;
 public class OpenAIManager implements AIManager {
     private final RestTemplate restTemplate;
 
-    @Value("${openai.api.key}")
+    @Value("${chunsik.openai.key}")
     private String apiKey;
 
-    public String generateImage(List<String> tags) {
+    public String generateImage(List<String> tags, String category) {
         String url = "https://api.openai.com/v1/images/generations";
 
         HttpHeaders headers = new HttpHeaders();
         headers.set("Authorization", "Bearer " + apiKey);
 
         // 태그를 콤마로 구분하여 문자열로 변환
-        String prompt = "You are the world’s best designer. Create an image that matches the mood of these tags: " +
+        String prompt = "You are the world’s best designer. This is for a " + category + " theme. Create an image that matches the mood of these tags: " +
                 String.join(", ", tags) + ".";
 
         Map<String, Object> requestBody = new HashMap<>();

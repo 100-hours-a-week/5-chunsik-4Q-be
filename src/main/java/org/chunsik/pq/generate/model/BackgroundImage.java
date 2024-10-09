@@ -33,6 +33,9 @@ public class BackgroundImage {
     @Column(name = "created_at", columnDefinition = "TIMESTAMP")
     private LocalDateTime createdAt;
 
+    @Column(name = "view_count", nullable = false)
+    private Long viewCount;
+
     @Builder
     public BackgroundImage(Long userId, String url, Long size, Long categoryId) {
         this.userId = userId;
@@ -40,5 +43,10 @@ public class BackgroundImage {
         this.size = size;
         this.categoryId = categoryId;
         this.createdAt = LocalDateTime.now();  // 객체 생성 시 자동으로 현재 시간 설정
+        this.viewCount = 0L;
+    }
+
+    public void addViewCount() {
+        this.viewCount += 1;
     }
 }
