@@ -1,10 +1,13 @@
 package org.chunsik.pq.generate.service;
 
 import jakarta.annotation.Nullable;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import net.coobird.thumbnailator.Thumbnails;
 import org.chunsik.pq.generate.dto.*;
+import org.chunsik.pq.generate.exception.ClientRateLimitExceededException;
+import org.chunsik.pq.generate.exception.ServiceRateLimitExceededException;
 import org.chunsik.pq.generate.manager.AIManager;
 import org.chunsik.pq.generate.model.BackgroundImage;
 import org.chunsik.pq.generate.model.Category;
@@ -48,6 +51,7 @@ public class GenerateService {
     private final TagRepository tagRepository;
     private final TagBackgroundImageRepository tagBackgroundImageRepository;
     private final UserManager userManager;
+    private final RequestLimitService requestLimitService;
 
     @Value("${cloud.aws.s3.generate}")
     private String generate;
@@ -59,36 +63,43 @@ public class GenerateService {
     private String serverDomain;
 
     @Transactional
-    public GenerateResponseDTO generateImage(GenerateImageDTO generateImageDTO) throws IOException {
-        // 로그인된 사용자의 userId를 찾기
-        Long userId = findLoginUserIdOrNull();
+    public GenerateResponseDTO generateImage(String uuid, HttpServletResponse response, GenerateImageDTO generateImageDTO) throws IOException {
+        Long requestCode = requestLimitService.canUseService(uuid, response);
 
-        // 카테고리로 카테고리ID 찾기
-        String category = generateImageDTO.getCategory();
-        List<String> tags = generateImageDTO.getTags();
+        if (requestCode == 0L) {
+            throw new ClientRateLimitExceededException("Client Request Limit Exceeded.");
+        } else if (requestCode == 1L) {
+            throw new ServiceRateLimitExceededException("Service Request Limit Exceeded.");
+        } else {
+            // 로그인된 사용자의 userId를 찾기
+            Long userId = findLoginUserIdOrNull();
 
-        Long categoryId = findCategoryIdByName(category);
+            // 카테고리로 카테고리ID 찾기
+            String category = generateImageDTO.getCategory();
+            List<String> tags = generateImageDTO.getTags();
 
+            Long categoryId = findCategoryIdByName(category);
 
-        // 이미지 생성
-        String openAIUrl = aiManager.generateImage(tags, category);
-        File jpgFile = downloadJpg(openAIUrl);
+            // 이미지 생성
+            String openAIUrl = aiManager.generateImage(tags, category);
+            File jpgFile = downloadJpg(openAIUrl);
 
-        S3UploadResponseDTO s3UploadResponseDTO = s3Manager.uploadFile(jpgFile, generate);
+                S3UploadResponseDTO s3UploadResponseDTO = s3Manager.uploadFile(jpgFile, generate);
 
-        // 배경이미지 Insert
-        BackgroundImage.BackgroundImageBuilder builder = BackgroundImage.builder()
-                .size(jpgFile.length())
-                .url(s3UploadResponseDTO.getS3Url())
-                .userId(userId)
-                .categoryId(categoryId);
+                // 배경이미지 Insert
+                BackgroundImage.BackgroundImageBuilder builder = BackgroundImage.builder()
+                        .size(jpgFile.length())
+                        .url(s3UploadResponseDTO.getS3Url())
+                        .userId(userId)
+                        .categoryId(categoryId);
 
-        BackgroundImage backgroundImage = backgroundImageRepository.save(builder.build());
+                BackgroundImage backgroundImage = backgroundImageRepository.save(builder.build());
 
-        // 태그와 BackgroundImage 간의 관계 저장
-        saveTagBackgroundImages(tags, backgroundImage.getId());
+                // 태그와 BackgroundImage 간의 관계 저장
+                saveTagBackgroundImages(tags, backgroundImage.getId());
 
-        return new GenerateResponseDTO(s3UploadResponseDTO.getS3Url(), backgroundImage.getId());
+                return new GenerateResponseDTO(s3UploadResponseDTO.getS3Url(), backgroundImage.getId());
+        }
     }
 
     @Transactional
