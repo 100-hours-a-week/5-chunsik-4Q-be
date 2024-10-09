@@ -1,5 +1,5 @@
 name: main CI/CD
-run-name: Production deploying (test)
+run-name: Production deploying
 on:
   push:
     branches:
@@ -52,7 +52,7 @@ jobs:
       - name: 프로젝트 빌드
         env:
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
-        run: ./gradlew clean build -x test -Dspring.profiles.active=prod
+        run: ./gradlew bootJar
 
       - name: AWS credential 설정
         uses: aws-actions/configure-aws-credentials@v1
