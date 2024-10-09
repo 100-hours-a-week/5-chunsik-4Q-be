@@ -59,5 +59,4 @@ jobs:
         run: |
           docker buildx build \
             --platform=linux/arm64 \
-            -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG \
             .
