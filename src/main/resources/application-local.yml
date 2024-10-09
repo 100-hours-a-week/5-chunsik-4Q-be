@@ -14,6 +14,9 @@ spring:
     url: jdbc:mysql://${chunsik.db.url}:3306/pq
     username: ${chunsik.db.user}
     password: ${chunsik.db.password}
+  redis:
+    host: ${chunsik.redis.host}
+    port: ${chunsik.redis.port}
   mail:
     host: smtp.gmail.com
     port: 587
@@ -39,6 +42,7 @@ server:
   port: 8080
 sentry:
   environment: local
+  enabled: false
 cloud:
   aws:
     s3:
@@ -66,3 +70,11 @@ chunsik:
   server:
     domain: "localhost:8080"
     url: "http://${chunsik.server.domain}"
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: prometheus, health
+  server:
+    port: 9090

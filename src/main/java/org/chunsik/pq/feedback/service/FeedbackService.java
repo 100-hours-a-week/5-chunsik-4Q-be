@@ -6,11 +6,13 @@ import org.chunsik.pq.feedback.model.Feedback;
 import org.chunsik.pq.feedback.model.Feedback.Gender;
 import org.chunsik.pq.feedback.repository.FeedbackRepository;
 import org.chunsik.pq.login.manager.UserManager;
-import org.chunsik.pq.login.repository.UserRepository;
 import org.chunsik.pq.login.security.CustomUserDetails;
+import io.sentry.Sentry;
 import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
 @RequiredArgsConstructor
@@ -18,17 +20,14 @@ import java.util.Optional;
 public class FeedbackService {
 
     private final FeedbackRepository feedbackRepository;
-    private final UserRepository userRepository;
     private final UserManager userManager;
 
     public void saveFeedback(FeedbackDTO feedbackDTO) {
-        Long userId = null;
 
         // 로그인 사용자와 비로그인 사용자 식별
         Optional<CustomUserDetails> currentUser = userManager.currentUser();
-        userId = currentUser.map(CustomUserDetails::getId).orElse(null);
+        Long userId = currentUser.map(CustomUserDetails::getId).orElse(null);
 
-        // Feedback 객체 생성
         Feedback feedback = new Feedback(
                 userId,
                 feedbackDTO.getStarRate(),
@@ -45,5 +44,26 @@ public class FeedbackService {
         );
 
         feedbackRepository.save(feedback);
+
+        // Sentry Scope 설정
+        Sentry.configureScope(scope -> {
+            Map<String, Object> feedbackContext = new HashMap<>();
+            feedbackContext.put("유저ID", userId != null ? userId.toString() : "Anonymous");
+            feedbackContext.put("별점", feedbackDTO.getStarRate());
+            feedbackContext.put("추가의견", feedbackDTO.getComment());
+            feedbackContext.put("쉬움", feedbackDTO.getEase());
+            feedbackContext.put("디자인", feedbackDTO.getDesign());
+            feedbackContext.put("성능", feedbackDTO.getPerformance());
+            feedbackContext.put("기능작동", feedbackDTO.getFeature());
+            feedbackContext.put("추천의향", feedbackDTO.getRecommendation());
+            feedbackContext.put("재사용의향", feedbackDTO.getReuse());
+            feedbackContext.put("나이대", feedbackDTO.getAgeGroup());
+            feedbackContext.put("성별", feedbackDTO.getGender());
+
+            scope.setContexts("feedback", feedbackContext);
+        });
+
+        Sentry.captureMessage("Feedback submitted by user: " + (userId != null ? userId : "Anonymous"));
+
     }
 }

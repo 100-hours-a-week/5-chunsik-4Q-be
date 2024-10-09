@@ -1,9 +1,13 @@
 package org.chunsik.pq.generate.service;
 
 import jakarta.annotation.Nullable;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import net.coobird.thumbnailator.Thumbnails;
 import org.chunsik.pq.generate.dto.*;
+import org.chunsik.pq.generate.exception.ClientRateLimitExceededException;
+import org.chunsik.pq.generate.exception.ServiceRateLimitExceededException;
 import org.chunsik.pq.generate.manager.AIManager;
 import org.chunsik.pq.generate.manager.HotTagManager;
 import org.chunsik.pq.generate.model.BackgroundImage;
@@ -50,6 +54,7 @@ public class GenerateService {
     private final TagBackgroundImageRepository tagBackgroundImageRepository;
     private final UserManager userManager;
     private final HotTagManager hotTagManager;
+    private final RequestLimitService requestLimitService;
 
     @Value("${cloud.aws.s3.generate}")
     private String generate;
@@ -61,36 +66,43 @@ public class GenerateService {
     private String serverDomain;
 
     @Transactional
-    public GenerateResponseDTO generateImage(GenerateImageDTO generateImageDTO) throws IOException {
-        // 로그인된 사용자의 userId를 찾기
-        Long userId = findLoginUserIdOrNull();
+    public GenerateResponseDTO generateImage(String uuid, HttpServletResponse response, GenerateImageDTO generateImageDTO) throws IOException {
+        Long requestCode = requestLimitService.canUseService(uuid, response);
 
-        // 카테고리로 카테고리ID 찾기
-        Long categoryId = findCategoryIdByName(generateImageDTO.getCategory());
+        if (requestCode == 0L) {
+            throw new ClientRateLimitExceededException("Client Request Limit Exceeded.");
+        } else if (requestCode == 1L) {
+            throw new ServiceRateLimitExceededException("Service Request Limit Exceeded.");
+        } else {
+            // 로그인된 사용자의 userId를 찾기
+            Long userId = findLoginUserIdOrNull();
 
-        List<String> tags = generateImageDTO.getTags();
+            // 카테고리로 카테고리ID 찾기
+            String category = generateImageDTO.getCategory();
+            List<String> tags = generateImageDTO.getTags();
 
-        // 이미지 생성
-        // TODO: Karlo 서비스 종료시, OpenAI API로 변경
-//        String openAIUrl = openAIManager.generateImage(tags);
-        String karloUrl = aiManager.generateImage(tags);
-        File jpgFile = downloadJpg(karloUrl);
+            Long categoryId = findCategoryIdByName(category);
 
-        S3UploadResponseDTO s3UploadResponseDTO = s3Manager.uploadFile(jpgFile, generate);
+            // 이미지 생성
+            String openAIUrl = aiManager.generateImage(tags, category);
+            File jpgFile = downloadJpg(openAIUrl);
 
-        // 배경이미지 Insert
-        BackgroundImage.BackgroundImageBuilder builder = BackgroundImage.builder()
-                .size(jpgFile.length())
-                .url(s3UploadResponseDTO.getS3Url())
-                .userId(userId)
-                .categoryId(categoryId);
+                S3UploadResponseDTO s3UploadResponseDTO = s3Manager.uploadFile(jpgFile, generate);
 
-        BackgroundImage backgroundImage = backgroundImageRepository.save(builder.build());
+                // 배경이미지 Insert
+                BackgroundImage.BackgroundImageBuilder builder = BackgroundImage.builder()
+                        .size(jpgFile.length())
+                        .url(s3UploadResponseDTO.getS3Url())
+                        .userId(userId)
+                        .categoryId(categoryId);
 
-        // 태그와 BackgroundImage 간의 관계 저장
-        saveTagBackgroundImages(tags, backgroundImage.getId());
+                BackgroundImage backgroundImage = backgroundImageRepository.save(builder.build());
 
-        return new GenerateResponseDTO(s3UploadResponseDTO.getS3Url(), backgroundImage.getId());
+                // 태그와 BackgroundImage 간의 관계 저장
+                saveTagBackgroundImages(tags, backgroundImage.getId());
+
+                return new GenerateResponseDTO(s3UploadResponseDTO.getS3Url(), backgroundImage.getId());
+        }
     }
 
     @Transactional
@@ -109,11 +121,10 @@ public class GenerateService {
         // 로그인된 사용자의 userId를 찾기
         Long userId = findLoginUserIdOrNull();
 
-        // 티켓 이미지 S3 업로드
-        File file = new File("/tmp/" + UUID.randomUUID() + ".jpg");
-        ticketImage.transferTo(file);
-
-        S3UploadResponseDTO s3UploadResponseDTO = s3Manager.uploadFile(file, ticketFolder);
+        // 이미지 압축 후 S3업로드, 서버의 디스크에 생성된 파일 삭제
+        File compressedImage = imageCompression(ticketImage);
+        S3UploadResponseDTO s3UploadResponseDTO = s3Manager.uploadFile(compressedImage, ticketFolder);
+        compressedImage.delete();
 
         // 단축 URL
         ShortenURL shortenURL = shortenURLRepository.findById(shortenUrlId).orElseThrow(() -> new NoSuchElementException("No shorten URL found for shortenUrlId: " + shortenUrlId));
@@ -121,11 +132,50 @@ public class GenerateService {
         // 배경 이미지
         BackgroundImage backgroundImage = backgroundImageRepository.findById(backgroundImageId).orElseThrow(() -> new NoSuchElementException("No backgroundImage found for backgroundImageId: " + backgroundImageId));
 
-        Ticket ticket = new Ticket(userId, shortenURL, backgroundImage, title, s3UploadResponseDTO.getS3Url());
+        Optional<Ticket> existingTicket = ticketRepository.findByBackgroundImageIdAndUrlId(
+                backgroundImageId, shortenUrlId);
+
+        Ticket ticket;
+        if (existingTicket.isPresent()) {
+            // 티켓이 존재하면 기존 이미지를 삭제하고 업데이트
+            ticket = existingTicket.get();
+
+            // 기존 이미지 삭제
+            String oldImagePath = ticket.getImagePath();
+            if (oldImagePath != null && !oldImagePath.isEmpty()) {
+                s3Manager.deleteFile(oldImagePath);  // 기존 이미지를 S3에서 삭제
+            }
+
+            // 새로운 이미지 경로로 업데이트
+            ticket.updateTicket(s3UploadResponseDTO.getS3Url());
+        } else {
+            // 티켓이 존재하지 않으면 새로 생성
+            ticket = new Ticket(userId, shortenURL, backgroundImage, title, s3UploadResponseDTO.getS3Url());
+        }
+
+        // 티켓 저장
+        ticketRepository.save(ticket);
+
         Long id = ticketRepository.save(ticket).getId();
 
         return new CreateImageResponseDto("Success", id);
     }
+
+    private File imageCompression(MultipartFile image) throws IOException {
+        File tempFile = new File("/tmp/tempimage.jpg");
+        image.transferTo(tempFile);
+        File compressedFile = new File("/tmp/" + UUID.randomUUID() + ".jpg");
+
+        Thumbnails.of(tempFile)
+                .size(1024, 1024)
+                .outputQuality(0.8f)
+                .toFile(compressedFile);
+
+        tempFile.delete();
+
+        return compressedFile;
+    }
+
 
     public List<RelateImageDTO> getRelateImage(Long id) {
         List<Long> tagIds = tagBackgroundImageRepository.findTagIdsByPhotoBackgroundId(id);
