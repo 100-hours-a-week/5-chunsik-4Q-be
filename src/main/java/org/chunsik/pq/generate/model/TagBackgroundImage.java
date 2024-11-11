@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
+
 @NoArgsConstructor
 @Getter
 @Entity
@@ -20,8 +22,12 @@ public class TagBackgroundImage {
     @Column(name = "photo_background_id")
     private Long photoBackgroundId;
 
-    public TagBackgroundImage(Long tagId, Long photoBackgroundId) {
+    @Column(name = "created_at")
+    private LocalDateTime createdAt;
+
+    public TagBackgroundImage(Long tagId, Long photoBackgroundId, LocalDateTime createdAt) {
         this.tagId = tagId;
         this.photoBackgroundId = photoBackgroundId;
+        this.createdAt = createdAt;
     }
 }

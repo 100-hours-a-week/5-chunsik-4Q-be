@@ -46,6 +46,9 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-mail'
     implementation 'software.amazon.awssdk:s3:2.20.0'
 
+    implementation 'net.javacrumbs.shedlock:shedlock-spring:5.16.0' // Spring 분산 환경 스케줄링
+    implementation 'net.javacrumbs.shedlock:shedlock-provider-jdbc-template:5.16.0' // MySQL 분산 환경 스케줄링
+
     // QueryDsl
     implementation 'com.querydsl:querydsl-jpa:5.0.0:jakarta'
     annotationProcessor "com.querydsl:querydsl-apt:${dependencyManagement.importedProperties['querydsl.version']}:jakarta"
