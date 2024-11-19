@@ -24,7 +24,7 @@ if [ -d "$ROOT_PATH" ]; then
     echo "Cleaning up directory: $ROOT_PATH"
 
     # ROOT_PATH 내 모든 파일 및 디렉터리 삭제
-    rm -rf "${ROOT_PATH:?}/"*
+    rm -rf "${ROOT_PATH}"
 
     echo "Cleanup completed: $ROOT_PATH"
 else
