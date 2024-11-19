@@ -1,12 +1,13 @@
 name: PR Checks
 run-name: PR checking
-on:
-  pull_request:
-    types: [ synchronize, opened, reopened, auto_merge_enabled ]
-    branches:
-      - dev
-      - main
-  workflow_dispatch:
+
+#on:
+#  pull_request:
+#    types: [ synchronize, opened, reopened, auto_merge_enabled ]
+#    branches:
+#      - dev
+#      - main
+#  workflow_dispatch:
 
 
 env:
