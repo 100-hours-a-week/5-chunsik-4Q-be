@@ -1,10 +1,10 @@
 name: main CI/CD
 run-name: Production deploying
-#on:
+on:
 #  push:
 #    branches:
 #      - main
-#  workflow_dispatch:
+  workflow_dispatch:
 
 
 env:

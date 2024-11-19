@@ -1,11 +1,11 @@
 name: main CI/CD
 run-name: Production deploying
+
 on:
   push:
     branches:
       - main
   workflow_dispatch:
-
 
 env:
   AWS_REGION: ap-northeast-2
